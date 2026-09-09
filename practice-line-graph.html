@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Practice: Line from a Graph — Vertex Maths</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/practice.css">
+</head>
+<body>
+<div class="wrap" id="page-wrap">
+
+  <div class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">V</span>
+      <div>
+        <div class="brand-name">Vertex Maths</div>
+        <div class="brand-sub">Year 11 &middot; Mathematics</div>
+      </div>
+    </a>
+    <div class="greeting">Kia ora, <b>Amelia</b> &mdash; Room 14</div>
+  </div>
+
+  <!-- ============ PracticeLineGraph component ============ -->
+  <section class="view" id="view-practice-line-graph">
+
+    <div class="breadcrumb">
+      <button id="practice-back-btn">← Algebra &amp; Graphing</button>
+      <span class="sep">/</span>
+      <span class="current">Practice: line from a graph</span>
+    </div>
+
+    <div class="practice-layout">
+      <div class="practice-graph">
+        <svg id="practice-graph-svg" viewBox="0 0 320 320" role="img" aria-label="A line plotted on a coordinate grid"></svg>
+      </div>
+
+      <div class="practice-panel">
+        <div>
+          <div class="practice-title">Find the equation of the line</div>
+          <div class="practice-sub">Use the two marked points to read the gradient (rise over run) and the y-intercept, then fill in the equation.</div>
+        </div>
+
+        <div class="practice-mode-note" id="practice-mode-note"></div>
+
+        <div class="answer-row" id="answer-row-boxes">
+          <span class="mono">y =</span>
+          <input type="text" id="practice-m-input" class="answer-input" inputmode="text" autocomplete="off" aria-label="Gradient">
+          <span class="mono">x +</span>
+          <input type="text" id="practice-c-input" class="answer-input" inputmode="text" autocomplete="off" aria-label="Y-intercept">
+        </div>
+
+        <div class="answer-row" id="answer-row-typed" hidden>
+          <input type="text" id="practice-eq-input" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Full equation" placeholder="e.g. y = 3x - 6">
+        </div>
+
+        <div class="answer-hint" id="practice-hint"></div>
+
+        <div class="practice-actions">
+          <button class="practice-check-btn" id="practice-check-btn">Check answer</button>
+          <button class="practice-next-btn" id="practice-next-btn">New question</button>
+        </div>
+
+        <div class="feedback" id="practice-feedback"></div>
+        <div class="practice-score-row" id="practice-score-row">Score: <span class="mono" id="practice-score">0 / 0</span></div>
+      </div>
+    </div>
+
+    <footer>A freshly generated line each time &middot; this is the first Learn/Practice activity actually built</footer>
+  </section>
+
+</div>
+
+<script src="js/equation-parse.js"></script>
+<script src="js/graph-utils.js"></script>
+<script src="js/practice-line-graph.js"></script>
+<script src="js/page-practice-line-graph.js"></script>
+</body>
+</html>

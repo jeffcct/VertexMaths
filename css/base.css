@@ -83,7 +83,7 @@ button{ font-family:inherit; cursor:pointer; }
   display:flex; align-items:baseline; justify-content:space-between;
   gap:1rem; margin-bottom:2.25rem; flex-wrap:wrap;
 }
-.brand{ display:flex; align-items:baseline; gap:.6rem; }
+.brand{ display:flex; align-items:baseline; gap:.6rem; text-decoration:none; }
 .brand-mark{
   font-family:'Instrument Serif', serif; font-style:italic; font-size:1.9rem;
   color:var(--algebra); line-height:1;

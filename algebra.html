@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Algebra &amp; Graphing — Vertex Maths</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Karla:ital,wght@0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/dag.css">
+</head>
+<body>
+<div class="wrap" id="page-wrap">
+
+  <div class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">V</span>
+      <div>
+        <div class="brand-name">Vertex Maths</div>
+        <div class="brand-sub">Year 11 &middot; Mathematics</div>
+      </div>
+    </a>
+    <div class="greeting">Kia ora, <b>Amelia</b> &mdash; Room 14</div>
+  </div>
+
+  <!-- ============ DagView component ============ -->
+  <section class="view" id="view-algebra">
+
+    <div class="breadcrumb">
+      <button id="back-btn">← Home</button>
+      <span class="sep">/</span>
+      <span class="current">Algebra &amp; Graphing</span>
+    </div>
+
+    <div class="tree-header">
+      <div>
+        <h1 class="tree-title">Algebra &amp; Graphing</h1>
+        <div class="tree-sub">32 skills, arranged by what each one requires</div>
+      </div>
+      <div class="legend">
+        <span><span class="dot not-started"></span>Not started</span>
+        <span><span class="dot in-progress"></span>In progress</span>
+        <span><span class="dot mastered"></span>Mastered</span>
+      </div>
+    </div>
+
+    <p class="dag-hint">An arrow from <b>A</b> to <b>B</b> means B requires A first. Click any skill to trace everything it needs — click it again, or click empty space, to clear.</p>
+
+    <div class="dag-scroll">
+      <div class="dag" id="dag">
+        <svg class="dag-edges" id="dag-edges"></svg>
+        <div class="dag-levels" id="dag-levels"></div>
+      </div>
+    </div>
+
+    <footer>Sample progress shown for demonstration &middot; Learn / Practice open placeholder activities</footer>
+  </section>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/data.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/dag-view.js"></script>
+<script src="js/page-algebra.js"></script>
+</body>
+</html>

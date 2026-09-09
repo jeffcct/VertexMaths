@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Practice: Parabola from Vertex — Vertex Maths</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/practice.css">
+</head>
+<body>
+<div class="wrap" id="page-wrap">
+
+  <div class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">V</span>
+      <div>
+        <div class="brand-name">Vertex Maths</div>
+        <div class="brand-sub">Year 11 &middot; Mathematics</div>
+      </div>
+    </a>
+    <div class="greeting">Kia ora, <b>Amelia</b> &mdash; Room 14</div>
+  </div>
+
+  <!-- ============ PracticeParabolaVertex component ============ -->
+  <section class="view" id="view-practice-parabola-vertex">
+
+    <div class="breadcrumb">
+      <button id="vertex-back-btn">← Algebra &amp; Graphing</button>
+      <span class="sep">/</span>
+      <span class="current">Practice: parabola from vertex</span>
+    </div>
+
+    <div class="practice-layout">
+      <div class="practice-graph">
+        <svg id="vertex-graph-svg" viewBox="0 0 320 320" role="img" aria-label="A parabola plotted on a coordinate grid"></svg>
+      </div>
+
+      <div class="practice-panel">
+        <div>
+          <div class="practice-title">Find the equation of the parabola</div>
+          <div class="practice-sub">Work through the marked points step by step to build up the equation.</div>
+        </div>
+
+        <div class="form-template mono">y = a(x − h)² + k</div>
+
+        <div class="practice-mode-note" id="vertex-mode-note"></div>
+        <div class="step-prompt" id="vertex-step-prompt"></div>
+
+        <div class="answer-row" id="vertex-step-vertex">
+          <span class="mono">vertex (h, k) = (</span>
+          <input type="text" id="vertex-vertex-h" class="answer-input" inputmode="text" autocomplete="off" aria-label="Vertex h">
+          <span class="mono">,</span>
+          <input type="text" id="vertex-vertex-k" class="answer-input" inputmode="text" autocomplete="off" aria-label="Vertex k">
+          <span class="mono">)</span>
+        </div>
+
+        <div class="answer-row" id="vertex-step-squared" hidden>
+          <input type="text" id="vertex-squared-input" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Squared factor from the vertex" placeholder="e.g. (x + 3)^2">
+        </div>
+
+        <div class="answer-row" id="vertex-step-point" hidden>
+          <span class="mono">point: (</span>
+          <input type="text" id="vertex-point-x" class="answer-input" inputmode="text" autocomplete="off" aria-label="Point x-coordinate">
+          <span class="mono">,</span>
+          <input type="text" id="vertex-point-y" class="answer-input" inputmode="text" autocomplete="off" aria-label="Point y-coordinate">
+          <span class="mono">)</span>
+        </div>
+
+        <div class="answer-row" id="vertex-step-solvea" hidden>
+          <span class="mono">a =</span>
+          <input type="text" id="vertex-solvea-input" class="answer-input" inputmode="text" autocomplete="off" aria-label="Leading coefficient a">
+        </div>
+
+        <div class="answer-row" id="vertex-answer-row-typed" hidden>
+          <input type="text" id="vertex-eq-input" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Full equation" placeholder="e.g. y = -2(x + 3)^2 + 4">
+        </div>
+
+        <div class="answer-hint" id="vertex-hint"></div>
+
+        <div class="practice-actions">
+          <button class="practice-check-btn" id="vertex-check-btn">Check answer</button>
+          <button class="practice-next-btn" id="vertex-next-btn">New question</button>
+        </div>
+
+        <div class="feedback" id="vertex-feedback"></div>
+        <div class="practice-score-row" id="vertex-score-row">Score: <span class="mono" id="vertex-score">0 / 0</span></div>
+      </div>
+    </div>
+
+    <footer>A freshly generated parabola each time &middot; the second point is always one unit right of the vertex, and the walkthrough shortens as accuracy improves</footer>
+  </section>
+
+</div>
+
+<script src="js/equation-parse.js"></script>
+<script src="js/graph-utils.js"></script>
+<script src="js/practice-parabola-vertex.js"></script>
+<script src="js/page-practice-parabola-vertex.js"></script>
+</body>
+</html>
