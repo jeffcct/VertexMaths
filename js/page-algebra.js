@@ -10,7 +10,9 @@
   var PRACTICE_PAGES = {
     'line-from-graph': 'practice-line-graph.html',
     'parabola-from-intercepts': 'practice-parabola-intercepts.html',
-    'parabola-from-vertex': 'practice-parabola-vertex.html'
+    'parabola-from-vertex': 'practice-parabola-vertex.html',
+    'simultaneous': 'practice-simultaneous.html',
+    'line-from-table': 'practice-line-from-table.html'
   };
 
   document.addEventListener('DOMContentLoaded', function(){

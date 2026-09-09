@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Practice: Simultaneous Equations — Vertex Maths</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/practice.css">
+</head>
+<body>
+<div class="wrap" id="page-wrap">
+
+  <div class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">V</span>
+      <div>
+        <div class="brand-name">Vertex Maths</div>
+        <div class="brand-sub">Year 11 &middot; Mathematics</div>
+      </div>
+    </a>
+    <div class="greeting">Kia ora, <b>Amelia</b> &mdash; Room 14</div>
+  </div>
+
+  <!-- ============ PracticeSimultaneous component ============ -->
+  <section class="view" id="view-practice-simultaneous">
+
+    <div class="breadcrumb">
+      <button id="sim-back-btn">← Algebra &amp; Graphing</button>
+      <span class="sep">/</span>
+      <span class="current">Practice: simultaneous equations</span>
+    </div>
+
+    <div class="practice-layout">
+      <div class="equations-card">
+        <div class="equation-label">Equation 1</div>
+        <div class="equation-line" id="sim-eq1"></div>
+        <div class="equation-label">Equation 2</div>
+        <div class="equation-line" id="sim-eq2"></div>
+      </div>
+
+      <div class="practice-panel">
+        <div>
+          <div class="practice-title">Solve the simultaneous equations</div>
+          <div class="practice-sub">Find the values of x and y that satisfy both equations.</div>
+        </div>
+
+        <div class="practice-mode-note" id="sim-mode-note"></div>
+        <div class="step-prompt" id="sim-step-prompt"></div>
+
+        <div class="answer-row choice-row" id="sim-step-choose-method">
+          <button type="button" class="choice-btn" id="sim-choice-substitution">Substitution</button>
+          <button type="button" class="choice-btn" id="sim-choice-elimination">Elimination</button>
+        </div>
+
+        <div class="answer-row choice-row" id="sim-step-pick-variable" hidden>
+          <button type="button" class="choice-btn" id="sim-pick-x">x</button>
+          <button type="button" class="choice-btn" id="sim-pick-y">y</button>
+        </div>
+
+        <div class="answer-row" id="sim-step-rearrange" hidden>
+          <span class="mono" id="sim-rearrange-label">x =</span>
+          <input type="text" id="sim-rearrange-coeff" class="answer-input" inputmode="text" autocomplete="off" aria-label="Coefficient">
+          <span class="mono" id="sim-rearrange-varlabel">y +</span>
+          <input type="text" id="sim-rearrange-const" class="answer-input" inputmode="text" autocomplete="off" aria-label="Constant">
+        </div>
+
+        <div class="answer-row" id="sim-step-multipliers" hidden>
+          <span class="mono">Equation 1 ×</span>
+          <input type="text" id="sim-mult-a" class="answer-input" inputmode="text" autocomplete="off" aria-label="Multiplier for equation 1">
+          <span class="mono">Equation 2 ×</span>
+          <input type="text" id="sim-mult-b" class="answer-input" inputmode="text" autocomplete="off" aria-label="Multiplier for equation 2">
+        </div>
+
+        <div class="answer-row choice-row" id="sim-step-operation" hidden>
+          <button type="button" class="choice-btn" id="sim-op-add">Add</button>
+          <button type="button" class="choice-btn" id="sim-op-subtract">Subtract</button>
+        </div>
+
+        <div class="answer-row" id="sim-step-solve-first" hidden>
+          <span class="mono" id="sim-solve-first-label">y =</span>
+          <input type="text" id="sim-solve-first-input" class="answer-input" inputmode="text" autocomplete="off" aria-label="Solve for first variable">
+        </div>
+
+        <div class="answer-row" id="sim-step-solve-second" hidden>
+          <span class="mono" id="sim-solve-second-label">x =</span>
+          <input type="text" id="sim-solve-second-input" class="answer-input" inputmode="text" autocomplete="off" aria-label="Solve for second variable">
+        </div>
+
+        <div class="answer-row" id="sim-step-equation" hidden>
+          <span class="mono">x =</span>
+          <input type="text" id="sim-eq-x" class="answer-input" inputmode="text" autocomplete="off" aria-label="Value of x">
+          <span class="mono">y =</span>
+          <input type="text" id="sim-eq-y" class="answer-input" inputmode="text" autocomplete="off" aria-label="Value of y">
+        </div>
+
+        <div class="answer-hint" id="sim-hint"></div>
+
+        <div class="practice-actions">
+          <button class="practice-check-btn" id="sim-check-btn">Check answer</button>
+          <button class="practice-next-btn" id="sim-next-btn">New question</button>
+        </div>
+
+        <div class="feedback" id="sim-feedback"></div>
+        <div class="practice-score-row" id="sim-score-row">Score: <span class="mono" id="sim-score">0 / 0</span></div>
+      </div>
+    </div>
+
+    <footer>A freshly generated system each time &middot; the method (elimination or substitution) is chosen at random, and the walkthrough drops away once you're solving reliably</footer>
+  </section>
+
+</div>
+
+<script src="js/equation-parse.js"></script>
+<script src="js/practice-simultaneous.js"></script>
+<script src="js/page-practice-simultaneous.js"></script>
+</body>
+</html>

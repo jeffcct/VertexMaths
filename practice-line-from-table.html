@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Practice: Line from a Table — Vertex Maths</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/practice.css">
+</head>
+<body>
+<div class="wrap" id="page-wrap">
+
+  <div class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">V</span>
+      <div>
+        <div class="brand-name">Vertex Maths</div>
+        <div class="brand-sub">Year 11 &middot; Mathematics</div>
+      </div>
+    </a>
+    <div class="greeting">Kia ora, <b>Amelia</b> &mdash; Room 14</div>
+  </div>
+
+  <!-- ============ PracticeLineFromTable component ============ -->
+  <section class="view" id="view-practice-line-from-table">
+
+    <div class="breadcrumb">
+      <button id="table-back-btn">← Algebra &amp; Graphing</button>
+      <span class="sep">/</span>
+      <span class="current">Practice: line from a table</span>
+    </div>
+
+    <div class="practice-layout">
+      <div class="practice-graph">
+        <table class="value-table" id="table-values"></table>
+      </div>
+
+      <div class="practice-panel">
+        <div>
+          <div class="practice-title">Find the equation of the line</div>
+          <div class="practice-sub">Use the table of x and y values to find the gradient and the y-intercept, then fill in the equation.</div>
+        </div>
+
+        <div class="practice-mode-note" id="table-mode-note"></div>
+
+        <div class="answer-row" id="table-answer-row-boxes">
+          <span class="mono">y =</span>
+          <input type="text" id="table-m-input" class="answer-input" inputmode="text" autocomplete="off" aria-label="Gradient">
+          <span class="mono">x +</span>
+          <input type="text" id="table-c-input" class="answer-input" inputmode="text" autocomplete="off" aria-label="Y-intercept">
+        </div>
+
+        <div class="answer-row" id="table-answer-row-typed" hidden>
+          <input type="text" id="table-eq-input" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Full equation" placeholder="e.g. y = 3x - 6">
+        </div>
+
+        <div class="answer-hint" id="table-hint"></div>
+
+        <div class="practice-actions">
+          <button class="practice-check-btn" id="table-check-btn">Check answer</button>
+          <button class="practice-next-btn" id="table-next-btn">New question</button>
+        </div>
+
+        <div class="feedback" id="table-feedback"></div>
+        <div class="practice-score-row" id="table-score-row">Score: <span class="mono" id="table-score">0 / 0</span></div>
+      </div>
+    </div>
+
+    <footer>A freshly generated table each time &middot; the x = 0 column (which gives away the y-intercept) drops once you've mastered this</footer>
+  </section>
+
+</div>
+
+<script src="js/equation-parse.js"></script>
+<script src="js/practice-line-from-table.js"></script>
+<script src="js/page-practice-line-from-table.js"></script>
+</body>
+</html>

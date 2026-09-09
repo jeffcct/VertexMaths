@@ -58,3 +58,35 @@
 .feedback.incorrect{ background:var(--danger-soft); color:var(--danger); }
 
 .practice-score-row{ font-size:.85rem; color:var(--ink-soft); }
+
+/* ---- Table-of-values display (PracticeLineFromTable) ---- */
+.value-table{ border-collapse:collapse; font-family:'IBM Plex Mono', monospace; font-size:1rem; }
+.value-table th, .value-table td{
+  border:1px solid var(--line); padding:.55rem .95rem; text-align:center; min-width:2.4rem;
+}
+.value-table th{ background:var(--paper); color:var(--ink-soft); font-weight:600; text-align:left; }
+.value-table td{ background:var(--paper-raised); color:var(--ink); font-weight:600; }
+
+/* ---- Discrete choice buttons (PracticeSimultaneous) ---- */
+.choice-row{ display:flex; gap:.6rem; flex-wrap:wrap; }
+.choice-btn{
+  background:var(--paper-raised); border:1px solid var(--line); border-radius:9px;
+  padding:.65rem 1.3rem; font-size:.95rem; font-weight:600; color:var(--ink);
+  transition:border-color .15s ease, background .15s ease, color .15s ease;
+}
+.choice-btn:hover:not(:disabled){ border-color:var(--algebra); color:var(--algebra); }
+.choice-btn.right{ border-color:var(--success); background:var(--success-soft); color:var(--success); }
+.choice-btn.wrong{ border-color:var(--danger); background:var(--danger-soft); color:var(--danger); }
+.choice-btn:disabled{ cursor:not-allowed; opacity:.75; }
+
+/* ---- Equation-pair display (PracticeSimultaneous) ---- */
+.equations-card{
+  flex:none; background:var(--paper-raised); border:1px solid var(--line);
+  border-radius:14px; padding:1.5rem 1.75rem; box-shadow:0 1px 2px var(--shadow);
+  min-width:220px; display:flex; flex-direction:column; gap:.7rem; justify-content:center;
+}
+.equation-label{
+  font-family:'IBM Plex Mono', monospace; font-size:.68rem; letter-spacing:.05em;
+  text-transform:uppercase; color:var(--ink-soft);
+}
+.equation-line{ font-family:'IBM Plex Mono', monospace; font-size:1.3rem; font-weight:600; color:var(--ink); }
