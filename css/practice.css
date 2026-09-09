@@ -1,0 +1,60 @@
+/* ============================================================
+   practice.css — shared styles for the Practice question generators
+   (PracticeLineGraph, PracticeParabolaIntercepts, and any future
+   one). Grid/axis/point classes here are drawn by graph-utils.js;
+   the rest is generic answer-box/feedback/score chrome any practice
+   view can reuse.
+   ============================================================ */
+
+.practice-layout{ display:flex; gap:2rem; align-items:flex-start; flex-wrap:wrap; }
+
+.practice-graph{
+  flex:none; background:var(--paper-raised); border:1px solid var(--line);
+  border-radius:14px; padding:1rem; box-shadow:0 1px 2px var(--shadow);
+}
+.practice-graph svg{ display:block; width:320px; height:320px; }
+.grid-line{ stroke:var(--line); stroke-width:1; }
+.axis-line{ stroke:var(--ink-soft); stroke-width:1.5; }
+.axis-label{ fill:var(--ink-soft); font-family:'IBM Plex Mono', monospace; font-size:9px; }
+.plot-line{ stroke:var(--algebra); stroke-width:2.5; stroke-linecap:round; }
+.plot-curve{ stroke:var(--algebra); stroke-width:2.5; stroke-linecap:round; fill:none; }
+.plot-point{ fill:var(--algebra); stroke:var(--paper-raised); stroke-width:1.5; }
+
+.practice-panel{ flex:1; min-width:260px; display:flex; flex-direction:column; gap:1.1rem; }
+.practice-title{ font-size:1.4rem; font-weight:700; margin-bottom:.3rem; }
+.practice-sub{ color:var(--ink-soft); font-size:.88rem; line-height:1.4; }
+
+.answer-row{ display:flex; align-items:center; gap:.55rem; font-size:1.05rem; flex-wrap:wrap; }
+.answer-input{
+  width:64px; padding:.45rem .3rem; border:1.5px solid var(--line); border-radius:8px;
+  background:var(--paper); color:var(--ink); font-family:'IBM Plex Mono', monospace;
+  font-size:1rem; text-align:center;
+}
+.answer-input:focus-visible{ border-color:var(--algebra); outline:none; }
+.answer-input.right{ border-color:var(--success); background:var(--success-soft); }
+.answer-input.wrong{ border-color:var(--danger); background:var(--danger-soft); }
+.answer-input-wide{ width:170px; text-align:left; padding-left:.6rem; }
+.answer-hint{ font-size:.78rem; color:var(--ink-soft); }
+.form-template{ font-size:.95rem; color:var(--ink-soft); }
+.practice-mode-note{ font-size:.78rem; font-weight:600; color:var(--algebra); min-height:1.2em; }
+.step-prompt{ font-size:.95rem; font-weight:600; color:var(--ink); min-height:1.3em; }
+
+.practice-actions{ display:flex; gap:.6rem; flex-wrap:wrap; }
+.practice-check-btn{
+  background:var(--algebra); color:#fff; border:none; border-radius:9px;
+  padding:.7rem 1.3rem; font-size:.9rem; font-weight:600;
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+.practice-check-btn:hover{ box-shadow:0 3px 10px var(--shadow); transform:translateY(-1px); }
+.practice-next-btn{
+  background:var(--paper-raised); color:var(--ink); border:1px solid var(--line);
+  border-radius:9px; padding:.7rem 1.1rem; font-size:.9rem; font-weight:600;
+}
+.practice-next-btn:hover{ border-color:var(--algebra); color:var(--algebra); }
+
+.feedback{ font-size:.85rem; padding:.7rem .9rem; border-radius:9px; min-height:1.2em; }
+.feedback:empty{ padding:0; }
+.feedback.correct{ background:var(--success-soft); color:var(--success); }
+.feedback.incorrect{ background:var(--danger-soft); color:var(--danger); }
+
+.practice-score-row{ font-size:.85rem; color:var(--ink-soft); }

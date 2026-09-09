@@ -1,0 +1,94 @@
+/* ============================================================
+   home.css — styles owned by the HomeView component
+   (resume card + strand picker grid).
+   ============================================================ */
+
+.resume{
+  background:var(--paper-raised);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:1.4rem 1.5rem;
+  display:flex; align-items:center; gap:1.25rem;
+  box-shadow:0 1px 2px var(--shadow);
+  margin-bottom:2.75rem;
+  position:relative;
+  overflow:hidden;
+}
+.resume::before{
+  content:''; position:absolute; left:0; top:0; bottom:0; width:5px;
+  background:var(--algebra);
+}
+.resume-body{ flex:1; min-width:0; }
+.resume-strand{
+  font-family:'IBM Plex Mono', monospace; font-size:.7rem; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--algebra); margin-bottom:.3rem;
+}
+.resume-title{ font-size:1.15rem; font-weight:700; margin-bottom:.5rem; }
+.resume-meta{
+  display:flex; align-items:center; gap:.75rem; color:var(--ink-soft); font-size:.85rem;
+}
+.progress-track{
+  width:120px; height:6px; border-radius:99px; background:var(--algebra-soft);
+  overflow:hidden; flex:none;
+}
+.progress-fill{ height:100%; background:var(--algebra); border-radius:99px; }
+.resume-btn{
+  flex:none;
+  background:var(--algebra); color:#fff; border:none; border-radius:9px;
+  padding:.7rem 1.2rem; font-size:.9rem; font-weight:600;
+  display:flex; align-items:center; gap:.4rem;
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+.resume-btn:hover{ box-shadow:0 3px 10px var(--shadow); transform:translateY(-1px); }
+
+/* ---- Strand grid ---- */
+.strand-grid{
+  display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:2.5rem;
+}
+@media (max-width:620px){ .strand-grid{ grid-template-columns:1fr; } }
+
+.strand-card{
+  text-align:left; border-radius:14px; padding:1.3rem 1.3rem 1.1rem;
+  border:1px solid var(--line); background:var(--paper-raised);
+  position:relative; overflow:hidden;
+  transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+.strand-card:hover{ transform:translateY(-2px); box-shadow:0 6px 16px var(--shadow); }
+.strand-card:focus-visible{ transform:translateY(-2px); }
+.strand-glyph{
+  font-family:'Instrument Serif', serif; font-style:italic; font-size:1.6rem;
+  position:absolute; right:1.1rem; top:.9rem; opacity:.5;
+}
+.strand-name{ font-size:1.15rem; font-weight:700; margin-bottom:.35rem; padding-right:2.5rem; }
+.strand-count{ font-size:.85rem; color:var(--ink-soft); margin-bottom:.9rem; }
+.strand-foot{ display:flex; align-items:center; justify-content:space-between; gap:.5rem; }
+.strand-cta{
+  font-family:'IBM Plex Mono', monospace; font-size:.72rem; letter-spacing:.06em;
+  text-transform:uppercase; font-weight:600;
+}
+
+.strand-card.active{ border-color:var(--algebra); }
+.strand-card.active .strand-glyph{ color:var(--algebra); opacity:1; }
+.strand-card.active .strand-cta{ color:var(--algebra); }
+.strand-card.active .strand-progress{
+  height:5px; border-radius:99px; background:var(--algebra-soft); overflow:hidden; width:64px;
+}
+.strand-card.active .strand-progress span{ display:block; height:100%; background:var(--algebra); }
+
+.strand-card.dummy{ border-style:dashed; }
+.strand-card.dummy .strand-glyph,
+.strand-card.dummy .strand-name{ color:var(--ink-soft); }
+.strand-card.dummy.number .strand-glyph{ color:var(--number); }
+.strand-card.dummy.measurement .strand-glyph{ color:var(--measurement); }
+.strand-card.dummy.trig .strand-glyph{ color:var(--trig); }
+.badge-soon{
+  font-family:'IBM Plex Mono', monospace; font-size:.68rem; letter-spacing:.06em;
+  text-transform:uppercase; color:var(--ink-soft); background:var(--number-soft);
+  padding:.25rem .55rem; border-radius:99px;
+}
+
+.soon-note{
+  margin-top:.7rem; padding-top:.7rem; border-top:1px dashed var(--line);
+  font-size:.82rem; color:var(--ink-soft); display:none;
+}
+.soon-note.show{ display:block; }

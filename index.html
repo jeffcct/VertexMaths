@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vertex Maths</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/home.css">
+<link rel="stylesheet" href="css/dag.css">
+<link rel="stylesheet" href="css/practice.css">
+</head>
+<body>
+<div class="wrap" id="page-wrap">
+
+  <div class="topbar">
+    <div class="brand">
+      <span class="brand-mark">V</span>
+      <div>
+        <div class="brand-name">Vertex Maths</div>
+        <div class="brand-sub">Year 11 &middot; Mathematics</div>
+      </div>
+    </div>
+    <div class="greeting">Kia ora, <b>Amelia</b> &mdash; Room 14</div>
+  </div>
+
+  <!-- ============ HomeView component ============ -->
+  <section class="view" id="view-home">
+
+    <p class="eyebrow">Continue where you left off</p>
+    <div class="resume">
+      <div class="resume-body">
+        <div class="resume-strand">Algebra &amp; Graphing &middot; Expanding &amp; factoring</div>
+        <div class="resume-title">Factoring monic polynomials</div>
+        <div class="resume-meta">
+          <span class="mono">3 of 6 practice questions</span>
+          <span class="progress-track"><span class="progress-fill" style="width:50%"></span></span>
+        </div>
+      </div>
+      <button class="resume-btn" id="resume-btn">Resume →</button>
+    </div>
+
+    <p class="eyebrow">Pick a strand</p>
+    <div class="strand-grid">
+
+      <button class="strand-card active" id="card-algebra" aria-label="Open Algebra and Graphing">
+        <span class="strand-glyph">y = mx + c</span>
+        <div class="strand-name">Algebra &amp; Graphing</div>
+        <div class="strand-count">32 skills &middot; 9 topic areas</div>
+        <div class="strand-foot">
+          <span class="strand-cta">Continue →</span>
+          <span class="strand-progress"><span style="width:22%"></span></span>
+        </div>
+      </button>
+
+      <button class="strand-card dummy number" data-strand="Number">
+        <span class="strand-glyph">7/8</span>
+        <div class="strand-name">Number</div>
+        <div class="strand-count">12 topics</div>
+        <div class="strand-foot">
+          <span class="strand-cta">View strand →</span>
+          <span class="badge-soon">Coming soon</span>
+        </div>
+        <div class="soon-note">Number activities are still being built — check back soon.</div>
+      </button>
+
+      <button class="strand-card dummy measurement" data-strand="Measurement">
+        <span class="strand-glyph">V=πr²h</span>
+        <div class="strand-name">Measurement</div>
+        <div class="strand-count">10 topics</div>
+        <div class="strand-foot">
+          <span class="strand-cta">View strand →</span>
+          <span class="badge-soon">Coming soon</span>
+        </div>
+        <div class="soon-note">Measurement activities are still being built — check back soon.</div>
+      </button>
+
+      <button class="strand-card dummy trig" data-strand="Trigonometry">
+        <span class="strand-glyph">sin θ</span>
+        <div class="strand-name">Trigonometry</div>
+        <div class="strand-count">9 topics</div>
+        <div class="strand-foot">
+          <span class="strand-cta">View strand →</span>
+          <span class="badge-soon">Coming soon</span>
+        </div>
+        <div class="soon-note">Trigonometry activities are still being built — check back soon.</div>
+      </button>
+
+    </div>
+
+    <footer>Sample layout &middot; progress shown is placeholder data</footer>
+  </section>
+
+  <!-- ============ DagView component ============ -->
+  <section class="view" id="view-algebra" hidden>
+
+    <div class="breadcrumb">
+      <button id="back-btn">← Home</button>
+      <span class="sep">/</span>
+      <span class="current">Algebra &amp; Graphing</span>
+    </div>
+
+    <div class="tree-header">
+      <div>
+        <h1 class="tree-title">Algebra &amp; Graphing</h1>
+        <div class="tree-sub">32 skills, arranged by what each one requires</div>
+      </div>
+      <div class="legend">
+        <span><span class="dot not-started"></span>Not started</span>
+        <span><span class="dot in-progress"></span>In progress</span>
+        <span><span class="dot mastered"></span>Mastered</span>
+      </div>
+    </div>
+
+    <p class="dag-hint">An arrow from <b>A</b> to <b>B</b> means B requires A first. Click any skill to trace everything it needs — click it again, or click empty space, to clear.</p>
+
+    <div class="dag-scroll">
+      <div class="dag" id="dag">
+        <svg class="dag-edges" id="dag-edges"></svg>
+        <div class="dag-levels" id="dag-levels"></div>
+      </div>
+    </div>
+
+    <footer>Sample progress shown for demonstration &middot; Learn / Practice open placeholder activities</footer>
+  </section>
+
+  <!-- ============ PracticeLineGraph component ============ -->
+  <section class="view" id="view-practice-line-graph" hidden>
+
+    <div class="breadcrumb">
+      <button id="practice-back-btn">← Algebra &amp; Graphing</button>
+      <span class="sep">/</span>
+      <span class="current">Practice: line from a graph</span>
+    </div>
+
+    <div class="practice-layout">
+      <div class="practice-graph">
+        <svg id="practice-graph-svg" viewBox="0 0 320 320" role="img" aria-label="A line plotted on a coordinate grid"></svg>
+      </div>
+
+      <div class="practice-panel">
+        <div>
+          <div class="practice-title">Find the equation of the line</div>
+          <div class="practice-sub">Use the two marked points to read the gradient (rise over run) and the y-intercept, then fill in the equation.</div>
+        </div>
+
+        <div class="practice-mode-note" id="practice-mode-note"></div>
+
+        <div class="answer-row" id="answer-row-boxes">
+          <span class="mono">y =</span>
+          <input type="text" id="practice-m-input" class="answer-input" inputmode="text" autocomplete="off" aria-label="Gradient">
+          <span class="mono">x +</span>
+          <input type="text" id="practice-c-input" class="answer-input" inputmode="text" autocomplete="off" aria-label="Y-intercept">
+        </div>
+
+        <div class="answer-row" id="answer-row-typed" hidden>
+          <input type="text" id="practice-eq-input" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Full equation" placeholder="e.g. y = 3x - 6">
+        </div>
+
+        <div class="answer-hint" id="practice-hint"></div>
+
+        <div class="practice-actions">
+          <button class="practice-check-btn" id="practice-check-btn">Check answer</button>
+          <button class="practice-next-btn" id="practice-next-btn">New question</button>
+        </div>
+
+        <div class="feedback" id="practice-feedback"></div>
+        <div class="practice-score-row" id="practice-score-row">Score: <span class="mono" id="practice-score">0 / 0</span></div>
+      </div>
+    </div>
+
+    <footer>A freshly generated line each time &middot; this is the first Learn/Practice activity actually built</footer>
+  </section>
+
+  <!-- ============ PracticeParabolaIntercepts component ============ -->
+  <section class="view" id="view-practice-parabola-intercepts" hidden>
+
+    <div class="breadcrumb">
+      <button id="parabola-back-btn">← Algebra &amp; Graphing</button>
+      <span class="sep">/</span>
+      <span class="current">Practice: parabola from intercepts</span>
+    </div>
+
+    <div class="practice-layout">
+      <div class="practice-graph">
+        <svg id="parabola-graph-svg" viewBox="0 0 320 320" role="img" aria-label="A parabola plotted on a coordinate grid"></svg>
+      </div>
+
+      <div class="practice-panel">
+        <div>
+          <div class="practice-title">Find the equation of the parabola</div>
+          <div class="practice-sub">Work through the marked points step by step to build up the equation.</div>
+        </div>
+
+        <div class="form-template mono">y = a(x − p)(x − q)</div>
+
+        <div class="practice-mode-note" id="parabola-mode-note"></div>
+        <div class="step-prompt" id="parabola-step-prompt"></div>
+
+        <div class="answer-row" id="parabola-step-intercepts">
+          <span class="mono">x-intercepts: x =</span>
+          <input type="text" id="parabola-int-p1" class="answer-input" inputmode="text" autocomplete="off" aria-label="First x-intercept">
+          <span class="mono">and x =</span>
+          <input type="text" id="parabola-int-p2" class="answer-input" inputmode="text" autocomplete="off" aria-label="Second x-intercept">
+        </div>
+
+        <div class="answer-row" id="parabola-step-brackets" hidden>
+          <input type="text" id="parabola-brackets-input" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Factors from the intercepts" placeholder="e.g. (x - 3)(x + 1)">
+        </div>
+
+        <div class="answer-row" id="parabola-step-point" hidden>
+          <span class="mono">point: (</span>
+          <input type="text" id="parabola-point-x" class="answer-input" inputmode="text" autocomplete="off" aria-label="Point x-coordinate">
+          <span class="mono">,</span>
+          <input type="text" id="parabola-point-y" class="answer-input" inputmode="text" autocomplete="off" aria-label="Point y-coordinate">
+          <span class="mono">)</span>
+        </div>
+
+        <div class="answer-row" id="parabola-step-solvea" hidden>
+          <span class="mono">a =</span>
+          <input type="text" id="parabola-solvea-input" class="answer-input" inputmode="text" autocomplete="off" aria-label="Leading coefficient a">
+        </div>
+
+        <div class="answer-row" id="parabola-answer-row-typed" hidden>
+          <input type="text" id="parabola-eq-input" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Full equation" placeholder="e.g. y = -2(x - 3)(x + 1)">
+        </div>
+
+        <div class="answer-hint" id="parabola-hint"></div>
+
+        <div class="practice-actions">
+          <button class="practice-check-btn" id="parabola-check-btn">Check answer</button>
+          <button class="practice-next-btn" id="parabola-next-btn">New question</button>
+        </div>
+
+        <div class="feedback" id="parabola-feedback"></div>
+        <div class="practice-score-row" id="parabola-score-row">Score: <span class="mono" id="parabola-score">0 / 0</span></div>
+      </div>
+    </div>
+
+    <footer>A freshly generated parabola each time &middot; the two x-intercepts can go in either box, in either order, and the walkthrough shortens as accuracy improves</footer>
+  </section>
+
+  <!-- ============ PracticeParabolaVertex component ============ -->
+  <section class="view" id="view-practice-parabola-vertex" hidden>
+
+    <div class="breadcrumb">
+      <button id="vertex-back-btn">← Algebra &amp; Graphing</button>
+      <span class="sep">/</span>
+      <span class="current">Practice: parabola from vertex</span>
+    </div>
+
+    <div class="practice-layout">
+      <div class="practice-graph">
+        <svg id="vertex-graph-svg" viewBox="0 0 320 320" role="img" aria-label="A parabola plotted on a coordinate grid"></svg>
+      </div>
+
+      <div class="practice-panel">
+        <div>
+          <div class="practice-title">Find the equation of the parabola</div>
+          <div class="practice-sub">Work through the marked points step by step to build up the equation.</div>
+        </div>
+
+        <div class="form-template mono">y = a(x − h)² + k</div>
+
+        <div class="practice-mode-note" id="vertex-mode-note"></div>
+        <div class="step-prompt" id="vertex-step-prompt"></div>
+
+        <div class="answer-row" id="vertex-step-vertex">
+          <span class="mono">vertex (h, k) = (</span>
+          <input type="text" id="vertex-vertex-h" class="answer-input" inputmode="text" autocomplete="off" aria-label="Vertex h">
+          <span class="mono">,</span>
+          <input type="text" id="vertex-vertex-k" class="answer-input" inputmode="text" autocomplete="off" aria-label="Vertex k">
+          <span class="mono">)</span>
+        </div>
+
+        <div class="answer-row" id="vertex-step-squared" hidden>
+          <input type="text" id="vertex-squared-input" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Squared factor from the vertex" placeholder="e.g. (x + 3)^2">
+        </div>
+
+        <div class="answer-row" id="vertex-step-point" hidden>
+          <span class="mono">point: (</span>
+          <input type="text" id="vertex-point-x" class="answer-input" inputmode="text" autocomplete="off" aria-label="Point x-coordinate">
+          <span class="mono">,</span>
+          <input type="text" id="vertex-point-y" class="answer-input" inputmode="text" autocomplete="off" aria-label="Point y-coordinate">
+          <span class="mono">)</span>
+        </div>
+
+        <div class="answer-row" id="vertex-step-solvea" hidden>
+          <span class="mono">a =</span>
+          <input type="text" id="vertex-solvea-input" class="answer-input" inputmode="text" autocomplete="off" aria-label="Leading coefficient a">
+        </div>
+
+        <div class="answer-row" id="vertex-answer-row-typed" hidden>
+          <input type="text" id="vertex-eq-input" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Full equation" placeholder="e.g. y = -2(x + 3)^2 + 4">
+        </div>
+
+        <div class="answer-hint" id="vertex-hint"></div>
+
+        <div class="practice-actions">
+          <button class="practice-check-btn" id="vertex-check-btn">Check answer</button>
+          <button class="practice-next-btn" id="vertex-next-btn">New question</button>
+        </div>
+
+        <div class="feedback" id="vertex-feedback"></div>
+        <div class="practice-score-row" id="vertex-score-row">Score: <span class="mono" id="vertex-score">0 / 0</span></div>
+      </div>
+    </div>
+
+    <footer>A freshly generated parabola each time &middot; the second point is always one unit right of the vertex, and the walkthrough shortens as accuracy improves</footer>
+  </section>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Load order: data model, then shared utilities (used by more than
+     one view), then the view components, then app.js which wires
+     them all together. -->
+<script src="js/data.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/equation-parse.js"></script>
+<script src="js/graph-utils.js"></script>
+<script src="js/home-view.js"></script>
+<script src="js/dag-view.js"></script>
+<script src="js/practice-line-graph.js"></script>
+<script src="js/practice-parabola-intercepts.js"></script>
+<script src="js/practice-parabola-vertex.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

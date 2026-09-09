@@ -1,0 +1,129 @@
+/* ============================================================
+   base.css — design tokens, reset, typography, shared page chrome
+   (top bar, toast, breadcrumb, view switching). Every component
+   below builds on these tokens rather than hard-coding colors.
+   ============================================================ */
+
+:root{
+  --paper:#F2F5F4;
+  --paper-raised:#FFFFFF;
+  --ink:#16211F;
+  --ink-soft:#4B5854;
+  --line:#D8DFDD;
+  --number:#5B6472; --number-soft:#E7E9EC;
+  --measurement:#B5772F; --measurement-soft:#F3E6D4;
+  --trig:#1E8A82; --trig-soft:#DCEEEC;
+  --algebra:#3D4FC4; --algebra-soft:#E1E4F7;
+  --success:#2F8F5B; --success-soft:#DEF0E6;
+  --warn:#C6862A; --warn-soft:#F6E7D3;
+  --danger:#C0403F; --danger-soft:#F7E1E0;
+  --shadow:rgba(22,33,31,0.10);
+  --focus:#3D4FC4;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#12191A;
+    --paper-raised:#1B2426;
+    --ink:#ECF1EF;
+    --ink-soft:#A9B6B2;
+    --line:#2B3638;
+    --number:#9AA6B4; --number-soft:#242E33;
+    --measurement:#E0A05B; --measurement-soft:#3A2C1C;
+    --trig:#4FC3B8; --trig-soft:#163330;
+    --algebra:#8B9AF0; --algebra-soft:#232A52;
+    --success:#58C48A; --success-soft:#1C3226;
+    --warn:#E3A855; --warn-soft:#3A2C15;
+    --danger:#E27877; --danger-soft:#3A2323;
+    --shadow:rgba(0,0,0,0.5);
+    --focus:#8B9AF0;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#12191A;
+  --paper-raised:#1B2426;
+  --ink:#ECF1EF;
+  --ink-soft:#A9B6B2;
+  --line:#2B3638;
+  --number:#9AA6B4; --number-soft:#242E33;
+  --measurement:#E0A05B; --measurement-soft:#3A2C1C;
+  --trig:#4FC3B8; --trig-soft:#163330;
+  --algebra:#8B9AF0; --algebra-soft:#232A52;
+  --success:#58C48A; --success-soft:#1C3226;
+  --warn:#E3A855; --warn-soft:#3A2C15;
+  --danger:#E27877; --danger-soft:#3A2323;
+  --shadow:rgba(0,0,0,0.5);
+  --focus:#8B9AF0;
+}
+
+*{ box-sizing:border-box; }
+html{ color-scheme:light dark; }
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'Karla', ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:0.001ms !important; transition-duration:0.001ms !important; }
+}
+
+h1,h2,h3{ text-wrap:balance; margin:0; }
+.display{ font-family:'Instrument Serif', Georgia, serif; }
+.mono{ font-family:'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace; font-variant-numeric:tabular-nums; }
+
+a{ color:inherit; }
+button{ font-family:inherit; cursor:pointer; }
+:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; border-radius:4px; }
+
+.wrap{ max-width:920px; margin:0 auto; padding:2.25rem 1.5rem 5rem; }
+
+/* ---- Top bar ---- */
+.topbar{
+  display:flex; align-items:baseline; justify-content:space-between;
+  gap:1rem; margin-bottom:2.25rem; flex-wrap:wrap;
+}
+.brand{ display:flex; align-items:baseline; gap:.6rem; }
+.brand-mark{
+  font-family:'Instrument Serif', serif; font-style:italic; font-size:1.9rem;
+  color:var(--algebra); line-height:1;
+}
+.brand-name{ font-size:1.2rem; font-weight:700; letter-spacing:-0.01em; }
+.brand-sub{
+  font-family:'IBM Plex Mono', monospace; font-size:.72rem; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--ink-soft);
+}
+.greeting{ font-size:.95rem; color:var(--ink-soft); }
+.greeting b{ color:var(--ink); font-weight:600; }
+
+/* ---- Section labels ---- */
+.eyebrow{
+  font-family:'IBM Plex Mono', monospace; font-size:.72rem; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--ink-soft); margin:0 0 .6rem;
+}
+
+/* ---- Toast (shared component) ---- */
+.toast{
+  position:fixed; left:50%; bottom:1.6rem; transform:translate(-50%, 12px);
+  background:var(--ink); color:var(--paper); padding:.65rem 1.1rem; border-radius:10px;
+  font-size:.85rem; box-shadow:0 8px 24px var(--shadow); opacity:0; pointer-events:none;
+  transition:opacity .2s ease, transform .2s ease; z-index:50; max-width:88vw; text-align:center;
+}
+.toast.show{ opacity:1; transform:translate(-50%, 0); }
+
+/* ---- View switching ---- */
+.view[hidden]{ display:none; }
+
+.breadcrumb{
+  display:flex; align-items:center; gap:.5rem; margin-bottom:1.6rem;
+  font-size:.9rem;
+}
+.breadcrumb button{
+  background:none; border:none; padding:.3rem .2rem; color:var(--algebra); font-weight:600;
+  font-size:.9rem; border-radius:6px;
+}
+.breadcrumb button:hover{ text-decoration:underline; }
+.breadcrumb .sep{ color:var(--line); }
+.breadcrumb .current{ color:var(--ink-soft); }
+
+footer{ margin-top:3rem; color:var(--ink-soft); font-size:.8rem; text-align:center; }

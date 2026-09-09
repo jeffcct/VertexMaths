@@ -1,0 +1,84 @@
+/* ============================================================
+   dag.css — styles owned by the DagView component
+   (the Algebra & Graphing prerequisite diagram).
+   ============================================================ */
+
+.tree-header{ display:flex; align-items:baseline; justify-content:space-between; gap:1rem; margin-bottom:.6rem; flex-wrap:wrap; }
+.tree-title{ font-size:1.6rem; font-weight:700; }
+.tree-sub{ color:var(--ink-soft); font-size:.9rem; }
+.dag-hint{
+  color:var(--ink-soft); font-size:.82rem; margin:0 0 1.6rem;
+  padding:.6rem .9rem; border:1px dashed var(--line); border-radius:9px; background:var(--paper-raised);
+}
+.dag-hint b{ color:var(--ink); }
+.legend{ display:flex; gap:1rem; font-size:.78rem; color:var(--ink-soft); flex-wrap:wrap; margin-bottom:1rem; }
+.legend span{ display:inline-flex; align-items:center; gap:.35rem; }
+.dot{ width:9px; height:9px; border-radius:50%; display:inline-block; flex:none; }
+.dot.not-started{ background:transparent; border:1.5px solid var(--ink-soft); }
+.dot.in-progress{ background:var(--warn); }
+.dot.mastered{ background:var(--success); }
+
+.dag-scroll{
+  overflow-x:auto;
+  /* Break out of the page's centered 920px .wrap so the diagram can use
+     the full viewport width (with a consistent gutter) instead of being
+     squeezed down to a scroll-only sliver on wide screens. */
+  width:100vw;
+  margin-left:calc(50% - 50vw);
+  padding:.5rem 1.5rem 1.5rem;
+}
+.dag{ position:relative; width:max-content; min-width:100%; margin:0 auto; padding-top:.25rem; }
+svg.dag-edges{ position:absolute; top:0; left:0; z-index:0; overflow:visible; pointer-events:none; }
+.dag-edges path{ fill:none; stroke:var(--line); stroke-width:1.5; transition:stroke .2s ease, opacity .2s ease; }
+.dag-edges polygon{ fill:var(--line); transition:fill .2s ease, opacity .2s ease; }
+.dag-edges path.chain{ stroke:var(--algebra); stroke-width:2.2; }
+.dag-edges polygon.chain{ fill:var(--algebra); }
+.dag-edges path.dim, .dag-edges polygon.dim{ opacity:.12; }
+
+/* Rows run least-dependent (top) to most-dependent (bottom). Within
+   a row, nodes are ordered so a skill sits close to the prerequisite
+   and dependent skills it's actually connected to (see the barycenter
+   pass in dag-view.js) rather than by category. */
+.dag-levels{ position:relative; z-index:1; display:flex; flex-direction:column; gap:2.5rem; }
+.dag-level{ display:flex; justify-content:center; gap:1rem; flex-wrap:nowrap; }
+
+.dag-node{
+  flex:none; width:184px; text-align:left; background:var(--paper-raised); border:1px solid var(--line);
+  border-radius:10px; padding:.6rem .7rem .65rem; display:flex; flex-direction:column; gap:.4rem;
+  box-shadow:0 1px 2px var(--shadow); cursor:pointer;
+  transition:border-color .2s ease, box-shadow .2s ease, opacity .2s ease;
+}
+.dag-node:hover{ border-color:var(--algebra); }
+.dag-node.chain{ border-color:var(--algebra); box-shadow:0 0 0 3px var(--algebra-soft); }
+.dag-node.current{ background:var(--algebra-soft); }
+.dag-node.dim{ opacity:.32; }
+.dag-node.target{ animation:pulse 1.6s ease 2; }
+@keyframes pulse{
+  0%,100%{ box-shadow:0 1px 2px var(--shadow); }
+  50%{ box-shadow:0 0 0 5px var(--algebra-soft); }
+}
+.cat-tag{
+  font-family:'IBM Plex Mono', monospace; font-size:.6rem; letter-spacing:.05em;
+  text-transform:uppercase; color:var(--ink-soft);
+}
+.topic-status{ display:flex; align-items:center; gap:.4rem; }
+.topic-status-label{ font-size:.66rem; color:var(--ink-soft); }
+.topic-name{ font-size:.8rem; line-height:1.3; font-weight:600; }
+.topic-actions{ display:flex; gap:.35rem; margin-top:.15rem; }
+.pill{
+  font-size:.68rem; font-weight:600; border-radius:99px; padding:.3rem 0;
+  border:1px solid var(--line); background:var(--paper); color:var(--ink); flex:1;
+  text-align:center; white-space:nowrap;
+}
+.pill:hover{ border-color:var(--algebra); color:var(--algebra); }
+.pill.practice{ background:var(--algebra); color:#fff; border-color:var(--algebra); }
+.pill.practice:hover{ opacity:.9; color:#fff; }
+
+/* Most skills don't have Learn/Practice content yet — their buttons
+   are disabled (native `disabled`, not just a style) until data.js
+   marks that topic `ready`. */
+.pill:disabled{
+  opacity:.4; cursor:not-allowed;
+  background:var(--paper); color:var(--ink-soft); border-color:var(--line);
+}
+.pill:disabled:hover{ border-color:var(--line); color:var(--ink-soft); }
