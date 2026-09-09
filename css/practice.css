@@ -60,12 +60,29 @@
 .practice-score-row{ font-size:.85rem; color:var(--ink-soft); }
 
 /* ---- Table-of-values display (PracticeLineFromTable) ---- */
-.value-table{ border-collapse:collapse; font-family:'IBM Plex Mono', monospace; font-size:1rem; }
+/* table-layout:fixed plus a fixed cell width lets the differences
+   row below line its boxes up exactly with the gaps between
+   columns — see .diff-row, which shares that same width. */
+.value-table{ border-collapse:collapse; table-layout:fixed; font-family:'IBM Plex Mono', monospace; font-size:1rem; }
 .value-table th, .value-table td{
-  border:1px solid var(--line); padding:.55rem .95rem; text-align:center; min-width:2.4rem;
+  border:1px solid var(--line); padding:.55rem .3rem; text-align:center; width:4.5rem;
 }
-.value-table th{ background:var(--paper); color:var(--ink-soft); font-weight:600; text-align:left; }
+.value-table th{ background:var(--paper); color:var(--ink-soft); font-weight:600; text-align:left; padding-left:.7rem; }
 .value-table td{ background:var(--paper-raised); color:var(--ink); font-weight:600; }
+
+/* A row of boxes for the (ungraded) first-differences step,
+   positioned directly under the table so it's visually obvious
+   each box is the gap between the y-value to its upper-left and
+   upper-right. The label cell matches the table's th width, and the
+   half-width spacer after it shifts the four boxes so each one
+   straddles a column boundary instead of sitting under a column. */
+.diff-row{ display:flex; align-items:center; margin-top:.5rem; }
+.diff-row-label{
+  width:4.5rem; flex:none; font-family:'IBM Plex Mono', monospace;
+  font-size:.85rem; color:var(--ink-soft); padding-left:.7rem;
+}
+.diff-row-spacer{ width:2.25rem; flex:none; }
+.diff-row-cell{ width:4.5rem; flex:none; display:flex; justify-content:center; }
 
 /* ---- Discrete choice buttons (PracticeSimultaneous) ---- */
 .choice-row{ display:flex; gap:.6rem; flex-wrap:wrap; }

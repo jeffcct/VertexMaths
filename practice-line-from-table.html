@@ -34,6 +34,14 @@
     <div class="practice-layout">
       <div class="practice-graph">
         <table class="value-table" id="table-values"></table>
+        <div class="diff-row" id="table-step-differences" hidden>
+          <span class="diff-row-label" title="Difference between neighbouring y-values">Δy</span>
+          <span class="diff-row-spacer"></span>
+          <span class="diff-row-cell"><input type="text" id="table-diff-1" class="answer-input" inputmode="text" autocomplete="off" aria-label="Difference between the first two y-values"></span>
+          <span class="diff-row-cell"><input type="text" id="table-diff-2" class="answer-input" inputmode="text" autocomplete="off" aria-label="Difference between the second and third y-values"></span>
+          <span class="diff-row-cell"><input type="text" id="table-diff-3" class="answer-input" inputmode="text" autocomplete="off" aria-label="Difference between the third and fourth y-values"></span>
+          <span class="diff-row-cell"><input type="text" id="table-diff-4" class="answer-input" inputmode="text" autocomplete="off" aria-label="Difference between the last two y-values"></span>
+        </div>
       </div>
 
       <div class="practice-panel">
@@ -44,14 +52,6 @@
 
         <div class="practice-mode-note" id="table-mode-note"></div>
         <div class="step-prompt" id="table-step-prompt"></div>
-
-        <div class="answer-row" id="table-step-differences" hidden>
-          <span class="mono">Differences:</span>
-          <input type="text" id="table-diff-1" class="answer-input" inputmode="text" autocomplete="off" aria-label="First difference">
-          <input type="text" id="table-diff-2" class="answer-input" inputmode="text" autocomplete="off" aria-label="Second difference">
-          <input type="text" id="table-diff-3" class="answer-input" inputmode="text" autocomplete="off" aria-label="Third difference">
-          <input type="text" id="table-diff-4" class="answer-input" inputmode="text" autocomplete="off" aria-label="Fourth difference">
-        </div>
 
         <div class="answer-row" id="table-answer-row-boxes">
           <span class="mono">y =</span>
