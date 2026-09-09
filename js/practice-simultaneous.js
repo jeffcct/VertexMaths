@@ -9,12 +9,11 @@
    Adaptive difficulty is a single on/off switch, re-checked before
    every new question:
      - fewer than 5 questions answered, OR accuracy below 50%: a
-       scaffolded walkthrough. The method (elimination vs.
-       substitution) is picked at random for the question, and the
-       first step asks the student to name it — both methods always
-       work, so a "wrong" pick here just means "let's practice the
-       other one this time," not a maths error. The rest of the
-       walkthrough follows whichever method was picked:
+       scaffolded walkthrough. The first step lets the student pick
+       which method to use — elimination and substitution both
+       always work on any system, so this is a free choice, not a
+       comprehension check; whichever one they click, the rest of
+       the walkthrough follows it:
          substitution — pick a variable to isolate and rearrange for
          it, then solve for the other variable, then solve for the
          picked one.
@@ -111,32 +110,33 @@ VM.PracticeSimultaneous = (function(){
     var eliminatedOtherVal = targetVar === 'x' ? y0 : x0;
     var targetVal = targetVar === 'x' ? x0 : y0;
 
-    var method = Math.random() < 0.5 ? 'elimination' : 'substitution';
-
     current = {
       aX: aX, aY: aY, aC: aC, p: p, q: q, bC: bC, x0: x0, y0: y0,
       subVar: subVar, otherVar: otherVar, otherCoeff: otherCoeff, rearrangeConst: aC,
       subVarVal: subVarVal, otherVarVal: otherVarVal,
       targetVar: targetVar, multA: multA, multB: multB, operation: operation,
       eliminatedOtherVar: eliminatedOtherVar, eliminatedOtherVal: eliminatedOtherVal, targetVal: targetVal,
-      method: method
+      method: null   // set once the student picks it on the "choose-method" step
     };
 
-    steps = needsScaffold() ? scaffoldSteps(method) : ['equation'];
+    var scaffold = needsScaffold();
+    steps = scaffold ? ['choose-method'] : ['equation'];
     stepIndex = 0;
     stepAnswered = false;
     answered = false;
-    els.modeNote.textContent = steps.length === 1 ? "You've got this — just solve it directly." : '';
+    els.modeNote.textContent = scaffold ? '' : "You've got this — just solve it directly.";
 
     renderEquations();
-    setDynamicLabels();
     renderStep();
   }
 
-  function scaffoldSteps(method){
+  // The steps that follow once the student has picked a method —
+  // appended to `steps` at that point, since which ones apply
+  // depends on their choice.
+  function methodSteps(method){
     return method === 'substitution'
-      ? ['choose-method', 'pick-variable', 'rearrange', 'solve-first', 'solve-second', 'equation']
-      : ['choose-method', 'multipliers', 'operation', 'solve-first', 'solve-second', 'equation'];
+      ? ['pick-variable', 'rearrange', 'solve-first', 'solve-second', 'equation']
+      : ['multipliers', 'operation', 'solve-first', 'solve-second', 'equation'];
   }
 
   function formatEquation(a, b, c){
@@ -188,9 +188,11 @@ VM.PracticeSimultaneous = (function(){
   function isChoiceStep(name){ return CHOICE_STEPS.indexOf(name) !== -1; }
 
   function stepPrompt(name){
+    // 'choose-method' never gets a "Step X of Y" prefix — the total
+    // step count isn't known until the student picks one.
+    if(name === 'choose-method') return 'Which method would you like to use?';
     var n = steps.length === 1 ? '' : ('Step ' + (stepIndex + 1) + ' of ' + steps.length + ': ');
     switch(name){
-      case 'choose-method': return n + 'Which method would you like to use?';
       case 'pick-variable': return n + 'Which variable would you like to isolate first?';
       case 'rearrange': return n + 'Rearrange equation 1 to make ' + current.subVar + ' the subject.';
       case 'multipliers': return n + 'What should you multiply each equation by so the ' + current.targetVar + '-coefficients match?';
@@ -210,7 +212,7 @@ VM.PracticeSimultaneous = (function(){
   function stepHint(name){
     switch(name){
       case 'choose-method':
-        return 'Either method works on any system — pick the one you want to practice.';
+        return 'Both methods work on any system — pick whichever you’d like to practice.';
       case 'pick-variable':
         return 'Isolating ' + current.subVar + ' in equation 1 avoids fractions, since its coefficient there is 1.';
       case 'rearrange':
@@ -278,18 +280,32 @@ VM.PracticeSimultaneous = (function(){
 
   function methodLabel(m){ return m === 'elimination' ? 'elimination' : 'substitution'; }
 
+  // The student picked a method — always accepted, since both work
+  // on any system. This is what turns the single 'choose-method'
+  // step into the rest of that method's walkthrough.
+  function selectMethod(value, btnEl, otherBtn){
+    if(stepAnswered) return;
+    current.method = value;
+    steps = steps.concat(methodSteps(value));
+    setDynamicLabels();
+
+    btnEl.classList.add('right');
+    els.feedback.textContent = 'Good — let’s work through it with ' + methodLabel(value) + '.';
+    els.feedback.className = 'feedback correct';
+
+    stepAnswered = true;
+    btnEl.disabled = true; otherBtn.disabled = true;
+    els.checkBtn.disabled = false;
+    els.checkBtn.textContent = 'Continue';
+  }
+
   function checkChoiceValue(name, value){
-    if(name === 'choose-method') return value === current.method;
     if(name === 'pick-variable') return value === current.subVar;
     if(name === 'operation') return value === current.operation;
     return false;
   }
 
   function choiceFeedback(name, value, ok){
-    if(name === 'choose-method'){
-      return ok ? ('Good — let’s use ' + methodLabel(current.method) + '.')
-                : ('Both methods work here — let’s practice ' + methodLabel(current.method) + ' this time.');
-    }
     if(name === 'pick-variable'){
       return ok ? ('Good choice — ' + current.subVar + ' has a coefficient of 1.')
                 : ('Isolating ' + value + ' would leave a fraction — try ' + current.subVar + ' instead.');
@@ -488,10 +504,10 @@ VM.PracticeSimultaneous = (function(){
     els.nextBtn.addEventListener('click', nextQuestion);
 
     els.choiceSubstitution.addEventListener('click', function(){
-      handleChoiceClick('choose-method', 'substitution', els.choiceSubstitution, [els.choiceElimination]);
+      selectMethod('substitution', els.choiceSubstitution, els.choiceElimination);
     });
     els.choiceElimination.addEventListener('click', function(){
-      handleChoiceClick('choose-method', 'elimination', els.choiceElimination, [els.choiceSubstitution]);
+      selectMethod('elimination', els.choiceElimination, els.choiceSubstitution);
     });
     els.pickX.addEventListener('click', function(){
       handleChoiceClick('pick-variable', 'x', els.pickX, [els.pickY]);
