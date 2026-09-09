@@ -2,21 +2,24 @@
    practice-simultaneous.js — the PracticeSimultaneous component: a
    question generator for "Solving simultaneous equations". Shows a
    random pair of two-variable linear equations — one of which
-   always has a coefficient of exactly 1 on one variable, so it can
-   always be rearranged without fractions — and asks for the
-   solution (x, y).
+   always has a coefficient of exactly 1 on one variable, so at least
+   one of the two variables can always be isolated without a
+   fraction — and asks for the solution (x, y).
 
    Adaptive difficulty is a single on/off switch, re-checked before
    every new question:
      - fewer than 5 questions answered, OR accuracy below 50%: a
-       scaffolded walkthrough. The first step lets the student pick
-       which method to use — elimination and substitution both
-       always work on any system, so this is a free choice, not a
-       comprehension check; whichever one they click, the rest of
-       the walkthrough follows it:
-         substitution — pick a variable to isolate and rearrange for
-         it, then solve for the other variable, then solve for the
-         picked one.
+       scaffolded walkthrough. Every choice in it — which method,
+       which variable to isolate, whether to add or subtract — is
+       either a free pick with no wrong answer, or (add/subtract)
+       has one mathematically correct answer that's checked; nothing
+       is ever graded against a "preferred" choice the student had
+       no way to know. Whichever method they click, the rest of the
+       walkthrough follows it:
+         substitution — pick a variable to isolate (either one always
+         works; picking the one whose coefficient isn't 1 just means
+         rearranging with a fraction) and rearrange for it, then
+         solve for the other variable, then solve for the picked one.
          elimination — say what to multiply each equation by so a
          chosen variable's coefficients match, say whether to add or
          subtract to eliminate it, then solve for the other
@@ -93,12 +96,6 @@ VM.PracticeSimultaneous = (function(){
     } while (aX * q - aY * p === 0);
     var bC = p * x0 + q * y0;
 
-    var subVar = xIsUnit ? 'x' : 'y';
-    var otherVar = xIsUnit ? 'y' : 'x';
-    var otherCoeff = xIsUnit ? -aY : -aX;   // subVar = otherCoeff*otherVar + rearrangeConst
-    var subVarVal = xIsUnit ? x0 : y0;
-    var otherVarVal = xIsUnit ? y0 : x0;
-
     var targetVar = randChoice(['x', 'y']);   // variable to eliminate
     var cA_t = targetVar === 'x' ? aX : aY;
     var cB_t = targetVar === 'x' ? p : q;
@@ -112,11 +109,13 @@ VM.PracticeSimultaneous = (function(){
 
     current = {
       aX: aX, aY: aY, aC: aC, p: p, q: q, bC: bC, x0: x0, y0: y0,
-      subVar: subVar, otherVar: otherVar, otherCoeff: otherCoeff, rearrangeConst: aC,
-      subVarVal: subVarVal, otherVarVal: otherVarVal,
       targetVar: targetVar, multA: multA, multB: multB, operation: operation,
       eliminatedOtherVar: eliminatedOtherVar, eliminatedOtherVal: eliminatedOtherVal, targetVal: targetVal,
-      method: null   // set once the student picks it on the "choose-method" step
+      method: null    // set once the student picks it on the "choose-method" step
+      // subVar/otherVar/otherCoeff/rearrangeConst/subVarVal/otherVarVal are
+      // set once the student picks a variable on the "pick-variable" step
+      // (see selectVariable) — which one avoids fractions depends on that
+      // free choice, not on anything decided up front.
     };
 
     var scaffold = needsScaffold();
@@ -150,15 +149,34 @@ VM.PracticeSimultaneous = (function(){
     els.eq2.textContent = formatEquation(current.p, current.q, current.bC);
   }
 
-  // "-2y + 7" style right-hand side for the rearranged equation.
-  function formatRHS(coeff, varName, constant){
-    var coeffStr = coeff === 1 ? '' : (coeff === -1 ? '-' : String(coeff));
-    var s = coeffStr + varName;
-    if(constant !== 0){ s += (constant > 0 ? ' + ' : ' - ') + Math.abs(constant); }
+  // Rational-number formatting for whichever variable the student
+  // picks to isolate — when its coefficient isn't 1, rearranging
+  // introduces a fraction, so these can't assume whole numbers the
+  // way the rest of the site's coefficient formatting does.
+  function formatRational(num, den){
+    return den === 1 ? String(num) : (num + '/' + den);
+  }
+  function formatCoeffLabel(num, den){
+    if(den === 1){
+      if(num === 1) return '';
+      if(num === -1) return '-';
+    }
+    return formatRational(num, den);
+  }
+  // "-2y + 7" or "-y/2 + 7/3" style right-hand side for the
+  // rearranged equation.
+  function formatRHS(coeffNum, coeffDen, varName, constNum, constDen){
+    var s = formatCoeffLabel(coeffNum, coeffDen) + varName;
+    if(constNum !== 0){
+      s += (constNum > 0 ? ' + ' : ' - ') + formatRational(Math.abs(constNum), constDen);
+    }
     return s;
   }
   function rearrangedString(){
-    return current.subVar + ' = ' + formatRHS(current.otherCoeff, current.otherVar, current.rearrangeConst);
+    return current.subVar + ' = ' + formatRHS(
+      current.otherCoeffNum, current.otherCoeffDen, current.otherVar,
+      current.rearrangeConstNum, current.rearrangeConstDen
+    );
   }
 
   // Dynamic row labels that stay fixed for the whole question (unlike
@@ -214,9 +232,10 @@ VM.PracticeSimultaneous = (function(){
       case 'choose-method':
         return 'Both methods work on any system — pick whichever you’d like to practice.';
       case 'pick-variable':
-        return 'Isolating ' + current.subVar + ' in equation 1 avoids fractions, since its coefficient there is 1.';
+        return 'Either variable works. One of them has a coefficient of 1 in equation 1 and rearranges cleanly; the other will need a fraction.';
       case 'rearrange':
-        return 'Move the ' + current.otherVar + ' term to the other side. Leave the coefficient box blank for 1, or type just - for -1.';
+        return 'Move the ' + current.otherVar + ' term to the other side. Leave the coefficient box blank for 1, or type just - for -1.' +
+          (Math.abs(current.otherCoeffDen) > 1 || Math.abs(current.rearrangeConstDen) > 1 ? ' Fractions like 1/2 are fine here.' : '');
       case 'multipliers':
         return 'Multiply so both equations end up with the same-size ' + current.targetVar + '-coefficient.';
       case 'operation':
@@ -299,17 +318,57 @@ VM.PracticeSimultaneous = (function(){
     els.checkBtn.textContent = 'Continue';
   }
 
+  // The student picked which variable to isolate — always accepted,
+  // since either works on any system; picking the one whose
+  // coefficient isn't 1 just means the rearrange step needs a
+  // fraction, computed here from whichever equation-1 coefficient
+  // actually applies to their choice.
+  function selectVariable(value, btnEl, otherBtn){
+    if(stepAnswered) return;
+    var otherValue = value === 'x' ? 'y' : 'x';
+    var coeffChosen = value === 'x' ? current.aX : current.aY;
+    var coeffOther = value === 'x' ? current.aY : current.aX;
+
+    // chosen = (aC - coeffOther*other) / coeffChosen
+    //        = (-coeffOther/coeffChosen)*other + (aC/coeffChosen)
+    // Normalize so the denominator is positive, then reduce.
+    var coeffNum = -coeffOther, coeffDen = coeffChosen;
+    if(coeffDen < 0){ coeffNum = -coeffNum; coeffDen = -coeffDen; }
+    var cg = gcd(coeffNum, coeffDen); coeffNum /= cg; coeffDen /= cg;
+
+    var constNum = current.aC, constDen = coeffChosen;
+    if(constDen < 0){ constNum = -constNum; constDen = -constDen; }
+    var kg = gcd(constNum, constDen); constNum /= kg; constDen /= kg;
+
+    current.subVar = value;
+    current.otherVar = otherValue;
+    current.otherCoeffNum = coeffNum;
+    current.otherCoeffDen = coeffDen;
+    current.otherCoeff = coeffNum / coeffDen;
+    current.rearrangeConstNum = constNum;
+    current.rearrangeConstDen = constDen;
+    current.rearrangeConst = constNum / constDen;
+    current.subVarVal = value === 'x' ? current.x0 : current.y0;
+    current.otherVarVal = value === 'x' ? current.y0 : current.x0;
+    setDynamicLabels();
+
+    btnEl.classList.add('right');
+    els.feedback.textContent = 'Good — let’s isolate ' + value + '.' +
+      (Math.abs(coeffChosen) !== 1 ? ' Its coefficient isn’t 1, so that’ll take a fraction.' : '');
+    els.feedback.className = 'feedback correct';
+
+    stepAnswered = true;
+    btnEl.disabled = true; otherBtn.disabled = true;
+    els.checkBtn.disabled = false;
+    els.checkBtn.textContent = 'Continue';
+  }
+
   function checkChoiceValue(name, value){
-    if(name === 'pick-variable') return value === current.subVar;
     if(name === 'operation') return value === current.operation;
     return false;
   }
 
   function choiceFeedback(name, value, ok){
-    if(name === 'pick-variable'){
-      return ok ? ('Good choice — ' + current.subVar + ' has a coefficient of 1.')
-                : ('Isolating ' + value + ' would leave a fraction — try ' + current.subVar + ' instead.');
-    }
     if(name === 'operation'){
       return ok ? ('Correct — ' + current.operation + ' the two equations to eliminate ' + current.targetVar + '.')
                 : ('Not quite — the ' + current.targetVar + '-coefficients are ' +
@@ -510,10 +569,10 @@ VM.PracticeSimultaneous = (function(){
       selectMethod('elimination', els.choiceElimination, els.choiceSubstitution);
     });
     els.pickX.addEventListener('click', function(){
-      handleChoiceClick('pick-variable', 'x', els.pickX, [els.pickY]);
+      selectVariable('x', els.pickX, els.pickY);
     });
     els.pickY.addEventListener('click', function(){
-      handleChoiceClick('pick-variable', 'y', els.pickY, [els.pickX]);
+      selectVariable('y', els.pickY, els.pickX);
     });
     els.opAdd.addEventListener('click', function(){
       handleChoiceClick('operation', 'add', els.opAdd, [els.opSubtract]);
