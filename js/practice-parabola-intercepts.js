@@ -27,6 +27,13 @@
    score — same as every other Practice component's adaptive
    difficulty (see the note at the top of practice-line-graph.js).
 
+   The leading coefficient a is drawn uniformly from -3..3 (never 0)
+   on every question — no bias toward ±1. Once a student has done at
+   least 5 questions at 90%+ accuracy, a can also land on a simple
+   fraction (halves, thirds or quarters); that's a separate unlock
+   from the step-scaffolding tiers above and can be active at the
+   same time as any of them.
+
    The two x-intercepts can always be entered/typed in either order,
    since (x - p)(x - q) and (x - q)(x - p) are the same equation.
 
@@ -40,28 +47,20 @@ VM.PracticeParabolaIntercepts = (function(){
   var parseGradient = VM.EquationParse.parseGradient;
   var factorLabel = VM.EquationParse.factorLabel;
 
-  // Curated { a, p, q } triples — a is the leading coefficient, p and
-  // q the two x-intercepts. Curated so every question's y-intercept
-  // (a*p*q) is guaranteed to land inside the grid, where it can
-  // actually be marked and read. The first 3 questions (see
-  // tripleChoices below) draw only from the |a| <= 2 entries; the
-  // |a| = 3 entries are held back until after that, so the numbers
-  // stay simple while the five-step walkthrough itself is still new.
-  var TRIPLES = [
-    { a:-2, p:-3, q:-1 }, { a:-2, p:-3, q:1 }, { a:-2, p:-1, q:2 }, { a:-2, p:1, q:2 },
-    { a:-1, p:-3, q:-2 }, { a:-1, p:-2, q:1 }, { a:-1, p:1, q:3 }, { a:-1, p:2, q:3 },
-    { a:1, p:-4, q:-1 }, { a:1, p:-3, q:2 }, { a:1, p:-1, q:3 }, { a:1, p:1, q:4 },
-    { a:2, p:-2, q:-1 }, { a:2, p:-1, q:2 }, { a:2, p:1, q:3 },
-    { a:-3, p:-2, q:-1 }, { a:-3, p:-1, q:2 }, { a:3, p:-2, q:1 }, { a:3, p:-1, q:1 }, { a:3, p:1, q:2 }
+  // Leading coefficient a: an integer -3..3 (never 0) on every
+  // question, drawn uniformly so it isn't mostly ±1. Once a student
+  // has done at least FRACTION_MIN_ATTEMPTS questions at
+  // FRACTION_MIN_ACCURACY or better, a can also land on one of these
+  // [numerator, denominator] fractions. This unlock is independent
+  // of the step-scaffolding tiers below.
+  var A_INTEGERS = [-3, -2, -1, 1, 2, 3];
+  var A_FRACTIONS = [
+    [1,2], [-1,2], [3,2], [-3,2],
+    [1,3], [-1,3], [2,3], [-2,3],
+    [1,4], [-1,4], [3,4], [-3,4]
   ];
-  var SIMPLE_A_QUESTION_CAP = 3; // "after the 3rd question" — before that, |a| stays <= 2
-
-  function tripleChoices(){
-    if(score.attempted < SIMPLE_A_QUESTION_CAP){
-      return TRIPLES.filter(function(t){ return Math.abs(t.a) <= 2; });
-    }
-    return TRIPLES;
-  }
+  var FRACTION_MIN_ATTEMPTS = 5;
+  var FRACTION_MIN_ACCURACY = 0.90;
 
   // Tier thresholds. Checked most-reduced-first: once a student
   // clears tier C's bar they stay there even though tier B's (looser)
@@ -74,7 +73,7 @@ VM.PracticeParabolaIntercepts = (function(){
   var TIER_C_MIN_ACCURACY = 0.90; // "between 90 and 100%"
 
   var els = {};
-  var current = null;    // { a, p, q, yInt }
+  var current = null;    // { a, aNum, aDen, p, q, yInt }
   var score = { correct: 0, attempted: 0 };
   var steps = [];        // this question's step sequence, e.g. ['intercepts','brackets','point','solvea','equation']
   var stepIndex = 0;
@@ -83,7 +82,37 @@ VM.PracticeParabolaIntercepts = (function(){
 
   function toPx(x, y){ return grid.toPx(x, y); }
   function randChoice(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
+  function randInt(lo, hi){ return lo + Math.floor(Math.random() * (hi - lo + 1)); }
   function accuracy(){ return score.attempted ? score.correct / score.attempted : 0; }
+  function fractionsUnlocked(){
+    return score.attempted >= FRACTION_MIN_ATTEMPTS && accuracy() >= FRACTION_MIN_ACCURACY;
+  }
+
+  // Picks a, then a matching (p, q) pair whose resulting y-intercept
+  // (a*p*q) is guaranteed to land inside the grid, where it can
+  // actually be marked and read.
+  function pickAPQ(){
+    var pool = A_INTEGERS.slice();
+    if(fractionsUnlocked()) pool = pool.concat(A_FRACTIONS);
+    var choice = randChoice(pool);
+    var aNum = Array.isArray(choice) ? choice[0] : choice;
+    var aDen = Array.isArray(choice) ? choice[1] : 1;
+    var aVal = aNum / aDen;
+
+    var candidates = [];
+    for(var p = -4; p <= 4; p++){
+      if(p === 0) continue;
+      for(var q = -4; q <= 4; q++){
+        if(q === 0 || q === p) continue;
+        var yInt = aVal * p * q;
+        if(Math.abs(yInt) >= 0.4 && Math.abs(yInt) <= GRID_MAX - 0.5){
+          candidates.push([p, q]);
+        }
+      }
+    }
+    var pq = candidates.length ? randChoice(candidates) : [1, -1];
+    return { aNum: aNum, aDen: aDen, aVal: aVal, p: pq[0], q: pq[1] };
+  }
 
   function tierSequence(){
     if(score.attempted > TIER_C_MIN_ATTEMPTS && accuracy() >= TIER_C_MIN_ACCURACY){
@@ -102,8 +131,8 @@ VM.PracticeParabolaIntercepts = (function(){
   }
 
   function nextQuestion(){
-    var t = randChoice(tripleChoices());
-    current = { a: t.a, p: t.p, q: t.q, yInt: t.a * t.p * t.q };
+    var t = pickAPQ();
+    current = { a: t.aVal, aNum: t.aNum, aDen: t.aDen, p: t.p, q: t.q, yInt: t.aVal * t.p * t.q };
 
     steps = tierSequence();
     stepIndex = 0;
@@ -167,9 +196,11 @@ VM.PracticeParabolaIntercepts = (function(){
       case 'point':
         return 'It\'s the marked point that isn\'t sitting on the x-axis.';
       case 'solvea':
-        return 'Substitute the point into y = a(' + factorLabel(current.p) + ')(' + factorLabel(current.q) + ') and solve for a. Leave the box blank for 1, or type just - for -1.';
+        return 'Substitute the point into y = a(' + factorLabel(current.p) + ')(' + factorLabel(current.q) + ') and solve for a. Leave the box blank for 1, or type just - for -1.' +
+          (current.aDen > 1 ? ' Fractions like 3/2 are fine.' : '');
       case 'equation':
-        return 'Write the full equation, starting with y =, e.g. y = -2(x - 3)(x + 1). Leave out the coefficient for 1 and use a bare - for -1.';
+        return 'Write the full equation, starting with y =, e.g. y = -2(x - 3)(x + 1). Leave out the coefficient for 1 and use a bare - for -1.' +
+          (current.aDen > 1 ? ' Fractions like 3/2 are fine for a.' : '');
     }
   }
 
@@ -239,9 +270,23 @@ VM.PracticeParabolaIntercepts = (function(){
   }
 
   function bracketsString(p, q){ return '(' + factorLabel(p) + ')(' + factorLabel(q) + ')'; }
-  function formatEquation(a, p, q){
-    var aStr = a === 1 ? '' : (a === -1 ? '-' : String(a));
-    return 'y = ' + aStr + bracketsString(p, q);
+
+  // "a = 1" should say "1", but "a" as a coefficient right before a
+  // bracket should be omitted (or a bare "-") the same way any other
+  // coefficient of 1 is written — these are two different contexts,
+  // so they get two different formatters.
+  function aPlainLabel(aNum, aDen){
+    return aDen === 1 ? String(aNum) : ((aNum < 0 ? '-' : '') + Math.abs(aNum) + '/' + aDen);
+  }
+  function aCoeffLabel(aNum, aDen){
+    if(aDen === 1){
+      if(aNum === 1) return '';
+      if(aNum === -1) return '-';
+    }
+    return aPlainLabel(aNum, aDen);
+  }
+  function formatEquation(aNum, aDen, p, q){
+    return 'y = ' + aCoeffLabel(aNum, aDen) + bracketsString(p, q);
   }
 
   // ---- Checking: the four ungraded scaffold steps ------------------
@@ -288,7 +333,8 @@ VM.PracticeParabolaIntercepts = (function(){
     var aVal = parseGradient(els.solveAInput.value);
     var ok = !isNaN(aVal) && Math.abs(aVal - current.a) < 0.01;
     els.solveAInput.classList.toggle('right', ok); els.solveAInput.classList.toggle('wrong', !ok);
-    els.feedback.textContent = ok ? ('Correct — a = ' + current.a + '.') : ('Not quite. a = ' + current.a + '.');
+    var aStr = aPlainLabel(current.aNum, current.aDen);
+    els.feedback.textContent = ok ? ('Correct — a = ' + aStr + '.') : ('Not quite. a = ' + aStr + '.');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
     return ok;
   }
@@ -322,14 +368,14 @@ VM.PracticeParabolaIntercepts = (function(){
     els.eqInput.classList.toggle('wrong', !ok);
 
     score.attempted++;
-    var equation = formatEquation(current.a, current.p, current.q);
+    var equation = formatEquation(current.aNum, current.aDen, current.p, current.q);
     if(ok){
       score.correct++;
       els.feedback.textContent = 'Correct — ' + equation;
       els.feedback.className = 'feedback correct';
     } else {
       els.feedback.textContent = 'Not quite. ' + equation +
-        ' (a = ' + current.a + ', x-intercepts ' + current.p + ' and ' + current.q + ').';
+        ' (a = ' + aPlainLabel(current.aNum, current.aDen) + ', x-intercepts ' + current.p + ' and ' + current.q + ').';
       els.feedback.className = 'feedback incorrect';
     }
     els.score.textContent = score.correct + ' / ' + score.attempted;

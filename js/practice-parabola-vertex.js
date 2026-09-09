@@ -22,8 +22,14 @@
    Every tier ends on the same "write the full equation" step, and
    that's the only step that's actually scored — see the longer
    explanation in practice-parabola-intercepts.js; it applies here
-   unchanged. The first 3 questions also stick to |a| <= 2, the same
-   way and for the same reason as PracticeParabolaIntercepts.
+   unchanged.
+
+   The leading coefficient a is drawn uniformly from -3..3 (never 0)
+   on every question — no bias toward ±1. Once a student has done at
+   least 5 questions at 90%+ accuracy, a can also land on a simple
+   fraction (halves, thirds or quarters); that's a separate unlock
+   from the step-scaffolding tiers above and can be active at the
+   same time as any of them.
 
    Public API: VM.PracticeParabolaVertex.init({ onBack }), .start()
    ============================================================ */
@@ -35,25 +41,17 @@ VM.PracticeParabolaVertex = (function(){
   var parseGradient = VM.EquationParse.parseGradient;
   var factorLabel = VM.EquationParse.factorLabel;
 
-  // Curated { a, h, k } triples — vertex (h, k), leading coefficient
-  // a. Curated so the second marked point, (h + 1, k + a), always
-  // lands inside the grid, and h is never 0 (a vertex on the y-axis
-  // would make "(x - h)" degenerate to "(x)", which isn't how anyone
-  // actually writes the equation).
-  var TRIPLES = [
-    { a:-2, h:-3, k:4 }, { a:-2, h:2, k:-3 }, { a:-1, h:-4, k:-2 }, { a:-1, h:3, k:5 },
-    { a:-1, h:-2, k:3 }, { a:1, h:-2, k:-4 }, { a:1, h:4, k:1 }, { a:1, h:-5, k:3 },
-    { a:2, h:-1, k:-3 }, { a:2, h:3, k:-2 }, { a:2, h:-4, k:-5 },
-    { a:3, h:-3, k:-1 }, { a:3, h:1, k:2 }, { a:-3, h:2, k:3 }, { a:-3, h:-1, k:0 }
+  // See the matching note in practice-parabola-intercepts.js: a is an
+  // integer -3..3 (never 0) on every question, drawn uniformly, with
+  // fractions unlocked once a student is doing well.
+  var A_INTEGERS = [-3, -2, -1, 1, 2, 3];
+  var A_FRACTIONS = [
+    [1,2], [-1,2], [3,2], [-3,2],
+    [1,3], [-1,3], [2,3], [-2,3],
+    [1,4], [-1,4], [3,4], [-3,4]
   ];
-  var SIMPLE_A_QUESTION_CAP = 3; // "after the 3rd question" — before that, |a| stays <= 2
-
-  function tripleChoices(){
-    if(score.attempted < SIMPLE_A_QUESTION_CAP){
-      return TRIPLES.filter(function(t){ return Math.abs(t.a) <= 2; });
-    }
-    return TRIPLES;
-  }
+  var FRACTION_MIN_ATTEMPTS = 5;
+  var FRACTION_MIN_ACCURACY = 0.90;
 
   var TIER_B_MIN_ATTEMPTS = 3;
   var TIER_B_MIN_ACCURACY = 0.70;
@@ -61,7 +59,7 @@ VM.PracticeParabolaVertex = (function(){
   var TIER_C_MIN_ACCURACY = 0.90;
 
   var els = {};
-  var current = null;    // { a, h, k }
+  var current = null;    // { a, aNum, aDen, h, k }
   var score = { correct: 0, attempted: 0 };
   var steps = [];
   var stepIndex = 0;
@@ -71,6 +69,35 @@ VM.PracticeParabolaVertex = (function(){
   function toPx(x, y){ return grid.toPx(x, y); }
   function randChoice(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
   function accuracy(){ return score.attempted ? score.correct / score.attempted : 0; }
+  function fractionsUnlocked(){
+    return score.attempted >= FRACTION_MIN_ATTEMPTS && accuracy() >= FRACTION_MIN_ACCURACY;
+  }
+
+  // Picks a, then a matching (h, k) pair — h is never 0 (a vertex on
+  // the y-axis would make "(x - h)" degenerate to "(x)", which isn't
+  // how anyone writes the equation) and the second marked point,
+  // (h + 1, k + a), always lands inside the grid.
+  function pickAHK(){
+    var pool = A_INTEGERS.slice();
+    if(fractionsUnlocked()) pool = pool.concat(A_FRACTIONS);
+    var choice = randChoice(pool);
+    var aNum = Array.isArray(choice) ? choice[0] : choice;
+    var aDen = Array.isArray(choice) ? choice[1] : 1;
+    var aVal = aNum / aDen;
+
+    var candidates = [];
+    for(var h = -5; h <= 5; h++){
+      if(h === 0) continue;
+      for(var k = -5; k <= 5; k++){
+        var sideY = k + aVal;
+        if(Math.abs(sideY) <= GRID_MAX - 0.5 && Math.abs(k) <= GRID_MAX - 0.5){
+          candidates.push([h, k]);
+        }
+      }
+    }
+    var hk = candidates.length ? randChoice(candidates) : [1, 1];
+    return { aNum: aNum, aDen: aDen, aVal: aVal, h: hk[0], k: hk[1] };
+  }
 
   function tierSequence(){
     if(score.attempted > TIER_C_MIN_ATTEMPTS && accuracy() >= TIER_C_MIN_ACCURACY){
@@ -89,8 +116,8 @@ VM.PracticeParabolaVertex = (function(){
   }
 
   function nextQuestion(){
-    var t = randChoice(tripleChoices());
-    current = { a: t.a, h: t.h, k: t.k };
+    var t = pickAHK();
+    current = { a: t.aVal, aNum: t.aNum, aDen: t.aDen, h: t.h, k: t.k };
 
     steps = tierSequence();
     stepIndex = 0;
@@ -154,9 +181,11 @@ VM.PracticeParabolaVertex = (function(){
       case 'point':
         return "It's the marked point one unit to the right of the vertex.";
       case 'solvea':
-        return 'Substitute the point into y = a(' + factorLabel(current.h) + ')^2 + ' + current.k + ' and solve for a. Leave the box blank for 1, or type just - for -1.';
+        return 'Substitute the point into y = a(' + factorLabel(current.h) + ')^2 + ' + current.k + ' and solve for a. Leave the box blank for 1, or type just - for -1.' +
+          (current.aDen > 1 ? ' Fractions like 3/2 are fine.' : '');
       case 'equation':
-        return 'Write the full equation, starting with y =, e.g. y = -2(x + 3)^2 + 4. Use ^2 for squared, leave out the coefficient for 1, and use a bare - for -1.';
+        return 'Write the full equation, starting with y =, e.g. y = -2(x + 3)^2 + 4. Use ^2 for squared, leave out the coefficient for 1, and use a bare - for -1.' +
+          (current.aDen > 1 ? ' Fractions like 3/2 are fine for a.' : '');
     }
   }
 
@@ -223,10 +252,23 @@ VM.PracticeParabolaVertex = (function(){
   }
 
   function squaredString(h){ return '(' + factorLabel(h) + ')^2'; }
-  function formatEquation(a, h, k){
-    var aStr = a === 1 ? '' : (a === -1 ? '-' : String(a));
+
+  // See the matching note in practice-parabola-intercepts.js: "a = 1"
+  // should say "1", but a coefficient of 1 right before a bracket is
+  // omitted (or a bare "-") — two different contexts, two formatters.
+  function aPlainLabel(aNum, aDen){
+    return aDen === 1 ? String(aNum) : ((aNum < 0 ? '-' : '') + Math.abs(aNum) + '/' + aDen);
+  }
+  function aCoeffLabel(aNum, aDen){
+    if(aDen === 1){
+      if(aNum === 1) return '';
+      if(aNum === -1) return '-';
+    }
+    return aPlainLabel(aNum, aDen);
+  }
+  function formatEquation(aNum, aDen, h, k){
     var kStr = k === 0 ? '' : (k > 0 ? (' + ' + k) : (' - ' + Math.abs(k)));
-    return 'y = ' + aStr + squaredString(h) + kStr;
+    return 'y = ' + aCoeffLabel(aNum, aDen) + squaredString(h) + kStr;
   }
 
   // ---- Checking: the four ungraded scaffold steps ------------------
@@ -276,7 +318,8 @@ VM.PracticeParabolaVertex = (function(){
     var aVal = parseGradient(els.solveAInput.value);
     var ok = !isNaN(aVal) && Math.abs(aVal - current.a) < 0.01;
     els.solveAInput.classList.toggle('right', ok); els.solveAInput.classList.toggle('wrong', !ok);
-    els.feedback.textContent = ok ? ('Correct — a = ' + current.a + '.') : ('Not quite. a = ' + current.a + '.');
+    var aStr = aPlainLabel(current.aNum, current.aDen);
+    els.feedback.textContent = ok ? ('Correct — a = ' + aStr + '.') : ('Not quite. a = ' + aStr + '.');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
     return ok;
   }
@@ -309,14 +352,14 @@ VM.PracticeParabolaVertex = (function(){
     els.eqInput.classList.toggle('wrong', !ok);
 
     score.attempted++;
-    var equation = formatEquation(current.a, current.h, current.k);
+    var equation = formatEquation(current.aNum, current.aDen, current.h, current.k);
     if(ok){
       score.correct++;
       els.feedback.textContent = 'Correct — ' + equation;
       els.feedback.className = 'feedback correct';
     } else {
       els.feedback.textContent = 'Not quite. ' + equation +
-        ' (a = ' + current.a + ', vertex (' + current.h + ', ' + current.k + ')).';
+        ' (a = ' + aPlainLabel(current.aNum, current.aDen) + ', vertex (' + current.h + ', ' + current.k + ')).';
       els.feedback.className = 'feedback incorrect';
     }
     els.score.textContent = score.correct + ' / ' + score.attempted;
