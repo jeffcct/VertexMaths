@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Practice: Factoring Single Brackets — Vertex Maths</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/practice.css">
+</head>
+<body>
+<div class="wrap wrap-wide" id="page-wrap">
+
+  <div class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">V</span>
+      <div>
+        <div class="brand-name">Vertex Maths</div>
+        <div class="brand-sub">Year 11 &middot; Mathematics</div>
+      </div>
+    </a>
+    <div class="greeting">Kia ora, <b>Amelia</b> &mdash; Room 14</div>
+  </div>
+
+  <!-- ============ PracticeFactorSingle component ============ -->
+  <section class="view" id="view-practice-factor-single">
+
+    <div class="breadcrumb">
+      <button id="singlefac-back-btn">← Algebra &amp; Graphing</button>
+      <span class="sep">/</span>
+      <span class="current">Practice: factoring single brackets</span>
+    </div>
+
+    <div class="practice-layout">
+      <div class="equations-card">
+        <div class="equation-label">Factorise</div>
+        <div class="equation-line" id="singlefac-expression"></div>
+      </div>
+
+      <div class="practice-panel-group">
+      <div class="practice-panel">
+        <div>
+          <div class="practice-title">Factorise the expression</div>
+          <div class="practice-sub">Find the greatest common factor, then write it outside a single bracket.</div>
+        </div>
+
+        <div class="form-template mono">abx + ac = a(bx + c)</div>
+
+        <div class="practice-mode-note" id="singlefac-mode-note"></div>
+        <div class="step-prompt" id="singlefac-step-prompt"></div>
+
+        <div class="answer-row" id="singlefac-step-find-gcf" hidden>
+          <input type="text" id="singlefac-gcf-input" class="answer-input" inputmode="text" autocomplete="off" aria-label="Greatest common factor">
+        </div>
+
+        <div class="answer-row" id="singlefac-step-factored" hidden>
+          <input type="text" id="singlefac-factored-input" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Fully factored expression" placeholder="e.g. 3(2x + 5)">
+        </div>
+
+        <div class="answer-hint" id="singlefac-hint"></div>
+
+        <div class="practice-actions">
+          <button class="practice-check-btn" id="singlefac-check-btn">Check answer</button>
+          <button class="practice-next-btn" id="singlefac-next-btn">New question</button>
+        </div>
+
+        <div class="feedback" id="singlefac-feedback"></div>
+        <div class="practice-score-row">Score: <span class="mono" id="singlefac-score">0 / 0</span></div>
+      </div>
+
+      <div class="working-sidebar">
+        <div class="working-card" id="singlefac-working-card" hidden>
+          <div class="equation-label">Working</div>
+          <div class="working-lines" id="singlefac-working-lines"></div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <footer>A freshly generated expression each time &middot; the greatest common factor is always the whole answer to the first step, and the bracket is unique</footer>
+  </section>
+
+</div>
+
+<script src="js/equation-parse.js"></script>
+<script src="js/working-trail.js"></script>
+<script src="js/practice-factor-single.js"></script>
+<script src="js/page-practice-factor-single.js"></script>
+</body>
+</html>
