@@ -33,7 +33,7 @@
 
     <div class="practice-layout">
       <div class="practice-graph">
-        <svg id="graphline-graph-svg" viewBox="0 0 320 320" role="img" aria-label="An empty coordinate grid, ready for a line to be plotted on it"></svg>
+        <svg id="graphline-graph-svg" class="clickable" viewBox="0 0 320 320" role="img" aria-label="An empty coordinate grid, ready for a line to be plotted on it"></svg>
       </div>
 
       <div class="practice-panel-group">
@@ -48,34 +48,30 @@
         <div class="form-template mono">y = mx + c</div>
 
         <div class="practice-mode-note" id="graphline-mode-note"></div>
+        <div class="practice-mode-note" id="graphline-extra-tip" hidden></div>
         <div class="step-prompt" id="graphline-step-prompt"></div>
 
         <div id="graphline-step-table" hidden>
-          <table class="value-table" id="graphline-table"></table>
-          <div class="answer-row">
-            <input type="text" id="graphline-table-y-0" class="answer-input" inputmode="text" autocomplete="off" aria-label="y-value for the first x">
-            <input type="text" id="graphline-table-y-1" class="answer-input" inputmode="text" autocomplete="off" aria-label="y-value for the second x">
-            <input type="text" id="graphline-table-y-2" class="answer-input" inputmode="text" autocomplete="off" aria-label="y-value for the third x">
-            <input type="text" id="graphline-table-y-3" class="answer-input" inputmode="text" autocomplete="off" aria-label="y-value for the fourth x">
-            <input type="text" id="graphline-table-y-4" class="answer-input" inputmode="text" autocomplete="off" aria-label="y-value for the fifth x">
-          </div>
+          <table class="value-table" id="graphline-table">
+            <tr>
+              <th>x</th>
+              <td>-2</td><td>-1</td><td>0</td><td>1</td><td>2</td>
+            </tr>
+            <tr>
+              <th>y</th>
+              <td><input type="text" id="graphline-y-1" class="answer-input" inputmode="text" autocomplete="off" aria-label="y when x = -2"></td>
+              <td><input type="text" id="graphline-y-2" class="answer-input" inputmode="text" autocomplete="off" aria-label="y when x = -1"></td>
+              <td><input type="text" id="graphline-y-3" class="answer-input" inputmode="text" autocomplete="off" aria-label="y when x = 0"></td>
+              <td><input type="text" id="graphline-y-4" class="answer-input" inputmode="text" autocomplete="off" aria-label="y when x = 1"></td>
+              <td><input type="text" id="graphline-y-5" class="answer-input" inputmode="text" autocomplete="off" aria-label="y when x = 2"></td>
+            </tr>
+          </table>
         </div>
 
-        <div class="answer-row answer-row-stack" id="graphline-step-points" hidden>
-          <div class="answer-row">
-            <span class="mono">Point 1: (</span>
-            <input type="text" id="graphline-p1-x" class="answer-input" inputmode="text" autocomplete="off" aria-label="Point 1 x-coordinate">
-            <span class="mono">,</span>
-            <input type="text" id="graphline-p1-y" class="answer-input" inputmode="text" autocomplete="off" aria-label="Point 1 y-coordinate">
-            <span class="mono">)</span>
-          </div>
-          <div class="answer-row">
-            <span class="mono">Point 2: (</span>
-            <input type="text" id="graphline-p2-x" class="answer-input" inputmode="text" autocomplete="off" aria-label="Point 2 x-coordinate">
-            <span class="mono">,</span>
-            <input type="text" id="graphline-p2-y" class="answer-input" inputmode="text" autocomplete="off" aria-label="Point 2 y-coordinate">
-            <span class="mono">)</span>
-          </div>
+        <div id="graphline-step-points" hidden>
+          <div class="answer-hint">Click two points on the grid to plot the line.</div>
+          <div class="mono" id="graphline-point-readout-1">Point 1: not yet placed</div>
+          <div class="mono" id="graphline-point-readout-2">Point 2: not yet placed</div>
         </div>
 
         <div class="answer-hint" id="graphline-hint"></div>

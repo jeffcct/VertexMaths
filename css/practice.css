@@ -180,3 +180,10 @@
 .keybind-help-keys{ font-weight:600; color:var(--ink); white-space:nowrap; }
 .keybind-help-result{ color:var(--algebra); font-weight:700; }
 .keybind-help-desc{ color:var(--ink-soft); }
+
+/* ---- Click-to-plot points (PracticeGraphLinear "points" step) ---- */
+.practice-graph svg.clickable{ cursor:pointer; }
+.plot-point-correct{ fill:var(--success); }
+.plot-line-correct{ stroke:var(--success); }
+.plot-point-wrong{ fill:var(--danger); }
+.plot-line-wrong{ stroke:var(--danger); }
