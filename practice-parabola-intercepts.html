@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="css/practice.css">
 </head>
 <body>
-<div class="wrap" id="page-wrap">
+<div class="wrap wrap-wide" id="page-wrap">
 
   <div class="topbar">
     <a class="brand" href="index.html">
@@ -36,6 +36,7 @@
         <svg id="parabola-graph-svg" viewBox="0 0 320 320" role="img" aria-label="A parabola plotted on a coordinate grid"></svg>
       </div>
 
+      <div class="practice-panel-group">
       <div class="practice-panel">
         <div>
           <div class="practice-title">Find the equation of the parabola</div>
@@ -85,6 +86,14 @@
         <div class="feedback" id="parabola-feedback"></div>
         <div class="practice-score-row" id="parabola-score-row">Score: <span class="mono" id="parabola-score">0 / 0</span></div>
       </div>
+
+      <div class="working-sidebar">
+        <div class="working-card" id="parabola-working-card" hidden>
+          <div class="equation-label">Working</div>
+          <div class="working-lines" id="parabola-working-lines"></div>
+        </div>
+      </div>
+      </div>
     </div>
 
     <footer>A freshly generated parabola each time &middot; the two x-intercepts can go in either box, in either order, and the walkthrough shortens as accuracy improves</footer>
@@ -94,6 +103,7 @@
 
 <script src="js/equation-parse.js"></script>
 <script src="js/graph-utils.js"></script>
+<script src="js/working-trail.js"></script>
 <script src="js/practice-parabola-intercepts.js"></script>
 <script src="js/page-practice-parabola-intercepts.js"></script>
 </body>

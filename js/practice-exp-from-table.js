@@ -47,6 +47,7 @@ VM.PracticeExpFromTable = (function(){
   var stepIndex = 0;
   var stepAnswered = false;
   var answered = false;
+  var working = null;    // the "shown work" trail for the current question — see working-trail.js
 
   function randChoice(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
   function randInt(lo, hi){ return lo + Math.floor(Math.random() * (hi - lo + 1)); }
@@ -80,6 +81,7 @@ VM.PracticeExpFromTable = (function(){
     stepIndex = 0;
     stepAnswered = false;
     answered = false;
+    working.reset();
     els.modeNote.textContent = scaffold ? '' : "You've got this — just write the full equation.";
 
     renderTable();
@@ -221,6 +223,7 @@ VM.PracticeExpFromTable = (function(){
     var ok = oks.every(function(o){ return o; });
     els.feedback.textContent = ok ? 'Correct.' : ('Not quite. The differences are ' + current.firstDiffs.join(', ') + '.');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
+    if(ok) working.push('First differences: ' + current.firstDiffs.join(', '));
     return ok;
   }
 
@@ -233,6 +236,7 @@ VM.PracticeExpFromTable = (function(){
     var ok = oks.every(function(o){ return o; });
     els.feedback.textContent = ok ? ('Correct — the ratio is constant, ' + current.a + '.') : ('Not quite. Each one should be ' + current.a + '.');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
+    if(ok) working.push('Ratio = ' + current.a);
     return ok;
   }
 
@@ -243,6 +247,7 @@ VM.PracticeExpFromTable = (function(){
     var correctStr = 'y = k(' + current.a + ')^x + c';
     els.feedback.textContent = ok ? ('Correct — ' + correctStr + '.') : ('Not quite. It should be ' + correctStr + '.');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
+    if(ok) working.push(correctStr);
     return ok;
   }
 
@@ -258,6 +263,7 @@ VM.PracticeExpFromTable = (function(){
     var correct2 = current.a + 'k + c = ' + current.ys[1];
     els.feedback.textContent = ok ? ('Correct — ' + correct1 + ' and ' + correct2 + '.') : ('Not quite. It should be ' + correct1 + ' and ' + correct2 + '.');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
+    if(ok){ working.push(correct1); working.push(correct2); }
     return ok;
   }
 
@@ -273,6 +279,7 @@ VM.PracticeExpFromTable = (function(){
       ('Correct — k = ' + current.k + ', c = ' + current.c + '.') :
       ('Not quite. k = ' + current.k + ', c = ' + current.c + '.');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
+    if(ok) working.push('k = ' + current.k + ', c = ' + current.c);
     return ok;
   }
 
@@ -305,6 +312,7 @@ VM.PracticeExpFromTable = (function(){
       score.correct++;
       els.feedback.textContent = 'Correct — ' + correctStr + '.';
       els.feedback.className = 'feedback correct';
+      working.push(correctStr);
     } else {
       els.feedback.textContent = 'Not quite. ' + correctStr + '.';
       els.feedback.className = 'feedback incorrect';
@@ -345,6 +353,9 @@ VM.PracticeExpFromTable = (function(){
     els.checkBtn = document.getElementById('exp-table-check-btn');
     els.nextBtn = document.getElementById('exp-table-next-btn');
     els.backBtn = document.getElementById('exp-table-back-btn');
+    els.workingCard = document.getElementById('exp-table-working-card');
+    els.workingLines = document.getElementById('exp-table-working-lines');
+    working = VM.WorkingTrail(els.workingCard, els.workingLines);
 
     els.firstDiffRow = document.getElementById('exp-table-first-diff');
     els.firstDiffInputs = [1, 2, 3].map(function(i){ return document.getElementById('exp-table-diff-' + i); });
@@ -378,6 +389,9 @@ VM.PracticeExpFromTable = (function(){
     });
 
     if(opts.onBack){ els.backBtn.addEventListener('click', opts.onBack); }
+
+    VM.PowerPreview.init();
+    VM.KeybindHelp.attach(document.getElementById('exp-table-keybind-help'));
   }
 
   function start(){

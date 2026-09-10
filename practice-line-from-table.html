@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="css/practice.css">
 </head>
 <body>
-<div class="wrap" id="page-wrap">
+<div class="wrap wrap-wide" id="page-wrap">
 
   <div class="topbar">
     <a class="brand" href="index.html">
@@ -44,6 +44,7 @@
         </div>
       </div>
 
+      <div class="practice-panel-group">
       <div class="practice-panel">
         <div>
           <div class="practice-title">Find the equation of the line</div>
@@ -74,6 +75,14 @@
         <div class="feedback" id="table-feedback"></div>
         <div class="practice-score-row" id="table-score-row">Score: <span class="mono" id="table-score">0 / 0</span></div>
       </div>
+
+      <div class="working-sidebar">
+        <div class="working-card" id="table-working-card" hidden>
+          <div class="equation-label">Working</div>
+          <div class="working-lines" id="table-working-lines"></div>
+        </div>
+      </div>
+      </div>
     </div>
 
     <footer>A freshly generated table each time &middot; the x = 0 column (which gives away the y-intercept) drops once you've mastered this</footer>
@@ -82,6 +91,7 @@
 </div>
 
 <script src="js/equation-parse.js"></script>
+<script src="js/working-trail.js"></script>
 <script src="js/practice-line-from-table.js"></script>
 <script src="js/page-practice-line-from-table.js"></script>
 </body>

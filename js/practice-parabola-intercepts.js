@@ -79,6 +79,7 @@ VM.PracticeParabolaIntercepts = (function(){
   var stepIndex = 0;
   var stepAnswered = false; // has the CURRENT (non-final) step been answered correctly?
   var answered = false;     // has the FINAL "equation" step been checked at all?
+  var working = null;       // the "shown work" trail for the current question — see working-trail.js
 
   function toPx(x, y){ return grid.toPx(x, y); }
   function randChoice(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
@@ -138,6 +139,7 @@ VM.PracticeParabolaIntercepts = (function(){
     stepIndex = 0;
     stepAnswered = false;
     answered = false;
+    working.reset();
     els.modeNote.textContent = tierNote();
     renderGraph();
     renderStep();
@@ -301,6 +303,7 @@ VM.PracticeParabolaIntercepts = (function(){
       ('Correct — the x-intercepts are ' + current.p + ' and ' + current.q + '.') :
       ('Not quite. The x-intercepts are ' + current.p + ' and ' + current.q + '.');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
+    if(ok) working.push('x-intercepts: ' + current.p + ', ' + current.q);
     return ok;
   }
 
@@ -311,6 +314,7 @@ VM.PracticeParabolaIntercepts = (function(){
     var correctStr = bracketsString(current.p, current.q);
     els.feedback.textContent = ok ? ('Correct — ' + correctStr) : ('Not quite. It should be ' + correctStr + '.');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
+    if(ok) working.push(correctStr);
     return ok;
   }
 
@@ -326,6 +330,7 @@ VM.PracticeParabolaIntercepts = (function(){
       ('Correct — the point is (0, ' + current.yInt + ').') :
       ('Not quite. The marked point is (0, ' + current.yInt + ').');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
+    if(ok) working.push('(0, ' + current.yInt + ')');
     return ok;
   }
 
@@ -336,6 +341,7 @@ VM.PracticeParabolaIntercepts = (function(){
     var aStr = aPlainLabel(current.aNum, current.aDen);
     els.feedback.textContent = ok ? ('Correct — a = ' + aStr + '.') : ('Not quite. a = ' + aStr + '.');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
+    if(ok) working.push('a = ' + aStr);
     return ok;
   }
 
@@ -373,6 +379,7 @@ VM.PracticeParabolaIntercepts = (function(){
       score.correct++;
       els.feedback.textContent = 'Correct — ' + equation;
       els.feedback.className = 'feedback correct';
+      working.push(equation);
     } else {
       els.feedback.textContent = 'Not quite. ' + equation +
         ' (a = ' + aPlainLabel(current.aNum, current.aDen) + ', x-intercepts ' + current.p + ' and ' + current.q + ').';
@@ -420,6 +427,9 @@ VM.PracticeParabolaIntercepts = (function(){
     els.checkBtn = document.getElementById('parabola-check-btn');
     els.nextBtn = document.getElementById('parabola-next-btn');
     els.backBtn = document.getElementById('parabola-back-btn');
+    els.workingCard = document.getElementById('parabola-working-card');
+    els.workingLines = document.getElementById('parabola-working-lines');
+    working = VM.WorkingTrail(els.workingCard, els.workingLines);
 
     els.intP1 = document.getElementById('parabola-int-p1');
     els.intP2 = document.getElementById('parabola-int-p2');

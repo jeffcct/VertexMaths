@@ -20,7 +20,13 @@
 .plot-curve{ stroke:var(--algebra); stroke-width:2.5; stroke-linecap:round; fill:none; }
 .plot-point{ fill:var(--algebra); stroke:var(--paper-raised); stroke-width:1.5; }
 
-.practice-panel{ flex:1; min-width:260px; display:flex; flex-direction:column; gap:1.1rem; }
+.practice-panel{ flex:1; min-width:240px; display:flex; flex-direction:column; gap:1.1rem; }
+
+/* Pairs the panel with its working-sidebar (see below) so the two
+   wrap against each other, rather than the sidebar wrapping under
+   the graph/equations card on the left — that pairing needs a wider
+   reading column than the site's default, see .wrap-wide in base.css. */
+.practice-panel-group{ display:flex; flex:1; min-width:240px; gap:1.5rem; flex-wrap:wrap; }
 .practice-title{ font-size:1.4rem; font-weight:700; margin-bottom:.3rem; }
 .practice-sub{ color:var(--ink-soft); font-size:.88rem; line-height:1.4; }
 
@@ -35,6 +41,8 @@
 .answer-input.wrong{ border-color:var(--danger); background:var(--danger-soft); }
 .answer-input-wide{ width:170px; text-align:left; padding-left:.6rem; }
 .answer-hint{ font-size:.78rem; color:var(--ink-soft); }
+.answer-hint-row{ display:flex; align-items:flex-start; gap:.3rem; }
+.answer-hint-row .answer-hint{ flex:1; }
 .form-template{ font-size:.95rem; color:var(--ink-soft); }
 .practice-mode-note{ font-size:.78rem; font-weight:600; color:var(--algebra); min-height:1.2em; }
 .step-prompt{ font-size:.95rem; font-weight:600; color:var(--ink); min-height:1.3em; }
@@ -114,15 +122,20 @@
 }
 .equation-line{ font-family:'IBM Plex Mono', monospace; font-size:1.3rem; font-weight:600; color:var(--ink); }
 
-/* Running "shown work" trail for the elimination method — appends a
-   line each time a step is confirmed correct, so the student can see
-   their full derivation building up under the question. Empty/hidden
-   for substitution and for the direct-answer (no-scaffold) tier. */
+/* Running "shown work" trail — every stepped Practice component
+   appends a line each time a step is confirmed correct, so the
+   student can look back at their full derivation for this question.
+   Empty/hidden while nothing's been confirmed yet, e.g. the
+   direct-answer (no-scaffold) tier. Lives in a fixed-width sidebar
+   (see .working-sidebar) on the right of the layout, next to the
+   question itself, rather than buried below it. */
+.working-sidebar{ flex:0 0 220px; max-width:100%; }
 .working-card{
-  margin-top:1rem; background:var(--paper-raised); border:1px dashed var(--line);
+  background:var(--paper-raised); border:1px dashed var(--line);
   border-radius:14px; padding:1rem 1.75rem; min-width:220px;
+  position:sticky; top:1rem;
 }
-.working-card #sim-working-lines{
+.working-card .working-lines{
   font-family:'IBM Plex Mono', monospace; font-size:1rem; color:var(--ink-soft);
   display:flex; flex-direction:column; gap:.3rem; margin-top:.4rem;
 }
@@ -130,3 +143,35 @@
 /* A step made of more than one answer-row stacked vertically instead
    of side by side (e.g. two full equations, one per line). */
 .answer-row-stack{ flex-direction:column; align-items:flex-start; gap:.6rem; }
+
+/* ---- Power-input live preview (typed "^" exponent notation) ---- */
+/* flex-basis:100% forces this onto its own line within the wrapping
+   .answer-row it follows, right under the input it mirrors. */
+.power-preview{
+  flex-basis:100%; font-family:'IBM Plex Mono', monospace; font-size:1rem;
+  color:var(--ink-soft); min-height:1.3em; margin-top:.15rem;
+}
+.power-preview:empty{ display:none; }
+.power-preview sup{ font-size:.7em; }
+
+/* ---- Keybind help ("?") button + popover ---- */
+.keybind-help{ position:relative; display:inline-block; margin-left:.4rem; vertical-align:middle; }
+.keybind-help-btn{
+  width:1.4rem; height:1.4rem; border-radius:50%; border:1.5px solid var(--line);
+  background:var(--paper-raised); color:var(--ink-soft); font-weight:700; font-size:.8rem;
+  line-height:1; padding:0; cursor:pointer;
+}
+.keybind-help-btn:hover{ border-color:var(--algebra); color:var(--algebra); }
+.keybind-help-panel{
+  position:absolute; top:calc(100% + .5rem); left:0; z-index:20;
+  background:var(--paper-raised); border:1px solid var(--line); border-radius:10px;
+  padding:.8rem 1rem; box-shadow:0 4px 16px var(--shadow); min-width:240px;
+}
+.keybind-help-title{
+  font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+  color:var(--ink-soft); margin-bottom:.5rem;
+}
+.keybind-help-row{ display:flex; align-items:baseline; gap:.5rem; font-size:.85rem; padding:.15rem 0; }
+.keybind-help-keys{ font-weight:600; color:var(--ink); white-space:nowrap; }
+.keybind-help-result{ color:var(--algebra); font-weight:700; }
+.keybind-help-desc{ color:var(--ink-soft); }

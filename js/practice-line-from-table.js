@@ -63,6 +63,7 @@ VM.PracticeLineFromTable = (function(){
   var stepIndex = 0;
   var stepAnswered = false; // has the (ungraded) 'differences' step been answered correctly?
   var answered = false;     // has the final 'equation' step been checked at all?
+  var working = null;       // the "shown work" trail for the current question — see working-trail.js
 
   function randChoice(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
   function randInt(lo, hi){ return lo + Math.floor(Math.random() * (hi - lo + 1)); }
@@ -96,6 +97,7 @@ VM.PracticeLineFromTable = (function(){
     stepIndex = 0;
     stepAnswered = false;
     answered = false;
+    working.reset();
 
     renderTable();
     renderStep();
@@ -186,6 +188,7 @@ VM.PracticeLineFromTable = (function(){
       ('Correct — the common difference is ' + current.m + '.') :
       ('Not quite. Each gap should be ' + current.m + '.');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
+    if(ok) working.push('Common difference = ' + current.m);
     return ok;
   }
 
@@ -258,6 +261,7 @@ VM.PracticeLineFromTable = (function(){
       score.correct++;
       els.feedback.textContent = 'Correct — ' + equation;
       els.feedback.className = 'feedback correct';
+      working.push(equation);
     } else {
       els.feedback.textContent = 'Not quite. ' + equation +
         ' (gradient ' + current.m + ', y-intercept ' + current.c + ').';
@@ -315,6 +319,9 @@ VM.PracticeLineFromTable = (function(){
     els.checkBtn = document.getElementById('table-check-btn');
     els.nextBtn = document.getElementById('table-next-btn');
     els.backBtn = document.getElementById('table-back-btn');
+    els.workingCard = document.getElementById('table-working-card');
+    els.workingLines = document.getElementById('table-working-lines');
+    working = VM.WorkingTrail(els.workingCard, els.workingLines);
 
     els.checkBtn.addEventListener('click', handleCheckOrAdvance);
     els.nextBtn.addEventListener('click', nextQuestion);

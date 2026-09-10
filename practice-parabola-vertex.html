@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="css/practice.css">
 </head>
 <body>
-<div class="wrap" id="page-wrap">
+<div class="wrap wrap-wide" id="page-wrap">
 
   <div class="topbar">
     <a class="brand" href="index.html">
@@ -36,6 +36,7 @@
         <svg id="vertex-graph-svg" viewBox="0 0 320 320" role="img" aria-label="A parabola plotted on a coordinate grid"></svg>
       </div>
 
+      <div class="practice-panel-group">
       <div class="practice-panel">
         <div>
           <div class="practice-title">Find the equation of the parabola</div>
@@ -56,7 +57,7 @@
         </div>
 
         <div class="answer-row" id="vertex-step-squared" hidden>
-          <input type="text" id="vertex-squared-input" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Partial equation from the vertex, with a left as a letter" placeholder="e.g. y = a(x + 3)^2 + 4">
+          <input type="text" id="vertex-squared-input" class="answer-input answer-input-wide power-input" inputmode="text" autocomplete="off" aria-label="Partial equation from the vertex, with a left as a letter" placeholder="e.g. y = a(x + 3)^2 + 4">
         </div>
 
         <div class="answer-row" id="vertex-step-point" hidden>
@@ -73,10 +74,13 @@
         </div>
 
         <div class="answer-row" id="vertex-answer-row-typed" hidden>
-          <input type="text" id="vertex-eq-input" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Full equation" placeholder="e.g. y = -2(x + 3)^2 + 4">
+          <input type="text" id="vertex-eq-input" class="answer-input answer-input-wide power-input" inputmode="text" autocomplete="off" aria-label="Full equation" placeholder="e.g. y = -2(x + 3)^2 + 4">
         </div>
 
-        <div class="answer-hint" id="vertex-hint"></div>
+        <div class="answer-hint-row">
+          <div class="answer-hint" id="vertex-hint"></div>
+          <span id="vertex-keybind-help"></span>
+        </div>
 
         <div class="practice-actions">
           <button class="practice-check-btn" id="vertex-check-btn">Check answer</button>
@@ -85,6 +89,14 @@
 
         <div class="feedback" id="vertex-feedback"></div>
         <div class="practice-score-row" id="vertex-score-row">Score: <span class="mono" id="vertex-score">0 / 0</span></div>
+      </div>
+
+      <div class="working-sidebar">
+        <div class="working-card" id="vertex-working-card" hidden>
+          <div class="equation-label">Working</div>
+          <div class="working-lines" id="vertex-working-lines"></div>
+        </div>
+      </div>
       </div>
     </div>
 
@@ -95,6 +107,9 @@
 
 <script src="js/equation-parse.js"></script>
 <script src="js/graph-utils.js"></script>
+<script src="js/working-trail.js"></script>
+<script src="js/power-preview.js"></script>
+<script src="js/keybind-help.js"></script>
 <script src="js/practice-parabola-vertex.js"></script>
 <script src="js/page-practice-parabola-vertex.js"></script>
 </body>

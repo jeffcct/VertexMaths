@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="css/practice.css">
 </head>
 <body>
-<div class="wrap" id="page-wrap">
+<div class="wrap wrap-wide" id="page-wrap">
 
   <div class="topbar">
     <a class="brand" href="index.html">
@@ -51,6 +51,7 @@
         </div>
       </div>
 
+      <div class="practice-panel-group">
       <div class="practice-panel">
         <div>
           <div class="practice-title">Find the equation of the exponential</div>
@@ -61,7 +62,7 @@
         <div class="step-prompt" id="exp-table-step-prompt"></div>
 
         <div class="answer-row" id="exp-table-step-basic-equation" hidden>
-          <input type="text" id="exp-table-basic-eq" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Basic equation" placeholder="e.g. y = k(3)^x + c">
+          <input type="text" id="exp-table-basic-eq" class="answer-input answer-input-wide power-input" inputmode="text" autocomplete="off" aria-label="Basic equation" placeholder="e.g. y = k(3)^x + c">
         </div>
 
         <div class="answer-row answer-row-stack" id="exp-table-step-substitute-points" hidden>
@@ -81,10 +82,13 @@
         </div>
 
         <div class="answer-row" id="exp-table-step-final-equation" hidden>
-          <input type="text" id="exp-table-final-eq" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Full equation" placeholder="e.g. y = -2(3)^x + 1">
+          <input type="text" id="exp-table-final-eq" class="answer-input answer-input-wide power-input" inputmode="text" autocomplete="off" aria-label="Full equation" placeholder="e.g. y = -2(3)^x + 1">
         </div>
 
-        <div class="answer-hint" id="exp-table-hint"></div>
+        <div class="answer-hint-row">
+          <div class="answer-hint" id="exp-table-hint"></div>
+          <span id="exp-table-keybind-help"></span>
+        </div>
 
         <div class="practice-actions">
           <button class="practice-check-btn" id="exp-table-check-btn">Check answer</button>
@@ -94,6 +98,14 @@
         <div class="feedback" id="exp-table-feedback"></div>
         <div class="practice-score-row">Score: <span class="mono" id="exp-table-score">0 / 0</span></div>
       </div>
+
+      <div class="working-sidebar">
+        <div class="working-card" id="exp-table-working-card" hidden>
+          <div class="equation-label">Working</div>
+          <div class="working-lines" id="exp-table-working-lines"></div>
+        </div>
+      </div>
+      </div>
     </div>
 
     <footer>A freshly generated table each time &middot; the base is always a positive whole number</footer>
@@ -102,6 +114,9 @@
 </div>
 
 <script src="js/equation-parse.js"></script>
+<script src="js/working-trail.js"></script>
+<script src="js/power-preview.js"></script>
+<script src="js/keybind-help.js"></script>
 <script src="js/practice-exp-from-table.js"></script>
 <script src="js/page-practice-exp-from-table.js"></script>
 </body>

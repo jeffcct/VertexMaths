@@ -34,13 +34,12 @@
    Practice component's step walkthroughs (see the note at the top
    of practice-parabola-intercepts.js).
 
-   While working through elimination, a "Working" box under the
-   equations accumulates a line each time a step is confirmed
-   correct — the multiplied equations, the eliminated equation, each
-   solved value — so the student can see their derivation build up
-   the way they would on paper. It's specific to elimination (see
-   pushWorking): substitution's rearrange-then-substitute steps don't
-   collapse into a comparable line-by-line trail.
+   A "Working" side panel accumulates a line each time a step is
+   confirmed correct — the multiplied/eliminated equations and each
+   solved value for elimination, the rearranged equation and each
+   solved value for substitution — so the student can see their
+   derivation build up the way they would on paper, and refer back to
+   it at any later step (see working-trail.js).
 
    Public API: VM.PracticeSimultaneous.init({ onBack }), .start()
    ============================================================ */
@@ -65,7 +64,7 @@ VM.PracticeSimultaneous = (function(){
   var stepIndex = 0;
   var stepAnswered = false;
   var answered = false;
-  var workingLines = [];  // the elimination "shown work" trail for the current question
+  var working = null;    // the "shown work" trail for the current question — see working-trail.js
 
   function randInt(lo, hi){ return lo + Math.floor(Math.random() * (hi - lo + 1)); }
   function randChoice(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
@@ -161,8 +160,7 @@ VM.PracticeSimultaneous = (function(){
     els.multiplyEq1Label.textContent = 'Equation 1 × ' + multA + ':';
     els.multiplyEq2Label.textContent = 'Equation 2 × ' + multB + ':';
 
-    workingLines = [];
-    renderWorking();
+    working.reset();
     renderEquations();
     renderStep();
   }
@@ -174,22 +172,6 @@ VM.PracticeSimultaneous = (function(){
     return method === 'substitution'
       ? ['pick-variable', 'rearrange', 'solve-first', 'solve-second', 'equation']
       : ['multipliers', 'multiply-equations', 'eliminate', 'solve-first', 'solve-second', 'equation'];
-  }
-
-  // ---- The elimination "shown work" trail ----------------------------
-
-  function pushWorking(line){
-    workingLines.push(line);
-    renderWorking();
-  }
-  function renderWorking(){
-    els.workingCard.hidden = workingLines.length === 0;
-    els.workingLines.innerHTML = '';
-    workingLines.forEach(function(line){
-      var div = document.createElement('div');
-      div.textContent = line;
-      els.workingLines.appendChild(div);
-    });
   }
 
   function close(a, b){ return Math.abs(a - b) < 0.01; }
@@ -479,6 +461,7 @@ VM.PracticeSimultaneous = (function(){
     var correctStr = rearrangedString();
     els.feedback.textContent = ok ? ('Correct — ' + correctStr + '.') : ('Not quite. Rearranged, that’s ' + correctStr + '.');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
+    if(ok) working.push(correctStr);
     return ok;
   }
 
@@ -522,7 +505,7 @@ VM.PracticeSimultaneous = (function(){
       ('Correct — equation 1 × ' + current.multA + ', equation 2 × ' + current.multB + ' matches the ' + current.targetVar + '-coefficients.') :
       ('Not quite. Try multiplying so either the x- or the y-coefficients end up matching — e.g. equation 1 × ' + current.multA + ' and equation 2 × ' + current.multB + '.');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
-    if(ok) pushWorking('Equation 1 × ' + current.multA + ', equation 2 × ' + current.multB);
+    if(ok) working.push('Equation 1 × ' + current.multA + ', equation 2 × ' + current.multB);
     return ok;
   }
 
@@ -543,7 +526,7 @@ VM.PracticeSimultaneous = (function(){
       ('Correct — ' + correct1 + ' and ' + correct2 + '.') :
       ('Not quite. It should be ' + correct1 + ' and ' + correct2 + '.');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
-    if(ok){ pushWorking(correct1); pushWorking(correct2); }
+    if(ok){ working.push(correct1); working.push(correct2); }
     return ok;
   }
 
@@ -560,7 +543,7 @@ VM.PracticeSimultaneous = (function(){
     var correctStr = formatSingleVarEquation(current.elimCoeff, current.eliminatedOtherVar, current.elimRhs);
     els.feedback.textContent = ok ? ('Correct — ' + correctStr + '.') : ('Not quite. It should be ' + correctStr + '.');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
-    if(ok) pushWorking(correctStr);
+    if(ok) working.push(correctStr);
     return ok;
   }
 
@@ -572,7 +555,7 @@ VM.PracticeSimultaneous = (function(){
     els.solveFirstInput.classList.toggle('right', ok); els.solveFirstInput.classList.toggle('wrong', !ok);
     els.feedback.textContent = ok ? ('Correct — ' + label + ' = ' + expected + '.') : ('Not quite. ' + label + ' = ' + expected + '.');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
-    if(ok && current.method === 'elimination') pushWorking(label + ' = ' + expected);
+    if(ok) working.push(label + ' = ' + expected);
     return ok;
   }
 
@@ -584,7 +567,7 @@ VM.PracticeSimultaneous = (function(){
     els.solveSecondInput.classList.toggle('right', ok); els.solveSecondInput.classList.toggle('wrong', !ok);
     els.feedback.textContent = ok ? ('Correct — ' + label + ' = ' + expected + '.') : ('Not quite. ' + label + ' = ' + expected + '.');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
-    if(ok && current.method === 'elimination') pushWorking(label + ' = ' + expected);
+    if(ok) working.push(label + ' = ' + expected);
     return ok;
   }
 
@@ -620,7 +603,7 @@ VM.PracticeSimultaneous = (function(){
       els.feedback.className = 'feedback incorrect';
     }
     els.score.textContent = score.correct + ' / ' + score.attempted;
-    if(ok && current.method === 'elimination') pushWorking('(x, y) = (' + current.x0 + ', ' + current.y0 + ')');
+    if(ok) working.push('(x, y) = (' + current.x0 + ', ' + current.y0 + ')');
     return true;
   }
 
@@ -664,6 +647,7 @@ VM.PracticeSimultaneous = (function(){
     els.eq2 = document.getElementById('sim-eq2');
     els.workingCard = document.getElementById('sim-working-card');
     els.workingLines = document.getElementById('sim-working-lines');
+    working = VM.WorkingTrail(els.workingCard, els.workingLines);
     els.modeNote = document.getElementById('sim-mode-note');
     els.stepPrompt = document.getElementById('sim-step-prompt');
     els.hint = document.getElementById('sim-hint');

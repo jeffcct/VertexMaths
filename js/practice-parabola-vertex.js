@@ -65,6 +65,7 @@ VM.PracticeParabolaVertex = (function(){
   var stepIndex = 0;
   var stepAnswered = false;
   var answered = false;
+  var working = null;    // the "shown work" trail for the current question — see working-trail.js
 
   function toPx(x, y){ return grid.toPx(x, y); }
   function randChoice(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
@@ -123,6 +124,7 @@ VM.PracticeParabolaVertex = (function(){
     stepIndex = 0;
     stepAnswered = false;
     answered = false;
+    working.reset();
     els.modeNote.textContent = tierNote();
     renderGraph();
     renderStep();
@@ -303,6 +305,7 @@ VM.PracticeParabolaVertex = (function(){
       ('Correct — the vertex is (' + current.h + ', ' + current.k + ').') :
       ('Not quite. The vertex is (' + current.h + ', ' + current.k + ').');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
+    if(ok) working.push('vertex = (' + current.h + ', ' + current.k + ')');
     return ok;
   }
 
@@ -313,6 +316,7 @@ VM.PracticeParabolaVertex = (function(){
     var correctStr = squaredTemplateString(current.h, current.k);
     els.feedback.textContent = ok ? ('Correct — ' + correctStr) : ('Not quite. It should be ' + correctStr + '.');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
+    if(ok) working.push(correctStr);
     return ok;
   }
 
@@ -329,6 +333,7 @@ VM.PracticeParabolaVertex = (function(){
       ('Correct — the point is (' + wantX + ', ' + wantY + ').') :
       ('Not quite. The marked point is (' + wantX + ', ' + wantY + ').');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
+    if(ok) working.push('(' + wantX + ', ' + wantY + ')');
     return ok;
   }
 
@@ -339,6 +344,7 @@ VM.PracticeParabolaVertex = (function(){
     var aStr = aPlainLabel(current.aNum, current.aDen);
     els.feedback.textContent = ok ? ('Correct — a = ' + aStr + '.') : ('Not quite. a = ' + aStr + '.');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
+    if(ok) working.push('a = ' + aStr);
     return ok;
   }
 
@@ -375,6 +381,7 @@ VM.PracticeParabolaVertex = (function(){
       score.correct++;
       els.feedback.textContent = 'Correct — ' + equation;
       els.feedback.className = 'feedback correct';
+      working.push(equation);
     } else {
       els.feedback.textContent = 'Not quite. ' + equation +
         ' (a = ' + aPlainLabel(current.aNum, current.aDen) + ', vertex (' + current.h + ', ' + current.k + ')).';
@@ -422,6 +429,9 @@ VM.PracticeParabolaVertex = (function(){
     els.checkBtn = document.getElementById('vertex-check-btn');
     els.nextBtn = document.getElementById('vertex-next-btn');
     els.backBtn = document.getElementById('vertex-back-btn');
+    els.workingCard = document.getElementById('vertex-working-card');
+    els.workingLines = document.getElementById('vertex-working-lines');
+    working = VM.WorkingTrail(els.workingCard, els.workingLines);
 
     els.vH = document.getElementById('vertex-vertex-h');
     els.vK = document.getElementById('vertex-vertex-k');
@@ -447,6 +457,9 @@ VM.PracticeParabolaVertex = (function(){
       });
     });
     if(opts.onBack){ els.backBtn.addEventListener('click', opts.onBack); }
+
+    VM.PowerPreview.init();
+    VM.KeybindHelp.attach(document.getElementById('vertex-keybind-help'));
   }
 
   function start(){

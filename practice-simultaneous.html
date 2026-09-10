@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="css/practice.css">
 </head>
 <body>
-<div class="wrap" id="page-wrap">
+<div class="wrap wrap-wide" id="page-wrap">
 
   <div class="topbar">
     <a class="brand" href="index.html">
@@ -32,20 +32,14 @@
     </div>
 
     <div class="practice-layout">
-      <div>
-        <div class="equations-card">
-          <div class="equation-label">Equation 1</div>
-          <div class="equation-line" id="sim-eq1"></div>
-          <div class="equation-label">Equation 2</div>
-          <div class="equation-line" id="sim-eq2"></div>
-        </div>
-
-        <div class="working-card" id="sim-working-card" hidden>
-          <div class="equation-label">Working</div>
-          <div id="sim-working-lines"></div>
-        </div>
+      <div class="equations-card">
+        <div class="equation-label">Equation 1</div>
+        <div class="equation-line" id="sim-eq1"></div>
+        <div class="equation-label">Equation 2</div>
+        <div class="equation-line" id="sim-eq2"></div>
       </div>
 
+      <div class="practice-panel-group">
       <div class="practice-panel">
         <div>
           <div class="practice-title">Solve the simultaneous equations</div>
@@ -121,6 +115,14 @@
         <div class="feedback" id="sim-feedback"></div>
         <div class="practice-score-row" id="sim-score-row">Score: <span class="mono" id="sim-score">0 / 0</span></div>
       </div>
+
+      <div class="working-sidebar">
+        <div class="working-card" id="sim-working-card" hidden>
+          <div class="equation-label">Working</div>
+          <div class="working-lines" id="sim-working-lines"></div>
+        </div>
+      </div>
+      </div>
     </div>
 
     <footer>A freshly generated system each time &middot; the method (elimination or substitution) is chosen at random, and the walkthrough drops away once you're solving reliably</footer>
@@ -129,6 +131,7 @@
 </div>
 
 <script src="js/equation-parse.js"></script>
+<script src="js/working-trail.js"></script>
 <script src="js/practice-simultaneous.js"></script>
 <script src="js/page-practice-simultaneous.js"></script>
 </body>

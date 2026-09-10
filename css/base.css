@@ -78,6 +78,11 @@ button{ font-family:inherit; cursor:pointer; }
 :focus-visible{ outline:2px solid var(--focus); outline-offset:2px; border-radius:4px; }
 
 .wrap{ max-width:920px; margin:0 auto; padding:2.25rem 1.5rem 5rem; }
+/* A handful of Practice pages add a third "Working" column next to
+   the graph/equations card and the answer panel (see .working-sidebar
+   in practice.css) — the default reading width is too narrow to fit
+   all three without the sidebar wrapping under the first column. */
+.wrap.wrap-wide{ max-width:1100px; }
 
 /* ---- Top bar ---- */
 .topbar{

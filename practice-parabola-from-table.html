@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="css/practice.css">
 </head>
 <body>
-<div class="wrap" id="page-wrap">
+<div class="wrap wrap-wide" id="page-wrap">
 
   <div class="topbar">
     <a class="brand" href="index.html">
@@ -53,6 +53,7 @@
         </div>
       </div>
 
+      <div class="practice-panel-group">
       <div class="practice-panel">
         <div>
           <div class="practice-title">Find the equation of the parabola</div>
@@ -73,7 +74,7 @@
         </div>
 
         <div class="answer-row" id="parabola-table-step-current-equation" hidden>
-          <input type="text" id="parabola-table-current-eq" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Equation so far" placeholder="e.g. y = 2x^2 + bx - 3">
+          <input type="text" id="parabola-table-current-eq" class="answer-input answer-input-wide power-input" inputmode="text" autocomplete="off" aria-label="Equation so far" placeholder="e.g. y = 2x^2 + bx - 3">
         </div>
 
         <div class="answer-row" id="parabola-table-step-find-b" hidden>
@@ -82,10 +83,13 @@
         </div>
 
         <div class="answer-row" id="parabola-table-step-final-equation" hidden>
-          <input type="text" id="parabola-table-final-eq" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Full equation" placeholder="e.g. y = -2x^2 + 3x - 1">
+          <input type="text" id="parabola-table-final-eq" class="answer-input answer-input-wide power-input" inputmode="text" autocomplete="off" aria-label="Full equation" placeholder="e.g. y = -2x^2 + 3x - 1">
         </div>
 
-        <div class="answer-hint" id="parabola-table-hint"></div>
+        <div class="answer-hint-row">
+          <div class="answer-hint" id="parabola-table-hint"></div>
+          <span id="parabola-table-keybind-help"></span>
+        </div>
 
         <div class="practice-actions">
           <button class="practice-check-btn" id="parabola-table-check-btn">Check answer</button>
@@ -95,6 +99,14 @@
         <div class="feedback" id="parabola-table-feedback"></div>
         <div class="practice-score-row">Score: <span class="mono" id="parabola-table-score">0 / 0</span></div>
       </div>
+
+      <div class="working-sidebar">
+        <div class="working-card" id="parabola-table-working-card" hidden>
+          <div class="equation-label">Working</div>
+          <div class="working-lines" id="parabola-table-working-lines"></div>
+        </div>
+      </div>
+      </div>
     </div>
 
     <footer>A freshly generated table each time &middot; x = 0 is never shown, so c has to be worked back to</footer>
@@ -103,6 +115,9 @@
 </div>
 
 <script src="js/equation-parse.js"></script>
+<script src="js/working-trail.js"></script>
+<script src="js/power-preview.js"></script>
+<script src="js/keybind-help.js"></script>
 <script src="js/practice-parabola-from-table.js"></script>
 <script src="js/page-practice-parabola-from-table.js"></script>
 </body>
