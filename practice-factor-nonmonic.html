@@ -49,10 +49,22 @@
         <div class="practice-mode-note" id="nonmonic-mode-note"></div>
         <div class="step-prompt" id="nonmonic-step-prompt"></div>
 
+        <div class="answer-row" id="nonmonic-step-find-ac" hidden>
+          <input type="text" id="nonmonic-find-ac-input" class="answer-input" inputmode="text" autocomplete="off" aria-label="Value of a times c">
+        </div>
+
         <div class="answer-row" id="nonmonic-step-find-pair" hidden>
           <input type="text" id="nonmonic-pair-input-1" class="answer-input" inputmode="text" autocomplete="off" aria-label="First number">
           <span class="mono">,</span>
           <input type="text" id="nonmonic-pair-input-2" class="answer-input" inputmode="text" autocomplete="off" aria-label="Second number">
+        </div>
+
+        <div class="answer-row" id="nonmonic-step-expanded" hidden>
+          <input type="text" id="nonmonic-expanded-input" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Expanded four-term form" placeholder="e.g. 3x² - 3x + x - 1">
+        </div>
+
+        <div class="answer-row" id="nonmonic-step-grouped" hidden>
+          <input type="text" id="nonmonic-grouped-input" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Grouped form" placeholder="e.g. 3x(x - 1) + 1(x - 1)">
         </div>
 
         <div class="answer-row" id="nonmonic-step-factored" hidden>
