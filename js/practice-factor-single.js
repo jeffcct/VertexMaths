@@ -15,6 +15,14 @@
      2. write the fully factored expression — the only step that's
         scored.
 
+   The greatest common factor's SIGN always matches whatever makes the
+   bracket's x-term come out positive — e.g. -15x - 20 factors as
+   -5(3x + 4), not 5(-3x - 4) — since a positive leading term inside
+   the bracket is the fully-factored convention (see GitHub issue
+   #10). Internally this means B (the bracket's x-coefficient) is
+   always generated positive, and A carries whatever sign is needed
+   to reproduce the original expression's actual leading coefficient.
+
    At 3+ questions and 90%+ accuracy, the scaffold is skipped and the
    question goes straight to step 2 — same convention as every other
    Practice component's adaptive difficulty (see the note at the top
@@ -73,6 +81,12 @@ VM.PracticeFactorSingle = (function(){
       C = randNonZero(BC_MIN, BC_MAX);
     } while(gcd(B, C) !== 1);
 
+    // If B came out negative, flip the sign onto A instead — this
+    // keeps AB and AC (the actual expression) unchanged, but makes
+    // the bracket's x-coefficient always positive, which is the
+    // convention the fully-factored answer must follow.
+    if(B < 0){ A = -A; B = -B; C = -C; }
+
     var AB = A * B, AC = A * C;
     current = { A: A, B: B, C: C, AB: AB, AC: AC };
 
@@ -113,12 +127,13 @@ VM.PracticeFactorSingle = (function(){
     return A + '(' + coeffLabel(B) + 'x' + (C >= 0 ? (' + ' + C) : (' - ' + Math.abs(C))) + ')';
   }
 
-  // Parses "3(2x+5)" / "6(-x+2)" / "6(x-4)" — a blank inner
+  // Parses "3(2x+5)" / "-6(x+2)" / "6(x-4)" — a blank inner
   // coefficient means 1, same blank-means-1 convention as
-  // VM.EquationParse.parseGradient.
+  // VM.EquationParse.parseGradient. The outer factor can be negative
+  // (see the sign-convention note at the top of this file).
   function parseFactored(raw){
     var s = (raw || '').toLowerCase().replace(/\s+/g, '');
-    var m = s.match(/^(\d+)\(([+-]?\d*)x([+-]\d+)\)$/);
+    var m = s.match(/^([+-]?\d+)\(([+-]?\d*)x([+-]\d+)\)$/);
     if(!m) return null;
     var gcf = parseInt(m[1], 10);
     var bStr = m[2];
@@ -139,8 +154,8 @@ VM.PracticeFactorSingle = (function(){
 
   function stepHint(name){
     switch(name){
-      case 'find-gcf': return 'List the factors of each number and find the largest one they share.';
-      case 'factored': return 'Write it as a(bx + c), e.g. 3(2x + 5) — pull the greatest common factor outside a single bracket.';
+      case 'find-gcf': return 'List the factors of each number and find the largest one they share. If the coefficient of x is negative, the greatest common factor is negative too — e.g. for -8x - 12, it’s -4, not 4.';
+      case 'factored': return 'Write it as a(bx + c), e.g. 3(2x + 5) — pull the greatest common factor outside a single bracket. If the x-coefficient is negative, factor out a negative number so the bracket’s x-term is positive — e.g. -8x - 12 factors as -4(2x + 3), not 4(-2x - 3).';
     }
   }
 
