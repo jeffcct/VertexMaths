@@ -79,6 +79,21 @@ VM.PracticeSimultaneous = (function(){
     return a || 1;
   }
 
+  // The two equations after multiplying every term by multA/multB, and
+  // the one-variable equation left after adding/subtracting those —
+  // shared by question generation and by checkMultipliers, since a
+  // student can pick a different (but equally valid) multiplier pair
+  // than the one generated, and everything downstream has to follow it.
+  function computeElimination(aX, aY, aC, p, q, bC, targetVar, operation, multA, multB){
+    var multEq1 = { a: aX * multA, b: aY * multA, c: aC * multA };
+    var multEq2 = { a: p * multB, b: q * multB, c: bC * multB };
+    var elimCoeff = operation === 'subtract'
+      ? (targetVar === 'x' ? multEq1.b - multEq2.b : multEq1.a - multEq2.a)
+      : (targetVar === 'x' ? multEq1.b + multEq2.b : multEq1.a + multEq2.a);
+    var elimRhs = operation === 'subtract' ? multEq1.c - multEq2.c : multEq1.c + multEq2.c;
+    return { multEq1: multEq1, multEq2: multEq2, elimCoeff: elimCoeff, elimRhs: elimRhs };
+  }
+
   // ---- Question generation -----------------------------------------
 
   function nextQuestion(){
@@ -117,28 +132,24 @@ VM.PracticeSimultaneous = (function(){
     var eliminatedOtherVal = targetVar === 'x' ? y0 : x0;
     var targetVal = targetVar === 'x' ? x0 : y0;
 
-    // Equation 1 and 2 after multiplying every term by multA/multB —
-    // the target variable's coefficients now match in magnitude,
-    // which is what makes `operation` cancel it.
-    var multEq1 = { a: aX * multA, b: aY * multA, c: aC * multA };
-    var multEq2 = { a: p * multB, b: q * multB, c: bC * multB };
-    // The one-variable equation left after adding/subtracting those —
-    // whichever coordinate isn't the target variable.
-    var elimCoeff = operation === 'subtract'
-      ? (targetVar === 'x' ? multEq1.b - multEq2.b : multEq1.a - multEq2.a)
-      : (targetVar === 'x' ? multEq1.b + multEq2.b : multEq1.a + multEq2.a);
-    var elimRhs = operation === 'subtract' ? multEq1.c - multEq2.c : multEq1.c + multEq2.c;
+    // Equation 1 and 2 after multiplying every term by multA/multB, and
+    // the one-variable equation left after adding/subtracting those.
+    var elim = computeElimination(aX, aY, aC, p, q, bC, targetVar, operation, multA, multB);
 
     current = {
       aX: aX, aY: aY, aC: aC, p: p, q: q, bC: bC, x0: x0, y0: y0,
       targetVar: targetVar, multA: multA, multB: multB, operation: operation,
       eliminatedOtherVar: eliminatedOtherVar, eliminatedOtherVal: eliminatedOtherVal, targetVal: targetVal,
-      multEq1: multEq1, multEq2: multEq2, elimCoeff: elimCoeff, elimRhs: elimRhs,
+      multEq1: elim.multEq1, multEq2: elim.multEq2, elimCoeff: elim.elimCoeff, elimRhs: elim.elimRhs,
       method: null    // set once the student picks it on the "choose-method" step
       // subVar/otherVar/otherCoeff/rearrangeConst/subVarVal/otherVarVal are
       // set once the student picks a variable on the "pick-variable" step
       // (see selectVariable) — which one avoids fractions depends on that
       // free choice, not on anything decided up front.
+      // targetVar itself can also change, on the "multipliers" step (see
+      // checkMultipliers) — eliminating either variable is always valid,
+      // so a multiplier pair that matches the other variable's
+      // coefficients instead is accepted just as readily.
     };
 
     var scaffold = needsScaffold();
@@ -200,31 +211,37 @@ VM.PracticeSimultaneous = (function(){
   }
 
   // "9x + 6y = 15" — both terms present, x before y, matching how
-  // formatEquation always displays a two-variable equation.
+  // formatEquation always displays a two-variable equation. Also
+  // accepts the constant written first, e.g. "15 = 9x + 6y".
   function parseLinearEquation(raw){
-    var s = (raw || '').toLowerCase().replace(/\s+/g, '');
-    var m = s.match(/^([+-]?\d*)x([+-])(\d*)y=([+-]?\d+)$/);
-    if(!m) return null;
-    var a = parseGradient(m[1]);
-    if(isNaN(a)) return null;
-    var b = (m[2] === '-' ? -1 : 1) * (m[3] === '' ? 1 : parseInt(m[3], 10));
-    var c = parseFloat(m[4]);
-    if(isNaN(c)) return null;
-    return { a: a, b: b, c: c };
+    return VM.EquationParse.parseEitherSide(raw, function(s){
+      s = (s || '').toLowerCase().replace(/\s+/g, '');
+      var m = s.match(/^([+-]?\d*)x([+-])(\d*)y=([+-]?\d+)$/);
+      if(!m) return null;
+      var a = parseGradient(m[1]);
+      if(isNaN(a)) return null;
+      var b = (m[2] === '-' ? -1 : 1) * (m[3] === '' ? 1 : parseInt(m[3], 10));
+      var c = parseFloat(m[4]);
+      if(isNaN(c)) return null;
+      return { a: a, b: b, c: c };
+    });
   }
 
   // "4y = -16" or "y = -16" or "-y = 16" — a single-variable equation
-  // in whichever letter the elimination left behind.
+  // in whichever letter the elimination left behind. Also accepts
+  // the constant written first, e.g. "-16 = 4y".
   function parseSingleVarEquation(raw, varName){
-    var s = (raw || '').toLowerCase().replace(/\s+/g, '');
-    var re = new RegExp('^([+-]?\\d*)' + varName + '=([+-]?\\d+)$');
-    var m = s.match(re);
-    if(!m) return null;
-    var coeff = parseGradient(m[1]);
-    if(isNaN(coeff)) return null;
-    var rhs = parseFloat(m[2]);
-    if(isNaN(rhs)) return null;
-    return { coeff: coeff, rhs: rhs };
+    return VM.EquationParse.parseEitherSide(raw, function(s){
+      s = (s || '').toLowerCase().replace(/\s+/g, '');
+      var re = new RegExp('^([+-]?\\d*)' + varName + '=([+-]?\\d+)$');
+      var m = s.match(re);
+      if(!m) return null;
+      var coeff = parseGradient(m[1]);
+      if(isNaN(coeff)) return null;
+      var rhs = parseFloat(m[2]);
+      if(isNaN(rhs)) return null;
+      return { coeff: coeff, rhs: rhs };
+    });
   }
 
   // Rational-number formatting for whichever variable the student
@@ -292,7 +309,7 @@ VM.PracticeSimultaneous = (function(){
     switch(name){
       case 'pick-variable': return n + 'Which variable would you like to isolate first?';
       case 'rearrange': return n + 'Rearrange equation 1 to make ' + current.subVar + ' the subject.';
-      case 'multipliers': return n + 'What should you multiply each equation by so the ' + current.targetVar + '-coefficients match?';
+      case 'multipliers': return n + 'What should you multiply each equation by so that one variable’s coefficients match?';
       case 'multiply-equations': return n + 'Write out each equation after multiplying.';
       case 'eliminate': return n + 'Add or subtract the two new equations to eliminate ' + current.targetVar + ', and write the result.';
       case 'solve-first':
@@ -317,7 +334,7 @@ VM.PracticeSimultaneous = (function(){
         return 'Move the ' + current.otherVar + ' term to the other side. Leave the coefficient box blank for 1, or type just - for -1.' +
           (Math.abs(current.otherCoeffDen) > 1 || Math.abs(current.rearrangeConstDen) > 1 ? ' Fractions like 1/2 are fine here.' : '');
       case 'multipliers':
-        return 'Multiply so both equations end up with the same-size ' + current.targetVar + '-coefficient.';
+        return 'Multiply so both equations end up with the same-size coefficient for whichever variable you’d like to eliminate — either one works.';
       case 'multiply-equations':
         return 'Multiply every term, including the constant, by that equation’s multiplier — e.g. 3x + 2y = 4 by 3.';
       case 'eliminate':
@@ -465,17 +482,45 @@ VM.PracticeSimultaneous = (function(){
     return ok;
   }
 
+  // Either variable is always valid to eliminate — a pair that makes
+  // the x-coefficients match is just as correct as one that matches
+  // the y-coefficients, even if it's not the variable generated as
+  // the "default" target. So this accepts any positive pair matching
+  // either variable's coefficients, then re-derives everything
+  // downstream (targetVar, operation, the eliminated variable, the
+  // multiplied equations) from whichever one the student's pair hits.
   function checkMultipliers(){
     var a = parseFraction(els.multA.value);
     var b = parseFraction(els.multB.value);
-    var aOk = !isNaN(a) && Math.abs(a - current.multA) < 0.01;
-    var bOk = !isNaN(b) && Math.abs(b - current.multB) < 0.01;
-    els.multA.classList.toggle('right', aOk); els.multA.classList.toggle('wrong', !aOk);
-    els.multB.classList.toggle('right', bOk); els.multB.classList.toggle('wrong', !bOk);
-    var ok = aOk && bOk;
+    var matchesX = !isNaN(a) && !isNaN(b) && a > 0 && b > 0 && close(a * Math.abs(current.aX), b * Math.abs(current.p));
+    var matchesY = !isNaN(a) && !isNaN(b) && a > 0 && b > 0 && close(a * Math.abs(current.aY), b * Math.abs(current.q));
+    // If a pair happens to satisfy both (only possible if it also
+    // happens to solve the system some other way), keep the
+    // already-chosen target rather than switching unnecessarily.
+    var targetVar = matchesX && matchesY ? current.targetVar : (matchesX ? 'x' : (matchesY ? 'y' : null));
+    var ok = !!targetVar;
+    els.multA.classList.toggle('right', ok); els.multA.classList.toggle('wrong', !ok);
+    els.multB.classList.toggle('right', ok); els.multB.classList.toggle('wrong', !ok);
+    if(ok){
+      var cA_t = targetVar === 'x' ? current.aX : current.aY;
+      var cB_t = targetVar === 'x' ? current.p : current.q;
+      current.targetVar = targetVar;
+      current.operation = ((cA_t > 0) === (cB_t > 0)) ? 'subtract' : 'add';
+      current.eliminatedOtherVar = targetVar === 'x' ? 'y' : 'x';
+      current.eliminatedOtherVal = targetVar === 'x' ? current.y0 : current.x0;
+      current.targetVal = targetVar === 'x' ? current.x0 : current.y0;
+      current.multA = a; current.multB = b;
+      var elim = computeElimination(current.aX, current.aY, current.aC, current.p, current.q, current.bC,
+        targetVar, current.operation, a, b);
+      current.multEq1 = elim.multEq1; current.multEq2 = elim.multEq2;
+      current.elimCoeff = elim.elimCoeff; current.elimRhs = elim.elimRhs;
+      els.multiplyEq1Label.textContent = 'Equation 1 × ' + a + ':';
+      els.multiplyEq2Label.textContent = 'Equation 2 × ' + b + ':';
+      setDynamicLabels();
+    }
     els.feedback.textContent = ok ?
-      ('Correct — equation 1 × ' + current.multA + ', equation 2 × ' + current.multB + '.') :
-      ('Not quite. Multiply equation 1 by ' + current.multA + ' and equation 2 by ' + current.multB + '.');
+      ('Correct — equation 1 × ' + current.multA + ', equation 2 × ' + current.multB + ' matches the ' + current.targetVar + '-coefficients.') :
+      ('Not quite. Try multiplying so either the x- or the y-coefficients end up matching — e.g. equation 1 × ' + current.multA + ' and equation 2 × ' + current.multB + '.');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
     if(ok) pushWorking('Equation 1 × ' + current.multA + ', equation 2 × ' + current.multB);
     return ok;

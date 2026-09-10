@@ -111,16 +111,19 @@ VM.PracticeExpFromTable = (function(){
 
   // "k + c = 5" or "3k + c = 17" — one linear equation in k and c;
   // c's own coefficient is always 1 in both equations this generator
-  // asks for, so only k's coefficient varies.
+  // asks for, so only k's coefficient varies. Also accepts the
+  // constant written first, e.g. "5 = k + c".
   function parseLinearKC(raw){
-    var s = (raw || '').toLowerCase().replace(/\s+/g, '');
-    var m = s.match(/^([+-]?\d*)k\+c=([+-]?\d+)$/);
-    if(!m) return null;
-    var kCoeff = parseGradient(m[1]);
-    if(isNaN(kCoeff)) return null;
-    var rhs = parseFloat(m[2]);
-    if(isNaN(rhs)) return null;
-    return { kCoeff: kCoeff, rhs: rhs };
+    return VM.EquationParse.parseEitherSide(raw, function(s){
+      s = (s || '').toLowerCase().replace(/\s+/g, '');
+      var m = s.match(/^([+-]?\d*)k\+c=([+-]?\d+)$/);
+      if(!m) return null;
+      var kCoeff = parseGradient(m[1]);
+      if(isNaN(kCoeff)) return null;
+      var rhs = parseFloat(m[2]);
+      if(isNaN(rhs)) return null;
+      return { kCoeff: kCoeff, rhs: rhs };
+    });
   }
 
   // "y = -2(3)^x + 1" — the full equation.

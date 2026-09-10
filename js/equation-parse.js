@@ -37,6 +37,23 @@ VM.EquationParse = (function(){
     return v >= 0 ? ('x - ' + v) : ('x + ' + Math.abs(v));
   }
 
-  return { parseGradient: parseGradient, parseFraction: parseFraction, factorLabel: factorLabel };
+  // Some Practice steps ask for a derived equation like "3k + c = 17"
+  // where either side could reasonably hold the constant — a student
+  // writing "17 = 3k + c" has the same equation, just flipped. Given
+  // a parser that expects one fixed side order, this retries it with
+  // the two sides swapped before giving up, so both are accepted.
+  function parseEitherSide(raw, parseFn){
+    var direct = parseFn(raw);
+    if(direct) return direct;
+    var s = raw || '';
+    var eqIdx = s.indexOf('=');
+    if(eqIdx === -1) return null;
+    return parseFn(s.slice(eqIdx + 1) + '=' + s.slice(0, eqIdx));
+  }
+
+  return {
+    parseGradient: parseGradient, parseFraction: parseFraction,
+    factorLabel: factorLabel, parseEitherSide: parseEitherSide
+  };
 
 })();
