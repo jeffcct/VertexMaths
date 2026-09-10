@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Practice: Factoring Non-Monic Polynomials — Vertex Maths</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/practice.css">
+</head>
+<body>
+<div class="wrap wrap-wide" id="page-wrap">
+
+  <div class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">V</span>
+      <div>
+        <div class="brand-name">Vertex Maths</div>
+        <div class="brand-sub">Year 11 &middot; Mathematics</div>
+      </div>
+    </a>
+    <div class="greeting">Kia ora, <b>Amelia</b> &mdash; Room 14</div>
+  </div>
+
+  <!-- ============ PracticeFactorNonmonic component ============ -->
+  <section class="view" id="view-practice-factor-nonmonic">
+
+    <div class="breadcrumb">
+      <button id="nonmonic-back-btn">← Algebra &amp; Graphing</button>
+      <span class="sep">/</span>
+      <span class="current">Practice: factoring non-monic polynomials</span>
+    </div>
+
+    <div class="practice-layout">
+      <div class="equations-card">
+        <div class="equation-label">Factorise</div>
+        <div class="equation-line" id="nonmonic-given-expr"></div>
+      </div>
+
+      <div class="practice-panel-group">
+      <div class="practice-panel">
+        <div>
+          <div class="practice-title">Factorise the trinomial</div>
+          <div class="practice-sub">Use the AC method to split the middle term, then factor by grouping.</div>
+        </div>
+
+        <div class="form-template mono">ax² + bx + c = (mx + p)(nx + q)</div>
+
+        <div class="practice-mode-note" id="nonmonic-mode-note"></div>
+        <div class="step-prompt" id="nonmonic-step-prompt"></div>
+
+        <div class="answer-row" id="nonmonic-step-find-pair" hidden>
+          <input type="text" id="nonmonic-pair-input-1" class="answer-input" inputmode="text" autocomplete="off" aria-label="First number">
+          <span class="mono">,</span>
+          <input type="text" id="nonmonic-pair-input-2" class="answer-input" inputmode="text" autocomplete="off" aria-label="Second number">
+        </div>
+
+        <div class="answer-row" id="nonmonic-step-factored" hidden>
+          <input type="text" id="nonmonic-factored-input" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Fully factored expression" placeholder="e.g. (2x + 3)(x - 1)">
+        </div>
+
+        <div class="answer-hint" id="nonmonic-hint"></div>
+
+        <div class="practice-actions">
+          <button class="practice-check-btn" id="nonmonic-check-btn">Check answer</button>
+          <button class="practice-next-btn" id="nonmonic-next-btn">New question</button>
+        </div>
+
+        <div class="feedback" id="nonmonic-feedback"></div>
+        <div class="practice-score-row">Score: <span class="mono" id="nonmonic-score">0 / 0</span></div>
+      </div>
+
+      <div class="working-sidebar">
+        <div class="working-card" id="nonmonic-working-card" hidden>
+          <div class="equation-label">Working</div>
+          <div class="working-lines" id="nonmonic-working-lines"></div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <footer>A freshly generated trinomial each time &middot; the leading coefficient is always split so neither factor can be simplified further</footer>
+  </section>
+
+</div>
+
+<script src="js/equation-parse.js"></script>
+<script src="js/working-trail.js"></script>
+<script src="js/practice-factor-nonmonic.js"></script>
+<script src="js/page-practice-factor-nonmonic.js"></script>
+</body>
+</html>

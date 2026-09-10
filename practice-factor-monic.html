@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Practice: Factoring Monic Polynomials — Vertex Maths</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/practice.css">
+</head>
+<body>
+<div class="wrap wrap-wide" id="page-wrap">
+
+  <div class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">V</span>
+      <div>
+        <div class="brand-name">Vertex Maths</div>
+        <div class="brand-sub">Year 11 &middot; Mathematics</div>
+      </div>
+    </a>
+    <div class="greeting">Kia ora, <b>Amelia</b> &mdash; Room 14</div>
+  </div>
+
+  <!-- ============ PracticeFactorMonic component ============ -->
+  <section class="view" id="view-practice-factor-monic">
+
+    <div class="breadcrumb">
+      <button id="monic-back-btn">← Algebra &amp; Graphing</button>
+      <span class="sep">/</span>
+      <span class="current">Practice: factoring monic polynomials</span>
+    </div>
+
+    <div class="practice-layout">
+      <div class="equations-card">
+        <div class="equation-label">Factorise</div>
+        <div class="equation-line" id="monic-expression"></div>
+      </div>
+
+      <div class="practice-panel-group">
+      <div class="practice-panel">
+        <div>
+          <div class="practice-title">Factorise the trinomial</div>
+          <div class="practice-sub">Find two numbers that multiply to c and add to b, then write the factored form.</div>
+        </div>
+
+        <div class="form-template mono">x² + bx + c = (x + p)(x + q)</div>
+
+        <div class="practice-mode-note" id="monic-mode-note"></div>
+        <div class="step-prompt" id="monic-step-prompt"></div>
+
+        <div class="answer-row" id="monic-step-find-pair" hidden>
+          <input type="text" id="monic-pair-a" class="answer-input" inputmode="text" autocomplete="off" aria-label="First number">
+          <span class="mono">and</span>
+          <input type="text" id="monic-pair-b" class="answer-input" inputmode="text" autocomplete="off" aria-label="Second number">
+        </div>
+
+        <div class="answer-row" id="monic-step-factored" hidden>
+          <input type="text" id="monic-factored-input" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Fully factored expression" placeholder="e.g. (x + 2)(x + 3)">
+        </div>
+
+        <div class="answer-hint" id="monic-hint"></div>
+
+        <div class="practice-actions">
+          <button class="practice-check-btn" id="monic-check-btn">Check answer</button>
+          <button class="practice-next-btn" id="monic-next-btn">New question</button>
+        </div>
+
+        <div class="feedback" id="monic-feedback"></div>
+        <div class="practice-score-row">Score: <span class="mono" id="monic-score">0 / 0</span></div>
+      </div>
+
+      <div class="working-sidebar">
+        <div class="working-card" id="monic-working-card" hidden>
+          <div class="equation-label">Working</div>
+          <div class="working-lines" id="monic-working-lines"></div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <footer>A freshly generated trinomial each time &middot; the two numbers you find are the factors' constants, in either order</footer>
+  </section>
+
+</div>
+
+<script src="js/equation-parse.js"></script>
+<script src="js/working-trail.js"></script>
+<script src="js/practice-factor-monic.js"></script>
+<script src="js/page-practice-factor-monic.js"></script>
+</body>
+</html>
