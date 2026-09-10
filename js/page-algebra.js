@@ -15,7 +15,12 @@
     'line-from-table': 'practice-line-from-table.html',
     'parabola-from-table': 'practice-parabola-from-table.html',
     'exp-from-table': 'practice-exp-from-table.html',
-    'line-from-grad-point': 'practice-line-from-point.html'
+    'line-from-grad-point': 'practice-line-from-point.html',
+    'line-from-two-points': 'practice-line-from-two-points.html',
+    'factor-monic': 'practice-factor-monic.html',
+    'factor-nonmonic': 'practice-factor-nonmonic.html',
+    'graph-linear': 'practice-graph-linear.html',
+    'graph-quadratic': 'practice-graph-quadratic.html'
   };
 
   document.addEventListener('DOMContentLoaded', function(){
