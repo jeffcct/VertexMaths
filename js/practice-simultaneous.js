@@ -17,9 +17,10 @@
        no way to know. Whichever method they click, the rest of the
        walkthrough follows it:
          substitution — pick a variable to isolate (either one always
-         works; picking the one whose coefficient isn't 1 just means
-         rearranging with a fraction) and rearrange for it, then
-         solve for the other variable, then solve for the picked one.
+         works) and rearrange either equation to isolate it (whichever
+         equation doesn't have a coefficient of 1 on it needs a
+         fraction), then solve for the other variable, then solve for
+         the picked one.
          elimination — say what to multiply each equation by so a
          chosen variable's coefficients match, write out both
          equations after multiplying, add or subtract them and write
@@ -76,6 +77,23 @@ VM.PracticeSimultaneous = (function(){
     a = Math.abs(a); b = Math.abs(b);
     while(b){ var t = b; b = a % b; a = t; }
     return a || 1;
+  }
+
+  // chosen = (constant - coeffOther*other) / coeffChosen
+  //        = (-coeffOther/coeffChosen)*other + (constant/coeffChosen)
+  // Normalized so the denominator is positive, then reduced — shared
+  // by both equations, since rearranging either one for the chosen
+  // variable is equally valid (see selectVariable/checkRearrange).
+  function computeRearrangement(coeffChosen, coeffOther, constant){
+    var coeffNum = -coeffOther, coeffDen = coeffChosen;
+    if(coeffDen < 0){ coeffNum = -coeffNum; coeffDen = -coeffDen; }
+    var cg = gcd(coeffNum, coeffDen); coeffNum /= cg; coeffDen /= cg;
+
+    var constNum = constant, constDen = coeffChosen;
+    if(constDen < 0){ constNum = -constNum; constDen = -constDen; }
+    var kg = gcd(constNum, constDen); constNum /= kg; constDen /= kg;
+
+    return { coeffNum: coeffNum, coeffDen: coeffDen, constNum: constNum, constDen: constDen };
   }
 
   // The two equations after multiplying every term by multA/multB, and
@@ -141,10 +159,11 @@ VM.PracticeSimultaneous = (function(){
       eliminatedOtherVar: eliminatedOtherVar, eliminatedOtherVal: eliminatedOtherVal, targetVal: targetVal,
       multEq1: elim.multEq1, multEq2: elim.multEq2, elimCoeff: elim.elimCoeff, elimRhs: elim.elimRhs,
       method: null    // set once the student picks it on the "choose-method" step
-      // subVar/otherVar/otherCoeff/rearrangeConst/subVarVal/otherVarVal are
-      // set once the student picks a variable on the "pick-variable" step
-      // (see selectVariable) — which one avoids fractions depends on that
-      // free choice, not on anything decided up front.
+      // subVar/otherVar/rearrangeEq1/rearrangeEq2/subVarVal/otherVarVal
+      // are set once the student picks a variable on the
+      // "pick-variable" step (see selectVariable) — which equation
+      // avoids a fraction, if either does, depends on that free
+      // choice, not on anything decided up front.
       // targetVar itself can also change, on the "multipliers" step (see
       // checkMultipliers) — eliminating either variable is always valid,
       // so a multiplier pair that matches the other variable's
@@ -249,10 +268,13 @@ VM.PracticeSimultaneous = (function(){
     }
     return s;
   }
-  function rearrangedString(){
+  // r is a { coeffNum, coeffDen, constNum, constDen } rearrangement —
+  // either current.rearrangeEq1 or current.rearrangeEq2, since
+  // rearranging either original equation for the chosen variable is
+  // equally valid (see selectVariable/checkRearrange).
+  function rearrangedString(r){
     return current.subVar + ' = ' + formatRHS(
-      current.otherCoeffNum, current.otherCoeffDen, current.otherVar,
-      current.rearrangeConstNum, current.rearrangeConstDen
+      r.coeffNum, r.coeffDen, current.otherVar, r.constNum, r.constDen
     );
   }
 
@@ -290,7 +312,7 @@ VM.PracticeSimultaneous = (function(){
     var n = steps.length === 1 ? '' : ('Step ' + (stepIndex + 1) + ' of ' + steps.length + ': ');
     switch(name){
       case 'pick-variable': return n + 'Which variable would you like to isolate first?';
-      case 'rearrange': return n + 'Rearrange equation 1 to make ' + current.subVar + ' the subject.';
+      case 'rearrange': return n + 'Rearrange either equation to make ' + current.subVar + ' the subject.';
       case 'multipliers': return n + 'What should you multiply each equation by so that one variable’s coefficients match?';
       case 'multiply-equations': return n + 'Write out each equation after multiplying.';
       case 'eliminate': return n + 'Add or subtract the two new equations to eliminate ' + current.targetVar + ', and write the result.';
@@ -311,10 +333,10 @@ VM.PracticeSimultaneous = (function(){
       case 'choose-method':
         return 'Both methods work on any system — pick whichever you’d like to practice.';
       case 'pick-variable':
-        return 'Either variable works. One of them has a coefficient of 1 in equation 1 and rearranges cleanly; the other will need a fraction.';
+        return 'Either variable works. One of them has a coefficient of 1 in equation 1 and rearranges cleanly there; the other will need a fraction from either equation.';
       case 'rearrange':
-        return 'Move the ' + current.otherVar + ' term to the other side. Leave the coefficient box blank for 1, or type just - for -1.' +
-          (Math.abs(current.otherCoeffDen) > 1 || Math.abs(current.rearrangeConstDen) > 1 ? ' Fractions like 1/2 are fine here.' : '');
+        return 'Move the ' + current.otherVar + ' term to the other side of whichever equation you pick. Leave the coefficient box blank for 1, or type just - for -1.' +
+          (Math.abs(current.rearrangeEq1.coeffDen) > 1 || Math.abs(current.rearrangeEq2.coeffDen) > 1 ? ' Fractions like 1/2 are fine here.' : '');
       case 'multipliers':
         return 'Multiply so both equations end up with the same-size coefficient for whichever variable you’d like to eliminate — either one works.';
       case 'multiply-equations':
@@ -404,42 +426,30 @@ VM.PracticeSimultaneous = (function(){
   }
 
   // The student picked which variable to isolate — always accepted,
-  // since either works on any system; picking the one whose
-  // coefficient isn't 1 just means the rearrange step needs a
-  // fraction, computed here from whichever equation-1 coefficient
-  // actually applies to their choice.
+  // since either works on any system. Rearranging either original
+  // equation for that variable is equally valid too (see
+  // checkRearrange), so both are computed here: equation 1's
+  // coefficient on the chosen variable is 1 exactly when that's the
+  // variable eqA was built to isolate cleanly; equation 2's never is,
+  // since eqB's coefficients are always drawn from OTHER_COEFFS.
   function selectVariable(value, btnEl, otherBtn){
     if(stepAnswered) return;
     var otherValue = value === 'x' ? 'y' : 'x';
-    var coeffChosen = value === 'x' ? current.aX : current.aY;
-    var coeffOther = value === 'x' ? current.aY : current.aX;
-
-    // chosen = (aC - coeffOther*other) / coeffChosen
-    //        = (-coeffOther/coeffChosen)*other + (aC/coeffChosen)
-    // Normalize so the denominator is positive, then reduce.
-    var coeffNum = -coeffOther, coeffDen = coeffChosen;
-    if(coeffDen < 0){ coeffNum = -coeffNum; coeffDen = -coeffDen; }
-    var cg = gcd(coeffNum, coeffDen); coeffNum /= cg; coeffDen /= cg;
-
-    var constNum = current.aC, constDen = coeffChosen;
-    if(constDen < 0){ constNum = -constNum; constDen = -constDen; }
-    var kg = gcd(constNum, constDen); constNum /= kg; constDen /= kg;
+    var coeffChosen1 = value === 'x' ? current.aX : current.aY;
+    var coeffOther1 = value === 'x' ? current.aY : current.aX;
+    var coeffChosen2 = value === 'x' ? current.p : current.q;
+    var coeffOther2 = value === 'x' ? current.q : current.p;
 
     current.subVar = value;
     current.otherVar = otherValue;
-    current.otherCoeffNum = coeffNum;
-    current.otherCoeffDen = coeffDen;
-    current.otherCoeff = coeffNum / coeffDen;
-    current.rearrangeConstNum = constNum;
-    current.rearrangeConstDen = constDen;
-    current.rearrangeConst = constNum / constDen;
+    current.rearrangeEq1 = computeRearrangement(coeffChosen1, coeffOther1, current.aC);
+    current.rearrangeEq2 = computeRearrangement(coeffChosen2, coeffOther2, current.bC);
     current.subVarVal = value === 'x' ? current.x0 : current.y0;
     current.otherVarVal = value === 'x' ? current.y0 : current.x0;
     setDynamicLabels();
 
     btnEl.classList.add('right');
-    els.feedback.textContent = 'Good — let’s isolate ' + value + '.' +
-      (Math.abs(coeffChosen) !== 1 ? ' Its coefficient isn’t 1, so that’ll take a fraction.' : '');
+    els.feedback.textContent = 'Good — let’s isolate ' + value + '. Rearrange whichever equation you’d like.';
     els.feedback.className = 'feedback correct';
 
     stepAnswered = true;
@@ -450,18 +460,29 @@ VM.PracticeSimultaneous = (function(){
 
   // ---- Checking: text-input scaffold steps ---------------------------
 
+  // Rearranging either original equation for the chosen variable is
+  // equally valid, so this accepts a match against either one (see
+  // computeRearrangement/selectVariable) rather than only equation 1.
   function checkRearrange(){
     var coeff = parseGradient(els.rearrangeCoeff.value);
     var cst = parseFraction(els.rearrangeConst.value);
-    var coeffOk = !isNaN(coeff) && Math.abs(coeff - current.otherCoeff) < 0.01;
-    var cstOk = !isNaN(cst) && Math.abs(cst - current.rearrangeConst) < 0.01;
-    els.rearrangeCoeff.classList.toggle('right', coeffOk); els.rearrangeCoeff.classList.toggle('wrong', !coeffOk);
-    els.rearrangeConst.classList.toggle('right', cstOk); els.rearrangeConst.classList.toggle('wrong', !cstOk);
-    var ok = coeffOk && cstOk;
-    var correctStr = rearrangedString();
-    els.feedback.textContent = ok ? ('Correct — ' + correctStr + '.') : ('Not quite. Rearranged, that’s ' + correctStr + '.');
+    var r1 = current.rearrangeEq1, r2 = current.rearrangeEq2;
+    function matches(r){
+      return !isNaN(coeff) && !isNaN(cst) &&
+        close(coeff, r.coeffNum / r.coeffDen) && close(cst, r.constNum / r.constDen);
+    }
+    var matches1 = matches(r1), matches2 = matches(r2);
+    var ok = matches1 || matches2;
+    els.rearrangeCoeff.classList.toggle('right', ok); els.rearrangeCoeff.classList.toggle('wrong', !ok);
+    els.rearrangeConst.classList.toggle('right', ok); els.rearrangeConst.classList.toggle('wrong', !ok);
+    var correctStr1 = rearrangedString(r1), correctStr2 = rearrangedString(r2);
+    if(ok){
+      els.feedback.textContent = 'Correct — ' + (matches1 ? correctStr1 : correctStr2) + '.';
+    } else {
+      els.feedback.textContent = 'Not quite. From equation 1 that’s ' + correctStr1 + '; from equation 2, ' + correctStr2 + '.';
+    }
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
-    if(ok) working.push(correctStr);
+    if(ok) working.push(matches1 ? correctStr1 : correctStr2);
     return ok;
   }
 

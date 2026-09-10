@@ -129,16 +129,21 @@
    direct-answer (no-scaffold) tier. Lives in a fixed-width sidebar
    (see .working-sidebar) on the right of the layout, next to the
    question itself, rather than buried below it. */
-.working-sidebar{ flex:0 0 220px; max-width:100%; }
+/* Wide enough that a typical equation line (e.g. "y = -3/4(x + 2)^2 - 2")
+   fits on one row instead of wrapping mid-expression — narrower than
+   this, wrapping lands between tokens like "(x +" and "2)^2" that
+   read as broken rather than just long. */
+.working-sidebar{ flex:0 0 260px; max-width:100%; }
 .working-card{
   background:var(--paper-raised); border:1px dashed var(--line);
-  border-radius:14px; padding:1rem 1.75rem; min-width:220px;
+  border-radius:14px; padding:1rem 1.25rem; min-width:220px;
   position:sticky; top:1rem;
 }
 .working-card .working-lines{
-  font-family:'IBM Plex Mono', monospace; font-size:1rem; color:var(--ink-soft);
-  display:flex; flex-direction:column; gap:.3rem; margin-top:.4rem;
+  font-family:'IBM Plex Mono', monospace; font-size:.92rem; color:var(--ink-soft);
+  display:flex; flex-direction:column; gap:.4rem; margin-top:.4rem;
 }
+.working-card .working-lines > div{ overflow-wrap:break-word; }
 
 /* A step made of more than one answer-row stacked vertically instead
    of side by side (e.g. two full equations, one per line). */
