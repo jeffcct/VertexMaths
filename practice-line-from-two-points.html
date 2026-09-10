@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Practice: Line from Two Points — Vertex Maths</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/practice.css">
+</head>
+<body>
+<div class="wrap wrap-wide" id="page-wrap">
+
+  <div class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">V</span>
+      <div>
+        <div class="brand-name">Vertex Maths</div>
+        <div class="brand-sub">Year 11 &middot; Mathematics</div>
+      </div>
+    </a>
+    <div class="greeting">Kia ora, <b>Amelia</b> &mdash; Room 14</div>
+  </div>
+
+  <!-- ============ PracticeLineFromTwoPoints component ============ -->
+  <section class="view" id="view-practice-line-from-two-points">
+
+    <div class="breadcrumb">
+      <button id="twopoint-back-btn">← Algebra &amp; Graphing</button>
+      <span class="sep">/</span>
+      <span class="current">Practice: line from two points</span>
+    </div>
+
+    <div class="practice-layout">
+      <div class="equations-card">
+        <div class="equation-label">Point 1</div>
+        <div class="equation-line">(<span id="twopoint-given-x1"></span>, <span id="twopoint-given-y1"></span>)</div>
+        <div class="equation-label">Point 2</div>
+        <div class="equation-line">(<span id="twopoint-given-x2"></span>, <span id="twopoint-given-y2"></span>)</div>
+      </div>
+
+      <div class="practice-panel-group">
+      <div class="practice-panel">
+        <div>
+          <div class="practice-title">Find the equation of the line</div>
+          <div class="practice-sub">Use the two points to find the gradient and the y-intercept, then write the equation.</div>
+        </div>
+
+        <div class="form-template mono">y = mx + c</div>
+
+        <div class="practice-mode-note" id="twopoint-mode-note"></div>
+        <div class="step-prompt" id="twopoint-step-prompt"></div>
+
+        <div class="answer-row" id="twopoint-step-gradient" hidden>
+          <span class="mono">m =</span>
+          <input type="text" id="twopoint-gradient-input" class="answer-input" inputmode="text" autocomplete="off" aria-label="Gradient">
+        </div>
+
+        <div class="answer-row" id="twopoint-step-form" hidden>
+          <input type="text" id="twopoint-form-input" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Equation with the gradient substituted" placeholder="e.g. y = 3x + c">
+        </div>
+
+        <div class="answer-row" id="twopoint-step-substitute" hidden>
+          <input type="text" id="twopoint-substitute-input" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Equation after substituting a point" placeholder="e.g. 4 = 6 + c">
+        </div>
+
+        <div class="answer-row" id="twopoint-step-solve" hidden>
+          <span class="mono">c =</span>
+          <input type="text" id="twopoint-solve-input" class="answer-input" inputmode="text" autocomplete="off" aria-label="Value of c">
+        </div>
+
+        <div class="answer-row" id="twopoint-step-final-equation" hidden>
+          <input type="text" id="twopoint-final-eq" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Full equation" placeholder="e.g. y = 3x - 6">
+        </div>
+
+        <div class="answer-hint" id="twopoint-hint"></div>
+
+        <div class="practice-actions">
+          <button class="practice-check-btn" id="twopoint-check-btn">Check answer</button>
+          <button class="practice-next-btn" id="twopoint-next-btn">New question</button>
+        </div>
+
+        <div class="feedback" id="twopoint-feedback"></div>
+        <div class="practice-score-row">Score: <span class="mono" id="twopoint-score">0 / 0</span></div>
+      </div>
+
+      <div class="working-sidebar">
+        <div class="working-card" id="twopoint-working-card" hidden>
+          <div class="equation-label">Working</div>
+          <div class="working-lines" id="twopoint-working-lines"></div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <footer>A freshly generated pair of points each time &middot; c always comes out a whole number, and the walkthrough drops away once you're solving reliably</footer>
+  </section>
+
+</div>
+
+<script src="js/equation-parse.js"></script>
+<script src="js/working-trail.js"></script>
+<script src="js/practice-line-from-two-points.js"></script>
+<script src="js/page-practice-line-from-two-points.js"></script>
+</body>
+</html>
