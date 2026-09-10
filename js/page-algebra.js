@@ -14,7 +14,8 @@
     'simultaneous': 'practice-simultaneous.html',
     'line-from-table': 'practice-line-from-table.html',
     'parabola-from-table': 'practice-parabola-from-table.html',
-    'exp-from-table': 'practice-exp-from-table.html'
+    'exp-from-table': 'practice-exp-from-table.html',
+    'line-from-grad-point': 'practice-line-from-point.html'
   };
 
   document.addEventListener('DOMContentLoaded', function(){

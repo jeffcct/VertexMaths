@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Practice: Line from a Gradient and a Point — Vertex Maths</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/practice.css">
+</head>
+<body>
+<div class="wrap wrap-wide" id="page-wrap">
+
+  <div class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">V</span>
+      <div>
+        <div class="brand-name">Vertex Maths</div>
+        <div class="brand-sub">Year 11 &middot; Mathematics</div>
+      </div>
+    </a>
+    <div class="greeting">Kia ora, <b>Amelia</b> &mdash; Room 14</div>
+  </div>
+
+  <!-- ============ PracticeLineFromPoint component ============ -->
+  <section class="view" id="view-practice-line-from-point">
+
+    <div class="breadcrumb">
+      <button id="point-back-btn">← Algebra &amp; Graphing</button>
+      <span class="sep">/</span>
+      <span class="current">Practice: line from a gradient and a point</span>
+    </div>
+
+    <div class="practice-layout">
+      <div class="equations-card">
+        <div class="equation-label">Gradient</div>
+        <div class="equation-line">m = <span id="point-given-m"></span></div>
+        <div class="equation-label">Point</div>
+        <div class="equation-line">(<span id="point-given-x"></span>, <span id="point-given-y"></span>)</div>
+      </div>
+
+      <div class="practice-panel-group">
+      <div class="practice-panel">
+        <div>
+          <div class="practice-title">Find the equation of the line</div>
+          <div class="practice-sub">Use the gradient and the point to find the y-intercept, then write the equation.</div>
+        </div>
+
+        <div class="form-template mono">y = mx + c</div>
+
+        <div class="practice-mode-note" id="point-mode-note"></div>
+        <div class="step-prompt" id="point-step-prompt"></div>
+
+        <div class="answer-row" id="point-step-form" hidden>
+          <input type="text" id="point-form-input" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Equation with the gradient substituted" placeholder="e.g. y = 3x + c">
+        </div>
+
+        <div class="answer-row" id="point-step-substitute" hidden>
+          <input type="text" id="point-substitute-input" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Equation after substituting the point" placeholder="e.g. 4 = 6 + c">
+        </div>
+
+        <div class="answer-row" id="point-step-solve" hidden>
+          <span class="mono">c =</span>
+          <input type="text" id="point-solve-input" class="answer-input" inputmode="text" autocomplete="off" aria-label="Value of c">
+        </div>
+
+        <div class="answer-row" id="point-step-final-equation" hidden>
+          <input type="text" id="point-final-eq" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Full equation" placeholder="e.g. y = 3x - 6">
+        </div>
+
+        <div class="answer-hint" id="point-hint"></div>
+
+        <div class="practice-actions">
+          <button class="practice-check-btn" id="point-check-btn">Check answer</button>
+          <button class="practice-next-btn" id="point-next-btn">New question</button>
+        </div>
+
+        <div class="feedback" id="point-feedback"></div>
+        <div class="practice-score-row">Score: <span class="mono" id="point-score">0 / 0</span></div>
+      </div>
+
+      <div class="working-sidebar">
+        <div class="working-card" id="point-working-card" hidden>
+          <div class="equation-label">Working</div>
+          <div class="working-lines" id="point-working-lines"></div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <footer>A freshly generated gradient and point each time &middot; c always comes out a whole number, and the walkthrough drops away once you're solving reliably</footer>
+  </section>
+
+</div>
+
+<script src="js/equation-parse.js"></script>
+<script src="js/working-trail.js"></script>
+<script src="js/practice-line-from-point.js"></script>
+<script src="js/page-practice-line-from-point.js"></script>
+</body>
+</html>

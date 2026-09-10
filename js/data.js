@@ -10,14 +10,15 @@
    Neither is built out for most skills yet, so their Learn/Practice
    buttons render disabled (greyed out) by default in DagView. Add
    `ready:true` to a topic once its Learn and/or Practice content
-   actually exists, to turn its buttons on. Seven topics are ready
+   actually exists, to turn its buttons on. Eight topics are ready
    so far: "line-from-graph" (js/practice-line-graph.js),
    "parabola-from-intercepts" (js/practice-parabola-intercepts.js),
    "parabola-from-vertex" (js/practice-parabola-vertex.js),
    "simultaneous" (js/practice-simultaneous.js),
    "line-from-table" (js/practice-line-from-table.js),
-   "parabola-from-table" (js/practice-parabola-from-table.js) and
-   "exp-from-table" (js/practice-exp-from-table.js).
+   "parabola-from-table" (js/practice-parabola-from-table.js),
+   "exp-from-table" (js/practice-exp-from-table.js) and
+   "line-from-grad-point" (js/practice-line-from-point.js).
    Learn isn't built for any of them yet, so its button still just
    toasts.
    ============================================================ */
@@ -65,7 +66,7 @@ VM.data = (function(){
     { id:"factor-nonmonic", name:"Factoring non-monic polynomials", status:"not-started", lane:3, prereqs:["factor-monic"] },
     { id:"graph-quadratic", name:"Graphing quadratics (by substitution, using the vertex and using the intercepts)", status:"not-started", lane:6, prereqs:["substitution","factor-monic"] },
     { id:"line-from-graph", name:"Finding the equation of a line (from a graph)", status:"not-started", lane:5, prereqs:["graph-linear"], ready:true },
-    { id:"line-from-grad-point", name:"Finding the equation of a line (from a gradient and a point)", status:"not-started", lane:5, prereqs:["graph-linear"] },
+    { id:"line-from-grad-point", name:"Finding the equation of a line (from a gradient and a point)", status:"not-started", lane:5, prereqs:["graph-linear"], ready:true },
     { id:"exp-with-shift", name:"Finding the equation of an exponential (from a graph, with a vertical shift)", status:"not-started", lane:7, prereqs:["exp-no-shift","simultaneous"] },
 
     { id:"solving-polys", name:"Solving with polynomials", status:"not-started", lane:0, prereqs:["factor-nonmonic","multi-step"] },
