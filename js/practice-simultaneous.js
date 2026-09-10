@@ -21,8 +21,9 @@
          rearranging with a fraction) and rearrange for it, then
          solve for the other variable, then solve for the picked one.
          elimination — say what to multiply each equation by so a
-         chosen variable's coefficients match, say whether to add or
-         subtract to eliminate it, then solve for the other
+         chosen variable's coefficients match, write out both
+         equations after multiplying, add or subtract them and write
+         the resulting one-variable equation, then solve for that
          variable, then solve for the eliminated one.
      - 5 or more questions answered AND accuracy at 50% or higher: no
        scaffolding — just solve the system and enter x and y.
@@ -32,6 +33,14 @@
    doesn't affect accuracy) — same convention as every other
    Practice component's step walkthroughs (see the note at the top
    of practice-parabola-intercepts.js).
+
+   While working through elimination, a "Working" box under the
+   equations accumulates a line each time a step is confirmed
+   correct — the multiplied equations, the eliminated equation, each
+   solved value — so the student can see their derivation build up
+   the way they would on paper. It's specific to elimination (see
+   pushWorking): substitution's rearrange-then-substitute steps don't
+   collapse into a comparable line-by-line trail.
 
    Public API: VM.PracticeSimultaneous.init({ onBack }), .start()
    ============================================================ */
@@ -56,6 +65,7 @@ VM.PracticeSimultaneous = (function(){
   var stepIndex = 0;
   var stepAnswered = false;
   var answered = false;
+  var workingLines = [];  // the elimination "shown work" trail for the current question
 
   function randInt(lo, hi){ return lo + Math.floor(Math.random() * (hi - lo + 1)); }
   function randChoice(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
@@ -107,10 +117,23 @@ VM.PracticeSimultaneous = (function(){
     var eliminatedOtherVal = targetVar === 'x' ? y0 : x0;
     var targetVal = targetVar === 'x' ? x0 : y0;
 
+    // Equation 1 and 2 after multiplying every term by multA/multB —
+    // the target variable's coefficients now match in magnitude,
+    // which is what makes `operation` cancel it.
+    var multEq1 = { a: aX * multA, b: aY * multA, c: aC * multA };
+    var multEq2 = { a: p * multB, b: q * multB, c: bC * multB };
+    // The one-variable equation left after adding/subtracting those —
+    // whichever coordinate isn't the target variable.
+    var elimCoeff = operation === 'subtract'
+      ? (targetVar === 'x' ? multEq1.b - multEq2.b : multEq1.a - multEq2.a)
+      : (targetVar === 'x' ? multEq1.b + multEq2.b : multEq1.a + multEq2.a);
+    var elimRhs = operation === 'subtract' ? multEq1.c - multEq2.c : multEq1.c + multEq2.c;
+
     current = {
       aX: aX, aY: aY, aC: aC, p: p, q: q, bC: bC, x0: x0, y0: y0,
       targetVar: targetVar, multA: multA, multB: multB, operation: operation,
       eliminatedOtherVar: eliminatedOtherVar, eliminatedOtherVal: eliminatedOtherVal, targetVal: targetVal,
+      multEq1: multEq1, multEq2: multEq2, elimCoeff: elimCoeff, elimRhs: elimRhs,
       method: null    // set once the student picks it on the "choose-method" step
       // subVar/otherVar/otherCoeff/rearrangeConst/subVarVal/otherVarVal are
       // set once the student picks a variable on the "pick-variable" step
@@ -124,7 +147,11 @@ VM.PracticeSimultaneous = (function(){
     stepAnswered = false;
     answered = false;
     els.modeNote.textContent = scaffold ? '' : "You've got this — just solve it directly.";
+    els.multiplyEq1Label.textContent = 'Equation 1 × ' + multA + ':';
+    els.multiplyEq2Label.textContent = 'Equation 2 × ' + multB + ':';
 
+    workingLines = [];
+    renderWorking();
     renderEquations();
     renderStep();
   }
@@ -135,8 +162,26 @@ VM.PracticeSimultaneous = (function(){
   function methodSteps(method){
     return method === 'substitution'
       ? ['pick-variable', 'rearrange', 'solve-first', 'solve-second', 'equation']
-      : ['multipliers', 'operation', 'solve-first', 'solve-second', 'equation'];
+      : ['multipliers', 'multiply-equations', 'eliminate', 'solve-first', 'solve-second', 'equation'];
   }
+
+  // ---- The elimination "shown work" trail ----------------------------
+
+  function pushWorking(line){
+    workingLines.push(line);
+    renderWorking();
+  }
+  function renderWorking(){
+    els.workingCard.hidden = workingLines.length === 0;
+    els.workingLines.innerHTML = '';
+    workingLines.forEach(function(line){
+      var div = document.createElement('div');
+      div.textContent = line;
+      els.workingLines.appendChild(div);
+    });
+  }
+
+  function close(a, b){ return Math.abs(a - b) < 0.01; }
 
   function formatEquation(a, b, c){
     var terms = (a < 0 ? '-' : '') + (Math.abs(a) === 1 ? '' : Math.abs(a)) + 'x';
@@ -144,9 +189,42 @@ VM.PracticeSimultaneous = (function(){
     return terms + ' = ' + c;
   }
 
+  function formatSingleVarEquation(coeff, varName, rhs){
+    var coeffStr = coeff === 1 ? '' : (coeff === -1 ? '-' : String(coeff));
+    return coeffStr + varName + ' = ' + rhs;
+  }
+
   function renderEquations(){
     els.eq1.textContent = formatEquation(current.aX, current.aY, current.aC);
     els.eq2.textContent = formatEquation(current.p, current.q, current.bC);
+  }
+
+  // "9x + 6y = 15" — both terms present, x before y, matching how
+  // formatEquation always displays a two-variable equation.
+  function parseLinearEquation(raw){
+    var s = (raw || '').toLowerCase().replace(/\s+/g, '');
+    var m = s.match(/^([+-]?\d*)x([+-])(\d*)y=([+-]?\d+)$/);
+    if(!m) return null;
+    var a = parseGradient(m[1]);
+    if(isNaN(a)) return null;
+    var b = (m[2] === '-' ? -1 : 1) * (m[3] === '' ? 1 : parseInt(m[3], 10));
+    var c = parseFloat(m[4]);
+    if(isNaN(c)) return null;
+    return { a: a, b: b, c: c };
+  }
+
+  // "4y = -16" or "y = -16" or "-y = 16" — a single-variable equation
+  // in whichever letter the elimination left behind.
+  function parseSingleVarEquation(raw, varName){
+    var s = (raw || '').toLowerCase().replace(/\s+/g, '');
+    var re = new RegExp('^([+-]?\\d*)' + varName + '=([+-]?\\d+)$');
+    var m = s.match(re);
+    if(!m) return null;
+    var coeff = parseGradient(m[1]);
+    if(isNaN(coeff)) return null;
+    var rhs = parseFloat(m[2]);
+    if(isNaN(rhs)) return null;
+    return { coeff: coeff, rhs: rhs };
   }
 
   // Rational-number formatting for whichever variable the student
@@ -197,9 +275,10 @@ VM.PracticeSimultaneous = (function(){
 
   var ALL_STEP_NAMES = [
     'choose-method', 'pick-variable', 'rearrange',
-    'multipliers', 'operation', 'solve-first', 'solve-second', 'equation'
+    'multipliers', 'multiply-equations', 'eliminate',
+    'solve-first', 'solve-second', 'equation'
   ];
-  var CHOICE_STEPS = ['choose-method', 'pick-variable', 'operation'];
+  var CHOICE_STEPS = ['choose-method', 'pick-variable'];
 
   function currentStepName(){ return steps[stepIndex]; }
   function isFinalStep(){ return currentStepName() === 'equation'; }
@@ -214,7 +293,8 @@ VM.PracticeSimultaneous = (function(){
       case 'pick-variable': return n + 'Which variable would you like to isolate first?';
       case 'rearrange': return n + 'Rearrange equation 1 to make ' + current.subVar + ' the subject.';
       case 'multipliers': return n + 'What should you multiply each equation by so the ' + current.targetVar + '-coefficients match?';
-      case 'operation': return n + 'Should you add or subtract the two new equations to eliminate ' + current.targetVar + '?';
+      case 'multiply-equations': return n + 'Write out each equation after multiplying.';
+      case 'eliminate': return n + 'Add or subtract the two new equations to eliminate ' + current.targetVar + ', and write the result.';
       case 'solve-first':
         return n + (current.method === 'substitution'
           ? 'Substitute into the other equation and solve for ' + current.otherVar + '.'
@@ -238,8 +318,11 @@ VM.PracticeSimultaneous = (function(){
           (Math.abs(current.otherCoeffDen) > 1 || Math.abs(current.rearrangeConstDen) > 1 ? ' Fractions like 1/2 are fine here.' : '');
       case 'multipliers':
         return 'Multiply so both equations end up with the same-size ' + current.targetVar + '-coefficient.';
-      case 'operation':
-        return 'If the matching coefficients have the same sign, subtract; if opposite signs, add.';
+      case 'multiply-equations':
+        return 'Multiply every term, including the constant, by that equation’s multiplier — e.g. 3x + 2y = 4 by 3.';
+      case 'eliminate':
+        return 'If the matching coefficients have the same sign, subtract; if opposite signs, add. Write it as ' +
+          current.eliminatedOtherVar + ' = ..., or e.g. 4' + current.eliminatedOtherVar + ' = ... if the coefficient isn’t 1.';
       case 'solve-first':
       case 'solve-second':
         return 'Fractions like 3/2 are fine if you need one.';
@@ -252,6 +335,8 @@ VM.PracticeSimultaneous = (function(){
     var map = {
       rearrange: [els.rearrangeCoeff, els.rearrangeConst],
       multipliers: [els.multA, els.multB],
+      'multiply-equations': [els.multipliedEq1, els.multipliedEq2],
+      eliminate: [els.eliminateInput],
       'solve-first': [els.solveFirstInput],
       'solve-second': [els.solveSecondInput],
       equation: [els.eqX, els.eqY]
@@ -268,7 +353,8 @@ VM.PracticeSimultaneous = (function(){
   function firstFocusTarget(name){
     var map = {
       'choose-method': els.choiceSubstitution, 'pick-variable': els.pickX,
-      rearrange: els.rearrangeCoeff, multipliers: els.multA, operation: els.opAdd,
+      rearrange: els.rearrangeCoeff, multipliers: els.multA,
+      'multiply-equations': els.multipliedEq1, eliminate: els.eliminateInput,
       'solve-first': els.solveFirstInput, 'solve-second': els.solveSecondInput,
       equation: els.eqX
     };
@@ -363,37 +449,6 @@ VM.PracticeSimultaneous = (function(){
     els.checkBtn.textContent = 'Continue';
   }
 
-  function checkChoiceValue(name, value){
-    if(name === 'operation') return value === current.operation;
-    return false;
-  }
-
-  function choiceFeedback(name, value, ok){
-    if(name === 'operation'){
-      return ok ? ('Correct — ' + current.operation + ' the two equations to eliminate ' + current.targetVar + '.')
-                : ('Not quite — the ' + current.targetVar + '-coefficients are ' +
-                   (current.operation === 'subtract' ? 'the same sign' : 'opposite signs') +
-                   ', so you should ' + current.operation + ' them.');
-    }
-    return '';
-  }
-
-  function handleChoiceClick(name, value, btnEl, siblingBtns){
-    if(stepAnswered) return;
-    var ok = checkChoiceValue(name, value);
-    btnEl.classList.toggle('right', ok);
-    btnEl.classList.toggle('wrong', !ok);
-    els.feedback.textContent = choiceFeedback(name, value, ok);
-    els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
-    if(ok){
-      stepAnswered = true;
-      siblingBtns.forEach(function(b){ b.disabled = true; });
-      btnEl.disabled = true;
-      els.checkBtn.disabled = false;
-      els.checkBtn.textContent = 'Continue';
-    }
-  }
-
   // ---- Checking: text-input scaffold steps ---------------------------
 
   function checkRearrange(){
@@ -422,6 +477,45 @@ VM.PracticeSimultaneous = (function(){
       ('Correct — equation 1 × ' + current.multA + ', equation 2 × ' + current.multB + '.') :
       ('Not quite. Multiply equation 1 by ' + current.multA + ' and equation 2 by ' + current.multB + '.');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
+    if(ok) pushWorking('Equation 1 × ' + current.multA + ', equation 2 × ' + current.multB);
+    return ok;
+  }
+
+  // The two equations after multiplying — accepts only the exact
+  // multiplied form (matching the multipliers just confirmed), not
+  // any other equivalent equation.
+  function checkMultiplyEquations(){
+    var eq1 = parseLinearEquation(els.multipliedEq1.value);
+    var eq2 = parseLinearEquation(els.multipliedEq2.value);
+    var eq1Ok = !!eq1 && close(eq1.a, current.multEq1.a) && close(eq1.b, current.multEq1.b) && close(eq1.c, current.multEq1.c);
+    var eq2Ok = !!eq2 && close(eq2.a, current.multEq2.a) && close(eq2.b, current.multEq2.b) && close(eq2.c, current.multEq2.c);
+    els.multipliedEq1.classList.toggle('right', eq1Ok); els.multipliedEq1.classList.toggle('wrong', !eq1Ok);
+    els.multipliedEq2.classList.toggle('right', eq2Ok); els.multipliedEq2.classList.toggle('wrong', !eq2Ok);
+    var ok = eq1Ok && eq2Ok;
+    var correct1 = formatEquation(current.multEq1.a, current.multEq1.b, current.multEq1.c);
+    var correct2 = formatEquation(current.multEq2.a, current.multEq2.b, current.multEq2.c);
+    els.feedback.textContent = ok ?
+      ('Correct — ' + correct1 + ' and ' + correct2 + '.') :
+      ('Not quite. It should be ' + correct1 + ' and ' + correct2 + '.');
+    els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
+    if(ok){ pushWorking(correct1); pushWorking(correct2); }
+    return ok;
+  }
+
+  // The resulting one-variable equation — accepts either sign
+  // convention (eq1 - eq2 or eq2 - eq1 read the same relationship),
+  // but the working box always shows the canonical form so later
+  // steps stay consistent with it.
+  function checkEliminate(){
+    var parsed = parseSingleVarEquation(els.eliminateInput.value, current.eliminatedOtherVar);
+    var ok = !!parsed &&
+      ((close(parsed.coeff, current.elimCoeff) && close(parsed.rhs, current.elimRhs)) ||
+       (close(parsed.coeff, -current.elimCoeff) && close(parsed.rhs, -current.elimRhs)));
+    els.eliminateInput.classList.toggle('right', ok); els.eliminateInput.classList.toggle('wrong', !ok);
+    var correctStr = formatSingleVarEquation(current.elimCoeff, current.eliminatedOtherVar, current.elimRhs);
+    els.feedback.textContent = ok ? ('Correct — ' + correctStr + '.') : ('Not quite. It should be ' + correctStr + '.');
+    els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
+    if(ok) pushWorking(correctStr);
     return ok;
   }
 
@@ -433,6 +527,7 @@ VM.PracticeSimultaneous = (function(){
     els.solveFirstInput.classList.toggle('right', ok); els.solveFirstInput.classList.toggle('wrong', !ok);
     els.feedback.textContent = ok ? ('Correct — ' + label + ' = ' + expected + '.') : ('Not quite. ' + label + ' = ' + expected + '.');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
+    if(ok && current.method === 'elimination') pushWorking(label + ' = ' + expected);
     return ok;
   }
 
@@ -444,12 +539,15 @@ VM.PracticeSimultaneous = (function(){
     els.solveSecondInput.classList.toggle('right', ok); els.solveSecondInput.classList.toggle('wrong', !ok);
     els.feedback.textContent = ok ? ('Correct — ' + label + ' = ' + expected + '.') : ('Not quite. ' + label + ' = ' + expected + '.');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
+    if(ok && current.method === 'elimination') pushWorking(label + ' = ' + expected);
     return ok;
   }
 
   function checkStep(name){
     if(name === 'rearrange') return checkRearrange();
     if(name === 'multipliers') return checkMultipliers();
+    if(name === 'multiply-equations') return checkMultiplyEquations();
+    if(name === 'eliminate') return checkEliminate();
     if(name === 'solve-first') return checkSolveFirst();
     if(name === 'solve-second') return checkSolveSecond();
     return false;
@@ -477,6 +575,7 @@ VM.PracticeSimultaneous = (function(){
       els.feedback.className = 'feedback incorrect';
     }
     els.score.textContent = score.correct + ' / ' + score.attempted;
+    if(ok && current.method === 'elimination') pushWorking('(x, y) = (' + current.x0 + ', ' + current.y0 + ')');
     return true;
   }
 
@@ -518,6 +617,8 @@ VM.PracticeSimultaneous = (function(){
     opts = opts || {};
     els.eq1 = document.getElementById('sim-eq1');
     els.eq2 = document.getElementById('sim-eq2');
+    els.workingCard = document.getElementById('sim-working-card');
+    els.workingLines = document.getElementById('sim-working-lines');
     els.modeNote = document.getElementById('sim-mode-note');
     els.stepPrompt = document.getElementById('sim-step-prompt');
     els.hint = document.getElementById('sim-hint');
@@ -538,8 +639,11 @@ VM.PracticeSimultaneous = (function(){
     els.rearrangeConst = document.getElementById('sim-rearrange-const');
     els.multA = document.getElementById('sim-mult-a');
     els.multB = document.getElementById('sim-mult-b');
-    els.opAdd = document.getElementById('sim-op-add');
-    els.opSubtract = document.getElementById('sim-op-subtract');
+    els.multiplyEq1Label = document.getElementById('sim-multiply-eq1-label');
+    els.multipliedEq1 = document.getElementById('sim-multiplied-eq1');
+    els.multiplyEq2Label = document.getElementById('sim-multiply-eq2-label');
+    els.multipliedEq2 = document.getElementById('sim-multiplied-eq2');
+    els.eliminateInput = document.getElementById('sim-eliminate-input');
     els.solveFirstLabel = document.getElementById('sim-solve-first-label');
     els.solveFirstInput = document.getElementById('sim-solve-first-input');
     els.solveSecondLabel = document.getElementById('sim-solve-second-label');
@@ -552,7 +656,8 @@ VM.PracticeSimultaneous = (function(){
       'pick-variable': document.getElementById('sim-step-pick-variable'),
       rearrange: document.getElementById('sim-step-rearrange'),
       multipliers: document.getElementById('sim-step-multipliers'),
-      operation: document.getElementById('sim-step-operation'),
+      'multiply-equations': document.getElementById('sim-step-multiply-equations'),
+      eliminate: document.getElementById('sim-step-eliminate'),
       'solve-first': document.getElementById('sim-step-solve-first'),
       'solve-second': document.getElementById('sim-step-solve-second'),
       equation: document.getElementById('sim-step-equation')
@@ -574,14 +679,9 @@ VM.PracticeSimultaneous = (function(){
     els.pickY.addEventListener('click', function(){
       selectVariable('y', els.pickY, els.pickX);
     });
-    els.opAdd.addEventListener('click', function(){
-      handleChoiceClick('operation', 'add', els.opAdd, [els.opSubtract]);
-    });
-    els.opSubtract.addEventListener('click', function(){
-      handleChoiceClick('operation', 'subtract', els.opSubtract, [els.opAdd]);
-    });
 
     [els.rearrangeCoeff, els.rearrangeConst, els.multA, els.multB,
+     els.multipliedEq1, els.multipliedEq2, els.eliminateInput,
      els.solveFirstInput, els.solveSecondInput, els.eqX, els.eqY].forEach(function(input){
       input.addEventListener('keydown', function(e){
         if(e.key === 'Enter' && !e.repeat){ e.preventDefault(); handleCheckOrAdvance(); }

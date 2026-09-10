@@ -32,11 +32,18 @@
     </div>
 
     <div class="practice-layout">
-      <div class="equations-card">
-        <div class="equation-label">Equation 1</div>
-        <div class="equation-line" id="sim-eq1"></div>
-        <div class="equation-label">Equation 2</div>
-        <div class="equation-line" id="sim-eq2"></div>
+      <div>
+        <div class="equations-card">
+          <div class="equation-label">Equation 1</div>
+          <div class="equation-line" id="sim-eq1"></div>
+          <div class="equation-label">Equation 2</div>
+          <div class="equation-line" id="sim-eq2"></div>
+        </div>
+
+        <div class="working-card" id="sim-working-card" hidden>
+          <div class="equation-label">Working</div>
+          <div id="sim-working-lines"></div>
+        </div>
       </div>
 
       <div class="practice-panel">
@@ -72,9 +79,19 @@
           <input type="text" id="sim-mult-b" class="answer-input" inputmode="text" autocomplete="off" aria-label="Multiplier for equation 2">
         </div>
 
-        <div class="answer-row choice-row" id="sim-step-operation" hidden>
-          <button type="button" class="choice-btn" id="sim-op-add">Add</button>
-          <button type="button" class="choice-btn" id="sim-op-subtract">Subtract</button>
+        <div class="answer-row answer-row-stack" id="sim-step-multiply-equations" hidden>
+          <div class="answer-row">
+            <span class="mono" id="sim-multiply-eq1-label">Equation 1 × 3:</span>
+            <input type="text" id="sim-multiplied-eq1" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Equation 1 after multiplying" placeholder="e.g. 9x + 6y = 15">
+          </div>
+          <div class="answer-row">
+            <span class="mono" id="sim-multiply-eq2-label">Equation 2 × 2:</span>
+            <input type="text" id="sim-multiplied-eq2" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Equation 2 after multiplying" placeholder="e.g. 6x - 4y = 10">
+          </div>
+        </div>
+
+        <div class="answer-row" id="sim-step-eliminate" hidden>
+          <input type="text" id="sim-eliminate-input" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Resulting equation after eliminating" placeholder="e.g. 4y = -16">
         </div>
 
         <div class="answer-row" id="sim-step-solve-first" hidden>

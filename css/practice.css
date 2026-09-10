@@ -107,3 +107,20 @@
   text-transform:uppercase; color:var(--ink-soft);
 }
 .equation-line{ font-family:'IBM Plex Mono', monospace; font-size:1.3rem; font-weight:600; color:var(--ink); }
+
+/* Running "shown work" trail for the elimination method — appends a
+   line each time a step is confirmed correct, so the student can see
+   their full derivation building up under the question. Empty/hidden
+   for substitution and for the direct-answer (no-scaffold) tier. */
+.working-card{
+  margin-top:1rem; background:var(--paper-raised); border:1px dashed var(--line);
+  border-radius:14px; padding:1rem 1.75rem; min-width:220px;
+}
+.working-card #sim-working-lines{
+  font-family:'IBM Plex Mono', monospace; font-size:1rem; color:var(--ink-soft);
+  display:flex; flex-direction:column; gap:.3rem; margin-top:.4rem;
+}
+
+/* A step made of more than one answer-row stacked vertically instead
+   of side by side (e.g. two full equations, one per line). */
+.answer-row-stack{ flex-direction:column; align-items:flex-start; gap:.6rem; }
