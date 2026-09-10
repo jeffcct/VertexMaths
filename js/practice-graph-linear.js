@@ -40,6 +40,19 @@ VM.PracticeGraphLinear = (function(){
   var parseFraction = VM.EquationParse.parseFraction;
 
   var M_VALUES = [-4, -3, -2, -1, 1, 2, 3, 4];
+  // Fractional gradients used once usesFractionGradient() kicks in —
+  // represented as { num, den } rather than a plain number so the
+  // equation can still be displayed as an exact fraction (see
+  // formatEquation). Denominators are kept small (2-4), numerator and
+  // denominator are coprime, and the denominator is never ±1 (that
+  // would just be an integer gradient written oddly).
+  var FRACTION_M_VALUES = [
+    { num: 2, den: 3 }, { num: -2, den: 3 },
+    { num: 4, den: 3 }, { num: -4, den: 3 },
+    { num: 3, den: 4 }, { num: -3, den: 4 },
+    { num: 5, den: 4 }, { num: -5, den: 4 },
+    { num: 3, den: 2 }, { num: -3, den: 2 }
+  ];
   var C_MIN = -6, C_MAX = 6;
   var TABLE_XS = [-2, -1, 0, 1, 2];
 
@@ -48,6 +61,9 @@ VM.PracticeGraphLinear = (function(){
 
   var EXTRA_TIP_MIN_ATTEMPTS = 10;
   var EXTRA_TIP_MIN_ACCURACY = 0.60;
+
+  var FRACTION_GRADIENT_MIN_ATTEMPTS = 15;
+  var FRACTION_GRADIENT_MIN_ACCURACY = 0.60;
 
   var els = {};
   var current = null;    // { m, c }
@@ -69,16 +85,35 @@ VM.PracticeGraphLinear = (function(){
   function showsExtraTip(){
     return score.attempted >= EXTRA_TIP_MIN_ATTEMPTS && accuracy() >= EXTRA_TIP_MIN_ACCURACY;
   }
+  function usesFractionGradient(){
+    return score.attempted >= FRACTION_GRADIENT_MIN_ATTEMPTS && accuracy() >= FRACTION_GRADIENT_MIN_ACCURACY;
+  }
 
-  function coeffLabel(v){ return v === 1 ? '' : (v === -1 ? '-' : String(v)); }
+  // m is either a plain integer (the original representation) or a
+  // { num, den } fraction (see FRACTION_M_VALUES) — mNum gives the
+  // numeric value for arithmetic/geometry, coeffLabel/formatEquation
+  // give the display string.
+  function mNum(m){ return (m && typeof m === 'object') ? (m.num / m.den) : m; }
+  function coeffLabel(v){
+    if(v && typeof v === 'object') return v.num + '/' + v.den;
+    return v === 1 ? '' : (v === -1 ? '-' : String(v));
+  }
   function signedConst(v){ return v === 0 ? '' : (v > 0 ? (' + ' + v) : (' - ' + Math.abs(v))); }
   function formatEquation(m, c){ return 'y = ' + coeffLabel(m) + 'x' + signedConst(c); }
 
   function currentStepName(){ return steps[stepIndex]; }
   function isFinalStep(){ return currentStepName() === 'points'; }
 
+  // Roughly half the time, once the student has reached the fractional
+  // tier, generate a genuinely fractional gradient instead of an
+  // integer one — the integer pool stays in the mix too, for variety.
+  function pickM(){
+    if(usesFractionGradient() && Math.random() < 0.5) return randChoice(FRACTION_M_VALUES);
+    return randChoice(M_VALUES);
+  }
+
   function nextQuestion(){
-    var m = randChoice(M_VALUES);
+    var m = pickM();
     var c = randInt(C_MIN, C_MAX);
     current = { m: m, c: c };
 
@@ -95,7 +130,8 @@ VM.PracticeGraphLinear = (function(){
     els.extraTip.hidden = !showsExtraTip();
     if(!els.extraTip.hidden){
       els.extraTip.textContent = "Extra tip: once you've placed one point on the line, you can find another " +
-        'by moving along the gradient — right 1, then up or down by however much the gradient says — instead of substituting again.';
+        'by moving along the gradient — right by the denominator (or right 1, for a whole-number gradient), ' +
+        'then up or down by the numerator — instead of substituting again.';
     }
 
     renderBlankGraph();
@@ -127,6 +163,20 @@ VM.PracticeGraphLinear = (function(){
     return [uniq[0], uniq[uniq.length - 1]];
   }
 
+  // Extends the line through two arbitrary grid points (e.g. the
+  // student's own clicked points, which won't generally lie on
+  // current's actual line) so it spans the full grid, same as
+  // clipToBox does for a known m/c. Points with equal x give a
+  // vertical line — undefined slope in y = mx + c form — so that
+  // case is clipped directly to x = x1 rather than going through
+  // clipToBox at all.
+  function lineThroughPoints(x1, y1, x2, y2){
+    if(Math.abs(x1 - x2) < 1e-9) return [{ x: x1, y: GRID_MIN }, { x: x1, y: GRID_MAX }];
+    var m = (y2 - y1) / (x2 - x1);
+    var c = y1 - m * x1;
+    return clipToBox(m, c);
+  }
+
   // Converts a mouse-click event on the SVG into a snapped, clamped grid
   // coordinate. The viewBox is 320x320 regardless of the SVG's on-screen
   // size, so client coordinates have to be rescaled into viewBox space
@@ -154,14 +204,15 @@ VM.PracticeGraphLinear = (function(){
   // click while the 'points' step is still in progress.
   function renderPointsGraph(){
     var s = grid.gridSvg() + grid.axesSvg();
+    if(clickedPoints.length === 2){
+      var ends = lineThroughPoints(clickedPoints[0].x, clickedPoints[0].y, clickedPoints[1].x, clickedPoints[1].y);
+      var a = toPx(ends[0].x, ends[0].y), b = toPx(ends[1].x, ends[1].y);
+      s += '<line x1="' + a.x + '" y1="' + a.y + '" x2="' + b.x + '" y2="' + b.y + '" class="plot-line"></line>';
+    }
     clickedPoints.forEach(function(p){
       var px = toPx(p.x, p.y);
       s += '<circle cx="' + px.x + '" cy="' + px.y + '" r="4.5" class="plot-point"></circle>';
     });
-    if(clickedPoints.length === 2){
-      var a = toPx(clickedPoints[0].x, clickedPoints[0].y), b = toPx(clickedPoints[1].x, clickedPoints[1].y);
-      s += '<line x1="' + a.x + '" y1="' + a.y + '" x2="' + b.x + '" y2="' + b.y + '" class="plot-line"></line>';
-    }
     els.svg.innerHTML = s;
     els.svg.setAttribute('aria-label', 'A coordinate grid with the points placed so far, click to add or restart.');
     updatePointReadout();
@@ -176,13 +227,20 @@ VM.PracticeGraphLinear = (function(){
     var lineClass = 'plot-line ' + (ok ? 'plot-line-correct' : 'plot-line-wrong');
     var a = toPx(x1, y1), b = toPx(x2, y2);
     var s = grid.gridSvg() + grid.axesSvg();
-    s += '<line x1="' + a.x + '" y1="' + a.y + '" x2="' + b.x + '" y2="' + b.y + '" class="' + lineClass + '"></line>';
+    // When correct, the two clicked points are guaranteed to lie
+    // exactly on current's line, so draw the actual full-grid line
+    // through them. When wrong, extend the student's own (incorrect)
+    // line — whatever slope their two points define — across the full
+    // grid too, then draw the actual line alongside it for comparison.
+    var lineEnds = ok ? clipToBox(mNum(current.m), current.c) : lineThroughPoints(x1, y1, x2, y2);
+    var e1 = toPx(lineEnds[0].x, lineEnds[0].y), e2 = toPx(lineEnds[1].x, lineEnds[1].y);
+    s += '<line x1="' + e1.x + '" y1="' + e1.y + '" x2="' + e2.x + '" y2="' + e2.y + '" class="' + lineClass + '"></line>';
     s += '<circle cx="' + a.x + '" cy="' + a.y + '" r="4.5" class="' + pointClass + '"></circle>';
     s += '<circle cx="' + b.x + '" cy="' + b.y + '" r="4.5" class="' + pointClass + '"></circle>';
     if(!ok){
-      var ends = clipToBox(current.m, current.c);
-      var e1 = toPx(ends[0].x, ends[0].y), e2 = toPx(ends[1].x, ends[1].y);
-      s += '<line x1="' + e1.x + '" y1="' + e1.y + '" x2="' + e2.x + '" y2="' + e2.y + '" class="plot-line"></line>';
+      var actualEnds = clipToBox(mNum(current.m), current.c);
+      var r1 = toPx(actualEnds[0].x, actualEnds[0].y), r2 = toPx(actualEnds[1].x, actualEnds[1].y);
+      s += '<line x1="' + r1.x + '" y1="' + r1.y + '" x2="' + r2.x + '" y2="' + r2.y + '" class="plot-line"></line>';
     }
     els.svg.innerHTML = s;
     els.svg.setAttribute('aria-label', ok ?
@@ -195,24 +253,53 @@ VM.PracticeGraphLinear = (function(){
   // <td><input></td> in the row below) lives in the HTML, same pattern
   // as practice-graph-quadratic.html's table — no need to build it here.
 
-  function tableWants(){ return TABLE_XS.map(function(x){ return current.m * x + current.c; }); }
+  function gcd(a, b){
+    a = Math.abs(a); b = Math.abs(b);
+    while(b){ var t = b; b = a % b; a = t; }
+    return a || 1;
+  }
+
+  // Each wanted table value as an exact { value, num, den } — value is
+  // the plain number used for comparing the student's answer, num/den
+  // is the reduced fraction used for display. With a fractional m,
+  // m*x + c isn't always a whole number (e.g. y = 2/3x - 4 at x = -2),
+  // so this keeps the y-values exact rather than a rounded decimal.
+  function tableWants(){
+    if(current.m && typeof current.m === 'object'){
+      var num = current.m.num, den = current.m.den;
+      return TABLE_XS.map(function(x){
+        var n = num * x + current.c * den;
+        var g = gcd(n, den);
+        var rn = n / g, rd = den / g;
+        if(rd < 0){ rn = -rn; rd = -rd; }
+        return { value: rn / rd, num: rn, den: rd };
+      });
+    }
+    return TABLE_XS.map(function(x){
+      var n = current.m * x + current.c;
+      return { value: n, num: n, den: 1 };
+    });
+  }
+
+  function formatWanted(w){ return w.den === 1 ? String(w.num) : (w.num + '/' + w.den); }
 
   function checkTable(){
     var wants = tableWants();
     var oks = els.tableInputs.map(function(el, i){
       var v = parseFraction(el.value);
-      return !isNaN(v) && Math.abs(v - wants[i]) < 0.01;
+      return !isNaN(v) && Math.abs(v - wants[i].value) < 0.01;
     });
     els.tableInputs.forEach(function(el, i){
       el.classList.toggle('right', oks[i]);
       el.classList.toggle('wrong', !oks[i]);
     });
     var ok = oks.every(function(o){ return o; });
+    var wantedStr = wants.map(formatWanted).join(', ');
     els.feedback.textContent = ok ?
       'Correct — every value comes from substituting x into ' + formatEquation(current.m, current.c) + '.' :
-      ('Not quite. The y-values should be ' + wants.join(', ') + '.');
+      ('Not quite. The y-values should be ' + wantedStr + '.');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
-    if(ok) working.push('y-values: ' + wants.join(', '));
+    if(ok) working.push('y-values: ' + wantedStr);
     return ok;
   }
 
@@ -229,8 +316,9 @@ VM.PracticeGraphLinear = (function(){
     }
 
     var p1 = clickedPoints[0], p2 = clickedPoints[1];
-    var onLine1 = Math.abs(p1.y - (current.m * p1.x + current.c)) < 0.01;
-    var onLine2 = Math.abs(p2.y - (current.m * p2.x + current.c)) < 0.01;
+    var m = mNum(current.m);
+    var onLine1 = Math.abs(p1.y - (m * p1.x + current.c)) < 0.01;
+    var onLine2 = Math.abs(p2.y - (m * p2.x + current.c)) < 0.01;
     var samePoint = Math.abs(p1.x - p2.x) < 0.01 && Math.abs(p1.y - p2.y) < 0.01;
     var ok = onLine1 && onLine2 && !samePoint;
 
