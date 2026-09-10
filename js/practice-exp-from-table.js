@@ -162,8 +162,8 @@ VM.PracticeExpFromTable = (function(){
       case 'ratio': return 'Divide each first difference by the one before it — for an exponential these come out all the same.';
       case 'basic-equation': return 'Leave k and c as letters, e.g. y = k(3)^x + c.';
       case 'substitute-points':
-        return 'At x = 0, a^0 = 1, so that equation is just k + c = ' + current.ys[0] +
-          '. At x = 1, a^1 = ' + current.a + ', so write it as ' + current.a + 'k + c = ' + current.ys[1] + '.';
+        return 'At x = 0, a^0 = 1, so the k-term has no coefficient — e.g. if y were 5 there, you\'d write k + c = 5. ' +
+          'At x = 1, a^1 is just the base itself, so multiply k by it — e.g. with base 3 and y = 11 there, you\'d write 3k + c = 11.';
       case 'solve-kc': return 'Subtract one equation from the other to eliminate c first.';
       case 'final-equation': return 'Write it as y = k(a)^x + c with all three substituted, e.g. y = -2(3)^x + 1.';
     }
