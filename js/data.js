@@ -10,12 +10,14 @@
    Neither is built out for most skills yet, so their Learn/Practice
    buttons render disabled (greyed out) by default in DagView. Add
    `ready:true` to a topic once its Learn and/or Practice content
-   actually exists, to turn its buttons on. Five topics are ready
+   actually exists, to turn its buttons on. Seven topics are ready
    so far: "line-from-graph" (js/practice-line-graph.js),
    "parabola-from-intercepts" (js/practice-parabola-intercepts.js),
    "parabola-from-vertex" (js/practice-parabola-vertex.js),
-   "simultaneous" (js/practice-simultaneous.js) and
-   "line-from-table" (js/practice-line-from-table.js).
+   "simultaneous" (js/practice-simultaneous.js),
+   "line-from-table" (js/practice-line-from-table.js),
+   "parabola-from-table" (js/practice-parabola-from-table.js) and
+   "exp-from-table" (js/practice-exp-from-table.js).
    Learn isn't built for any of them yet, so its button still just
    toasts.
    ============================================================ */
@@ -71,9 +73,9 @@ VM.data = (function(){
     { id:"parabola-from-intercepts", name:"Finding the equation of a parabola (from a graph using intercepts)", status:"not-started", lane:6, prereqs:["graph-quadratic","factor-monic"], ready:true },
     { id:"line-from-two-points", name:"Finding the equation of a line (from two points)", status:"not-started", lane:5, prereqs:["line-from-grad-point"] },
     { id:"line-from-table", name:"Finding the equation of a line (from a table)", status:"not-started", lane:5, prereqs:["line-from-grad-point"], ready:true },
-    { id:"exp-from-table", name:"Finding the equation of an exponential (from a table of values)", status:"not-started", lane:7, prereqs:["exp-with-shift"] },
+    { id:"exp-from-table", name:"Finding the equation of an exponential (from a table of values)", status:"not-started", lane:7, prereqs:["exp-with-shift"], ready:true },
 
-    { id:"parabola-from-table", name:"Finding the equation of a parabola (from a table)", status:"not-started", lane:6, prereqs:["simultaneous"] },
+    { id:"parabola-from-table", name:"Finding the equation of a parabola (from a table)", status:"not-started", lane:6, prereqs:["simultaneous"], ready:true },
 
     { id:"mixed-tables", name:"Mixed: finding equations from a table", status:"not-started", lane:8, prereqs:["line-from-table","parabola-from-table","exp-from-table"] },
     { id:"mixed-graphs", name:"Mixed: finding equations from a graph", status:"not-started", lane:8, prereqs:["line-from-graph","parabola-from-vertex","parabola-from-intercepts","exp-with-shift"] }

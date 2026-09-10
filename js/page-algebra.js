@@ -12,7 +12,9 @@
     'parabola-from-intercepts': 'practice-parabola-intercepts.html',
     'parabola-from-vertex': 'practice-parabola-vertex.html',
     'simultaneous': 'practice-simultaneous.html',
-    'line-from-table': 'practice-line-from-table.html'
+    'line-from-table': 'practice-line-from-table.html',
+    'parabola-from-table': 'practice-parabola-from-table.html',
+    'exp-from-table': 'practice-exp-from-table.html'
   };
 
   document.addEventListener('DOMContentLoaded', function(){

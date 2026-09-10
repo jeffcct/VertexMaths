@@ -26,6 +26,10 @@ server (e.g. `python3 -m http.server`).
 - `practice-simultaneous.html` — Practice: solving simultaneous
   equations, alternating between the elimination and substitution
   methods.
+- `practice-parabola-from-table.html` — Practice: finding a
+  parabola's equation from a table, via first and second differences.
+- `practice-exp-from-table.html` — Practice: finding an exponential's
+  equation from a table, via first differences and their ratio.
 
 Each page links to the next with a plain `<a href>`/back button —
 there's no client-side router.
@@ -37,7 +41,7 @@ there's no client-side router.
 - `js/` — `data.js` is the content model (skill names, statuses,
   prerequisites); `toast.js`, `equation-parse.js` and `graph-utils.js`
   are small shared utilities; `home-view.js`, `dag-view.js` and the
-  five `practice-*.js` files are the view components, each taking
+  seven `practice-*.js` files are the view components, each taking
   navigation callbacks rather than knowing about pages directly; the
   matching `page-*.js` file is that page's composition root, wiring
   the view component's callbacks to an actual page navigation

@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Practice: Exponential from a Table — Vertex Maths</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/practice.css">
+</head>
+<body>
+<div class="wrap" id="page-wrap">
+
+  <div class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">V</span>
+      <div>
+        <div class="brand-name">Vertex Maths</div>
+        <div class="brand-sub">Year 11 &middot; Mathematics</div>
+      </div>
+    </a>
+    <div class="greeting">Kia ora, <b>Amelia</b> &mdash; Room 14</div>
+  </div>
+
+  <!-- ============ PracticeExpFromTable component ============ -->
+  <section class="view" id="view-practice-exp-from-table">
+
+    <div class="breadcrumb">
+      <button id="exp-table-back-btn">← Algebra &amp; Graphing</button>
+      <span class="sep">/</span>
+      <span class="current">Practice: exponential from a table</span>
+    </div>
+
+    <div class="practice-layout">
+      <div class="practice-graph">
+        <table class="value-table" id="exp-table-values"></table>
+
+        <div class="diff-row" id="exp-table-first-diff" hidden>
+          <span class="diff-row-label">Δy</span>
+          <span class="diff-row-spacer"></span>
+          <span class="diff-row-cell"><input type="text" id="exp-table-diff-1" class="answer-input" inputmode="text" autocomplete="off" aria-label="First difference 1"></span>
+          <span class="diff-row-cell"><input type="text" id="exp-table-diff-2" class="answer-input" inputmode="text" autocomplete="off" aria-label="First difference 2"></span>
+          <span class="diff-row-cell"><input type="text" id="exp-table-diff-3" class="answer-input" inputmode="text" autocomplete="off" aria-label="First difference 3"></span>
+        </div>
+
+        <div class="diff-row" id="exp-table-ratio" hidden>
+          <span class="diff-row-label">Ratio</span>
+          <span class="diff-row-spacer-wide"></span>
+          <span class="diff-row-cell"><input type="text" id="exp-table-ratio-1" class="answer-input" inputmode="text" autocomplete="off" aria-label="Ratio 1"></span>
+          <span class="diff-row-cell"><input type="text" id="exp-table-ratio-2" class="answer-input" inputmode="text" autocomplete="off" aria-label="Ratio 2"></span>
+        </div>
+      </div>
+
+      <div class="practice-panel">
+        <div>
+          <div class="practice-title">Find the equation of the exponential</div>
+          <div class="practice-sub">Use the table of x and y values to find k, a and c.</div>
+        </div>
+
+        <div class="practice-mode-note" id="exp-table-mode-note"></div>
+        <div class="step-prompt" id="exp-table-step-prompt"></div>
+
+        <div class="answer-row" id="exp-table-step-basic-equation" hidden>
+          <input type="text" id="exp-table-basic-eq" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Basic equation" placeholder="e.g. y = k(3)^x + c">
+        </div>
+
+        <div class="answer-row answer-row-stack" id="exp-table-step-substitute-points" hidden>
+          <div class="answer-row">
+            <input type="text" id="exp-table-sub-eq1" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Equation from x = 0" placeholder="e.g. k + c = 5">
+          </div>
+          <div class="answer-row">
+            <input type="text" id="exp-table-sub-eq2" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Equation from x = 1" placeholder="e.g. 3k + c = 17">
+          </div>
+        </div>
+
+        <div class="answer-row" id="exp-table-step-solve-kc" hidden>
+          <span class="mono">k =</span>
+          <input type="text" id="exp-table-solve-k" class="answer-input" inputmode="text" autocomplete="off" aria-label="Value of k">
+          <span class="mono">c =</span>
+          <input type="text" id="exp-table-solve-c" class="answer-input" inputmode="text" autocomplete="off" aria-label="Value of c">
+        </div>
+
+        <div class="answer-row" id="exp-table-step-final-equation" hidden>
+          <input type="text" id="exp-table-final-eq" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Full equation" placeholder="e.g. y = -2(3)^x + 1">
+        </div>
+
+        <div class="answer-hint" id="exp-table-hint"></div>
+
+        <div class="practice-actions">
+          <button class="practice-check-btn" id="exp-table-check-btn">Check answer</button>
+          <button class="practice-next-btn" id="exp-table-next-btn">New question</button>
+        </div>
+
+        <div class="feedback" id="exp-table-feedback"></div>
+        <div class="practice-score-row">Score: <span class="mono" id="exp-table-score">0 / 0</span></div>
+      </div>
+    </div>
+
+    <footer>A freshly generated table each time &middot; the base is always a positive whole number</footer>
+  </section>
+
+</div>
+
+<script src="js/equation-parse.js"></script>
+<script src="js/practice-exp-from-table.js"></script>
+<script src="js/page-practice-exp-from-table.js"></script>
+</body>
+</html>

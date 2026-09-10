@@ -83,6 +83,12 @@
 }
 .diff-row-spacer{ width:2.25rem; flex:none; }
 .diff-row-cell{ width:4.5rem; flex:none; display:flex; justify-content:center; }
+/* A second-differences row (PracticeParabolaFromTable) nests one
+   level deeper than a first-differences row: its boxes need to
+   straddle the gaps between the row above's boxes, not the table's
+   columns, so its spacer is one full cell wider (a whole extra box
+   width, not just the half-box offset a first-differences row uses). */
+.diff-row-spacer-wide{ width:4.5rem; flex:none; }
 
 /* ---- Discrete choice buttons (PracticeSimultaneous) ---- */
 .choice-row{ display:flex; gap:.6rem; flex-wrap:wrap; }

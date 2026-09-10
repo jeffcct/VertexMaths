@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Practice: Parabola from a Table — Vertex Maths</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/practice.css">
+</head>
+<body>
+<div class="wrap" id="page-wrap">
+
+  <div class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">V</span>
+      <div>
+        <div class="brand-name">Vertex Maths</div>
+        <div class="brand-sub">Year 11 &middot; Mathematics</div>
+      </div>
+    </a>
+    <div class="greeting">Kia ora, <b>Amelia</b> &mdash; Room 14</div>
+  </div>
+
+  <!-- ============ PracticeParabolaFromTable component ============ -->
+  <section class="view" id="view-practice-parabola-from-table">
+
+    <div class="breadcrumb">
+      <button id="parabola-table-back-btn">← Algebra &amp; Graphing</button>
+      <span class="sep">/</span>
+      <span class="current">Practice: parabola from a table</span>
+    </div>
+
+    <div class="practice-layout">
+      <div class="practice-graph">
+        <table class="value-table" id="parabola-table-values"></table>
+
+        <div class="diff-row" id="parabola-table-first-diff" hidden>
+          <span class="diff-row-label">Δy</span>
+          <span class="diff-row-spacer"></span>
+          <span class="diff-row-cell"><input type="text" id="parabola-table-diff1-1" class="answer-input" inputmode="text" autocomplete="off" aria-label="First difference 1"></span>
+          <span class="diff-row-cell"><input type="text" id="parabola-table-diff1-2" class="answer-input" inputmode="text" autocomplete="off" aria-label="First difference 2"></span>
+          <span class="diff-row-cell"><input type="text" id="parabola-table-diff1-3" class="answer-input" inputmode="text" autocomplete="off" aria-label="First difference 3"></span>
+          <span class="diff-row-cell"><input type="text" id="parabola-table-diff1-4" class="answer-input" inputmode="text" autocomplete="off" aria-label="First difference 4"></span>
+        </div>
+
+        <div class="diff-row" id="parabola-table-second-diff" hidden>
+          <span class="diff-row-label">Δ²y</span>
+          <span class="diff-row-spacer-wide"></span>
+          <span class="diff-row-cell"><input type="text" id="parabola-table-diff2-1" class="answer-input" inputmode="text" autocomplete="off" aria-label="Second difference 1"></span>
+          <span class="diff-row-cell"><input type="text" id="parabola-table-diff2-2" class="answer-input" inputmode="text" autocomplete="off" aria-label="Second difference 2"></span>
+          <span class="diff-row-cell"><input type="text" id="parabola-table-diff2-3" class="answer-input" inputmode="text" autocomplete="off" aria-label="Second difference 3"></span>
+        </div>
+      </div>
+
+      <div class="practice-panel">
+        <div>
+          <div class="practice-title">Find the equation of the parabola</div>
+          <div class="practice-sub">Use the table of x and y values to find a, b and c.</div>
+        </div>
+
+        <div class="practice-mode-note" id="parabola-table-mode-note"></div>
+        <div class="step-prompt" id="parabola-table-step-prompt"></div>
+
+        <div class="answer-row" id="parabola-table-step-find-a" hidden>
+          <span class="mono">a =</span>
+          <input type="text" id="parabola-table-find-a" class="answer-input" inputmode="text" autocomplete="off" aria-label="Value of a">
+        </div>
+
+        <div class="answer-row" id="parabola-table-step-find-c" hidden>
+          <span class="mono">c =</span>
+          <input type="text" id="parabola-table-find-c" class="answer-input" inputmode="text" autocomplete="off" aria-label="Value of c">
+        </div>
+
+        <div class="answer-row" id="parabola-table-step-current-equation" hidden>
+          <input type="text" id="parabola-table-current-eq" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Equation so far" placeholder="e.g. y = 2x^2 + bx - 3">
+        </div>
+
+        <div class="answer-row" id="parabola-table-step-find-b" hidden>
+          <span class="mono">b =</span>
+          <input type="text" id="parabola-table-find-b" class="answer-input" inputmode="text" autocomplete="off" aria-label="Value of b">
+        </div>
+
+        <div class="answer-row" id="parabola-table-step-final-equation" hidden>
+          <input type="text" id="parabola-table-final-eq" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Full equation" placeholder="e.g. y = -2x^2 + 3x - 1">
+        </div>
+
+        <div class="answer-hint" id="parabola-table-hint"></div>
+
+        <div class="practice-actions">
+          <button class="practice-check-btn" id="parabola-table-check-btn">Check answer</button>
+          <button class="practice-next-btn" id="parabola-table-next-btn">New question</button>
+        </div>
+
+        <div class="feedback" id="parabola-table-feedback"></div>
+        <div class="practice-score-row">Score: <span class="mono" id="parabola-table-score">0 / 0</span></div>
+      </div>
+    </div>
+
+    <footer>A freshly generated table each time &middot; x = 0 is never shown, so c has to be worked back to</footer>
+  </section>
+
+</div>
+
+<script src="js/equation-parse.js"></script>
+<script src="js/practice-parabola-from-table.js"></script>
+<script src="js/page-practice-parabola-from-table.js"></script>
+</body>
+</html>
