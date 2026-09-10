@@ -10,7 +10,7 @@
    Neither is built out for most skills yet, so their Learn/Practice
    buttons render disabled (greyed out) by default in DagView. Add
    `ready:true` to a topic once its Learn and/or Practice content
-   actually exists, to turn its buttons on. Thirteen topics are ready
+   actually exists, to turn its buttons on. Seventeen topics are ready
    so far: "line-from-graph" (js/practice-line-graph.js),
    "parabola-from-intercepts" (js/practice-parabola-intercepts.js),
    "parabola-from-vertex" (js/practice-parabola-vertex.js),
@@ -22,8 +22,12 @@
    "line-from-two-points" (js/practice-line-from-two-points.js),
    "factor-monic" (js/practice-factor-monic.js),
    "factor-nonmonic" (js/practice-factor-nonmonic.js),
-   "graph-linear" (js/practice-graph-linear.js) and
-   "graph-quadratic" (js/practice-graph-quadratic.js).
+   "graph-linear" (js/practice-graph-linear.js),
+   "graph-quadratic" (js/practice-graph-quadratic.js),
+   "factor-single" (js/practice-factor-single.js),
+   "rearrange" (js/practice-rearrange-formulae.js),
+   "eqs-exponents" (js/practice-eqs-exponents.js) and
+   "solving-polys" (js/practice-solving-polys.js).
    Learn isn't built for any of them yet, so its button still just
    toasts.
    ============================================================ */
@@ -54,12 +58,12 @@ VM.data = (function(){
     { id:"expand-single", name:"Expanding single brackets", status:"mastered", lane:3, prereqs:["simp-expr"] },
     { id:"multi-step", name:"Solving multi-step equations", status:"mastered", lane:0, prereqs:["one-step","simp-expr"] },
 
-    { id:"factor-single", name:"Factoring single brackets", status:"mastered", lane:3, prereqs:["expand-single"] },
+    { id:"factor-single", name:"Factoring single brackets", status:"mastered", lane:3, prereqs:["expand-single"], ready:true },
     { id:"expand-double", name:"Expanding double brackets", status:"mastered", lane:3, prereqs:["expand-single"] },
     { id:"x-both-sides", name:"Solving equations with x on both sides", status:"in-progress", lane:0, prereqs:["multi-step"] },
-    { id:"rearrange", name:"Rearranging formulae", status:"in-progress", lane:4, prereqs:["multi-step"] },
+    { id:"rearrange", name:"Rearranging formulae", status:"in-progress", lane:4, prereqs:["multi-step"], ready:true },
     { id:"powers-roots", name:"Solving equations with powers and roots", status:"not-started", lane:0, prereqs:["multi-step"] },
-    { id:"eqs-exponents", name:"Solving equations with exponents", status:"not-started", lane:0, prereqs:["multi-step","simp-exp"] },
+    { id:"eqs-exponents", name:"Solving equations with exponents", status:"not-started", lane:0, prereqs:["multi-step","simp-exp"], ready:true },
     { id:"graph-exponential", name:"Graphing exponentials", status:"in-progress", lane:7, prereqs:["substitution"] },
 
     { id:"factor-monic", name:"Factoring monic polynomials", status:"in-progress", lane:3, prereqs:["factor-single","expand-double"], ready:true },
@@ -74,7 +78,7 @@ VM.data = (function(){
     { id:"line-from-grad-point", name:"Finding the equation of a line (from a gradient and a point)", status:"not-started", lane:5, prereqs:["graph-linear"], ready:true },
     { id:"exp-with-shift", name:"Finding the equation of an exponential (from a graph, with a vertical shift)", status:"not-started", lane:7, prereqs:["exp-no-shift","simultaneous"] },
 
-    { id:"solving-polys", name:"Solving with polynomials", status:"not-started", lane:0, prereqs:["factor-nonmonic","multi-step"] },
+    { id:"solving-polys", name:"Solving with polynomials", status:"not-started", lane:0, prereqs:["factor-nonmonic","multi-step"], ready:true },
     { id:"parabola-from-vertex", name:"Finding the equation of a parabola (from a graph using vertex)", status:"not-started", lane:6, prereqs:["graph-quadratic"], ready:true },
     { id:"parabola-from-intercepts", name:"Finding the equation of a parabola (from a graph using intercepts)", status:"not-started", lane:6, prereqs:["graph-quadratic","factor-monic"], ready:true },
     { id:"line-from-two-points", name:"Finding the equation of a line (from two points)", status:"not-started", lane:5, prereqs:["line-from-grad-point"], ready:true },

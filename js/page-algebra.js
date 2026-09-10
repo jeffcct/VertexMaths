@@ -20,7 +20,11 @@
     'factor-monic': 'practice-factor-monic.html',
     'factor-nonmonic': 'practice-factor-nonmonic.html',
     'graph-linear': 'practice-graph-linear.html',
-    'graph-quadratic': 'practice-graph-quadratic.html'
+    'graph-quadratic': 'practice-graph-quadratic.html',
+    'factor-single': 'practice-factor-single.html',
+    'rearrange': 'practice-rearrange-formulae.html',
+    'eqs-exponents': 'practice-eqs-exponents.html',
+    'solving-polys': 'practice-solving-polys.html'
   };
 
   document.addEventListener('DOMContentLoaded', function(){
