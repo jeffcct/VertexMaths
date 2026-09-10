@@ -177,11 +177,11 @@ VM.PracticeParabolaVertex = (function(){
       case 'vertex':
         return "It's the turning point of the curve.";
       case 'squared':
-        return 'Write it as (x - h)^2, e.g. (x + 3)^2.';
+        return 'Substitute h and k, but leave a as a letter — e.g. y = a(x + 3)^2 + 4.';
       case 'point':
         return "It's the marked point one unit to the right of the vertex.";
       case 'solvea':
-        return 'Substitute the point into y = a(' + factorLabel(current.h) + ')^2 + ' + current.k + ' and solve for a. Leave the box blank for 1, or type just - for -1.' +
+        return 'Substitute the point into ' + squaredTemplateString(current.h, current.k) + ' and solve for a. Leave the box blank for 1, or type just - for -1.' +
           (current.aDen > 1 ? ' Fractions like 3/2 are fine.' : '');
       case 'equation':
         return 'Write the full equation, starting with y =, e.g. y = -2(x + 3)^2 + 4. Use ^2 for squared, leave out the coefficient for 1, and use a bare - for -1.' +
@@ -228,12 +228,21 @@ VM.PracticeParabolaVertex = (function(){
 
   // ---- Parsing ----------------------------------------------------
 
-  // "(x + 3)^2" — just the squared factor, no "a", no "+ k", no "y =".
+  // "y = a(x + 3)^2 + 4" — the equation with h and k already
+  // substituted from the vertex, but a left as a literal letter since
+  // it isn't solved for until the "solvea" step.
   function parseSquared(raw){
     var s = (raw || '').toLowerCase().replace(/\s+/g, '');
-    var m = s.match(/^\(x([+-]\d+(?:\.\d+)?)\)\^2$/);
+    if(s.slice(0, 2) !== 'y=') return null;
+    s = s.slice(2);
+    if(s.slice(0, 1) !== 'a') return null;
+    s = s.slice(1);
+    var m = s.match(/^\(x([+-]\d+(?:\.\d+)?)\)\^2([+-]\d+(?:\.\d+)?)?$/);
     if(!m) return null;
-    return { h: -parseFloat(m[1]) };
+    var h = -parseFloat(m[1]);
+    var k = m[2] ? parseFloat(m[2]) : 0;
+    if(isNaN(h) || isNaN(k)) return null;
+    return { h: h, k: k };
   }
 
   // "y = -2(x + 3)^2 + 4" — the full equation.
@@ -252,6 +261,15 @@ VM.PracticeParabolaVertex = (function(){
   }
 
   function squaredString(h){ return '(' + factorLabel(h) + ')^2'; }
+
+  // "y = a(x - h)^2 + k" with h and k substituted, a left as a
+  // literal letter — the equation as far as it can be built before a
+  // is solved for. Shared by the "squared" step's expected answer and
+  // the "solvea" step's hint, which substitutes into this same form.
+  function squaredTemplateString(h, k){
+    var kStr = k === 0 ? '' : (k > 0 ? (' + ' + k) : (' - ' + Math.abs(k)));
+    return 'y = a' + squaredString(h) + kStr;
+  }
 
   // See the matching note in practice-parabola-intercepts.js: "a = 1"
   // should say "1", but a coefficient of 1 right before a bracket is
@@ -290,9 +308,9 @@ VM.PracticeParabolaVertex = (function(){
 
   function checkSquared(){
     var parsed = parseSquared(els.squaredInput.value);
-    var ok = !!parsed && Math.abs(parsed.h - current.h) < 0.01;
+    var ok = !!parsed && Math.abs(parsed.h - current.h) < 0.01 && Math.abs(parsed.k - current.k) < 0.01;
     els.squaredInput.classList.toggle('right', ok); els.squaredInput.classList.toggle('wrong', !ok);
-    var correctStr = squaredString(current.h);
+    var correctStr = squaredTemplateString(current.h, current.k);
     els.feedback.textContent = ok ? ('Correct — ' + correctStr) : ('Not quite. It should be ' + correctStr + '.');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
     return ok;
