@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Practice: Graphing Linear Equations — Vertex Maths</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/practice.css">
+</head>
+<body>
+<div class="wrap wrap-wide" id="page-wrap">
+
+  <div class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">V</span>
+      <div>
+        <div class="brand-name">Vertex Maths</div>
+        <div class="brand-sub">Year 11 &middot; Mathematics</div>
+      </div>
+    </a>
+    <div class="greeting">Kia ora, <b>Amelia</b> &mdash; Room 14</div>
+  </div>
+
+  <!-- ============ PracticeGraphLinear component ============ -->
+  <section class="view" id="view-practice-graph-linear">
+
+    <div class="breadcrumb">
+      <button id="graphline-back-btn">← Algebra &amp; Graphing</button>
+      <span class="sep">/</span>
+      <span class="current">Practice: graphing linear equations</span>
+    </div>
+
+    <div class="practice-layout">
+      <div class="practice-graph">
+        <svg id="graphline-graph-svg" viewBox="0 0 320 320" role="img" aria-label="An empty coordinate grid, ready for a line to be plotted on it"></svg>
+      </div>
+
+      <div class="practice-panel-group">
+      <div class="practice-panel">
+        <div>
+          <div class="practice-title">Graph the line</div>
+          <div class="practice-sub">Use substitution or the gradient and intercept to find points on the line, then give two of them.</div>
+        </div>
+
+        <div class="equation-line mono" id="graphline-equation"></div>
+
+        <div class="form-template mono">y = mx + c</div>
+
+        <div class="practice-mode-note" id="graphline-mode-note"></div>
+        <div class="step-prompt" id="graphline-step-prompt"></div>
+
+        <div id="graphline-step-table" hidden>
+          <table class="value-table" id="graphline-table"></table>
+          <div class="answer-row">
+            <input type="text" id="graphline-table-y-0" class="answer-input" inputmode="text" autocomplete="off" aria-label="y-value for the first x">
+            <input type="text" id="graphline-table-y-1" class="answer-input" inputmode="text" autocomplete="off" aria-label="y-value for the second x">
+            <input type="text" id="graphline-table-y-2" class="answer-input" inputmode="text" autocomplete="off" aria-label="y-value for the third x">
+            <input type="text" id="graphline-table-y-3" class="answer-input" inputmode="text" autocomplete="off" aria-label="y-value for the fourth x">
+            <input type="text" id="graphline-table-y-4" class="answer-input" inputmode="text" autocomplete="off" aria-label="y-value for the fifth x">
+          </div>
+        </div>
+
+        <div class="answer-row answer-row-stack" id="graphline-step-points" hidden>
+          <div class="answer-row">
+            <span class="mono">Point 1: (</span>
+            <input type="text" id="graphline-p1-x" class="answer-input" inputmode="text" autocomplete="off" aria-label="Point 1 x-coordinate">
+            <span class="mono">,</span>
+            <input type="text" id="graphline-p1-y" class="answer-input" inputmode="text" autocomplete="off" aria-label="Point 1 y-coordinate">
+            <span class="mono">)</span>
+          </div>
+          <div class="answer-row">
+            <span class="mono">Point 2: (</span>
+            <input type="text" id="graphline-p2-x" class="answer-input" inputmode="text" autocomplete="off" aria-label="Point 2 x-coordinate">
+            <span class="mono">,</span>
+            <input type="text" id="graphline-p2-y" class="answer-input" inputmode="text" autocomplete="off" aria-label="Point 2 y-coordinate">
+            <span class="mono">)</span>
+          </div>
+        </div>
+
+        <div class="answer-hint" id="graphline-hint"></div>
+
+        <div class="practice-actions">
+          <button class="practice-check-btn" id="graphline-check-btn">Check answer</button>
+          <button class="practice-next-btn" id="graphline-next-btn">New question</button>
+        </div>
+
+        <div class="feedback" id="graphline-feedback"></div>
+        <div class="practice-score-row" id="graphline-score-row">Score: <span class="mono" id="graphline-score">0 / 0</span></div>
+      </div>
+
+      <div class="working-sidebar">
+        <div class="working-card" id="graphline-working-card" hidden>
+          <div class="equation-label">Working</div>
+          <div class="working-lines" id="graphline-working-lines"></div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <footer>A freshly generated line each time &middot; any two valid points are accepted, and the actual line is revealed once you check</footer>
+  </section>
+
+</div>
+
+<script src="js/equation-parse.js"></script>
+<script src="js/graph-utils.js"></script>
+<script src="js/working-trail.js"></script>
+<script src="js/practice-graph-linear.js"></script>
+<script src="js/page-practice-graph-linear.js"></script>
+</body>
+</html>
