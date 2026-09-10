@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Practice: Rearranging Formulae — Vertex Maths</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/practice.css">
+</head>
+<body>
+<div class="wrap wrap-wide" id="page-wrap">
+
+  <div class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">V</span>
+      <div>
+        <div class="brand-name">Vertex Maths</div>
+        <div class="brand-sub">Year 11 &middot; Mathematics</div>
+      </div>
+    </a>
+    <div class="greeting">Kia ora, <b>Amelia</b> &mdash; Room 14</div>
+  </div>
+
+  <!-- ============ PracticeRearrangeFormulae component ============ -->
+  <section class="view" id="view-practice-rearrange-formulae">
+
+    <div class="breadcrumb">
+      <button id="formula-back-btn">← Algebra &amp; Graphing</button>
+      <span class="sep">/</span>
+      <span class="current">Practice: rearranging formulae</span>
+    </div>
+
+    <div class="practice-layout">
+      <div class="equations-card">
+        <div class="equation-label">Formula</div>
+        <div class="equation-line" id="formula-given"></div>
+      </div>
+
+      <div class="practice-panel-group">
+      <div class="practice-panel">
+        <div>
+          <div class="practice-title">Rearrange the formula</div>
+          <div class="practice-sub">Make the given letter the subject.</div>
+        </div>
+
+        <div class="form-template mono">P = aQ + b</div>
+
+        <div class="practice-mode-note" id="formula-mode-note"></div>
+        <div class="step-prompt" id="formula-step-prompt"></div>
+
+        <div class="answer-row" id="formula-step-isolate" hidden>
+          <input type="text" id="formula-isolate-input" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Equation with the constant moved across">
+        </div>
+
+        <div class="answer-row" id="formula-step-rearranged" hidden>
+          <input type="text" id="formula-answer-input" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Rearranged formula">
+        </div>
+
+        <div class="answer-hint" id="formula-hint"></div>
+
+        <div class="practice-actions">
+          <button class="practice-check-btn" id="formula-check-btn">Check answer</button>
+          <button class="practice-next-btn" id="formula-next-btn">New question</button>
+        </div>
+
+        <div class="feedback" id="formula-feedback"></div>
+        <div class="practice-score-row">Score: <span class="mono" id="formula-score">0 / 0</span></div>
+      </div>
+
+      <div class="working-sidebar">
+        <div class="working-card" id="formula-working-card" hidden>
+          <div class="equation-label">Working</div>
+          <div class="working-lines" id="formula-working-lines"></div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <footer>A freshly generated formula each time, with different letters &middot; the coefficient is never 1, so the answer always needs a fraction</footer>
+  </section>
+
+</div>
+
+<script src="js/equation-parse.js"></script>
+<script src="js/working-trail.js"></script>
+<script src="js/practice-rearrange-formulae.js"></script>
+<script src="js/page-practice-rearrange-formulae.js"></script>
+</body>
+</html>
