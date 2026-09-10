@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Practice: Solving with Polynomials — Vertex Maths</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/practice.css">
+</head>
+<body>
+<div class="wrap wrap-wide" id="page-wrap">
+
+  <div class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">V</span>
+      <div>
+        <div class="brand-name">Vertex Maths</div>
+        <div class="brand-sub">Year 11 &middot; Mathematics</div>
+      </div>
+    </a>
+    <div class="greeting">Kia ora, <b>Amelia</b> &mdash; Room 14</div>
+  </div>
+
+  <!-- ============ PracticeSolvingPolys component ============ -->
+  <section class="view" id="view-practice-solving-polys">
+
+    <div class="breadcrumb">
+      <button id="solvepoly-back-btn">← Algebra &amp; Graphing</button>
+      <span class="sep">/</span>
+      <span class="current">Practice: solving with polynomials</span>
+    </div>
+
+    <div class="practice-layout">
+      <div class="equations-card">
+        <div class="equation-label">Solve</div>
+        <div class="equation-line" id="solvepoly-equation"></div>
+      </div>
+
+      <div class="practice-panel-group">
+      <div class="practice-panel">
+        <div>
+          <div class="practice-title">Solve the quadratic equation</div>
+          <div class="practice-sub">Factorise, then use the zero-product property to find both solutions.</div>
+        </div>
+
+        <div class="form-template mono">x² + bx + c = 0</div>
+
+        <div class="practice-mode-note" id="solvepoly-mode-note"></div>
+        <div class="step-prompt" id="solvepoly-step-prompt"></div>
+
+        <div class="answer-row" id="solvepoly-step-factor" hidden>
+          <input type="text" id="solvepoly-factor-input" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Factorised left-hand side" placeholder="e.g. (x + 2)(x - 3)">
+        </div>
+
+        <div class="answer-row" id="solvepoly-step-solve" hidden>
+          <span class="mono">x =</span>
+          <input type="text" id="solvepoly-solve-x1" class="answer-input" inputmode="text" autocomplete="off" aria-label="First solution">
+          <span class="mono">or x =</span>
+          <input type="text" id="solvepoly-solve-x2" class="answer-input" inputmode="text" autocomplete="off" aria-label="Second solution">
+        </div>
+
+        <div class="answer-hint" id="solvepoly-hint"></div>
+
+        <div class="practice-actions">
+          <button class="practice-check-btn" id="solvepoly-check-btn">Check answer</button>
+          <button class="practice-next-btn" id="solvepoly-next-btn">New question</button>
+        </div>
+
+        <div class="feedback" id="solvepoly-feedback"></div>
+        <div class="practice-score-row">Score: <span class="mono" id="solvepoly-score">0 / 0</span></div>
+      </div>
+
+      <div class="working-sidebar">
+        <div class="working-card" id="solvepoly-working-card" hidden>
+          <div class="equation-label">Working</div>
+          <div class="working-lines" id="solvepoly-working-lines"></div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <footer>A freshly generated quadratic each time &middot; it always factors into whole-number roots, and either order is accepted for the two solutions</footer>
+  </section>
+
+</div>
+
+<script src="js/equation-parse.js"></script>
+<script src="js/working-trail.js"></script>
+<script src="js/practice-solving-polys.js"></script>
+<script src="js/page-practice-solving-polys.js"></script>
+</body>
+</html>
