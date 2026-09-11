@@ -189,9 +189,14 @@ VM.PracticeFactorNonmonic = (function(){
   }
 
   // "3x²-3x+x-1" — the expanded four-term form. A coefficient of 1 on
-  // either middle term may be omitted (matching formatExpanded).
+  // either middle term may be omitted (matching formatExpanded). "x^2"
+  // is normalised to "x²" before matching — there's no ordinary way to
+  // type the superscript-two character on a standard keyboard, so a
+  // student typing their own answer (rather than copying the displayed
+  // one) naturally reaches for caret notation instead, and the two must
+  // be treated as the same answer (see GitHub issue #12).
   function parseExpanded(raw){
-    var s = (raw || '').toLowerCase().replace(/\s+/g, '');
+    var s = (raw || '').toLowerCase().replace(/\s+/g, '').replace(/x\^2/g, 'x²');
     var m = s.match(/^(\d+)x²([+-])(\d*)x([+-])(\d*)x([+-]\d+(?:\.\d+)?)$/);
     if(!m) return null;
     var a = parseFloat(m[1]);
