@@ -62,15 +62,32 @@ VM.PracticeGraphLinear = (function(){
   var EXTRA_TIP_MIN_ATTEMPTS = 10;
   var EXTRA_TIP_MIN_ACCURACY = 0.60;
 
-  var FRACTION_GRADIENT_MIN_ATTEMPTS = 15;
+  // Issue #13 follow-up: lowered from 15 to 10 so the fractional-gradient
+  // tier (and its gradient-method walkthrough, see 'gradient-method'
+  // below) shows up sooner.
+  var FRACTION_GRADIENT_MIN_ATTEMPTS = 10;
   var FRACTION_GRADIENT_MIN_ACCURACY = 0.60;
+
+  // The gradient-method tutorial (see 'gradient-method' below) is shown
+  // for a student's first few fractional-gradient questions regardless
+  // of needsScaffold() — a student with high overall accuracy exits the
+  // general scaffold by attempt 3, but that doesn't mean they've ever
+  // been taught the rise/run method, and they're exactly the student
+  // about to meet a fractional gradient for the first time once the
+  // tier unlocks. Tying the tutorial only to needsScaffold() would mean
+  // a strong student never sees it at all.
+  var GRADIENT_TUTORIAL_MAX_SHOWS = 3;
+  var fractionalGradientsSeen = 0;
 
   var els = {};
   var current = null;    // { m, c }
   var score = { correct: 0, attempted: 0 };
-  var steps = [];         // ['table', 'points'] or just ['points']
+  // ['points'], ['table', 'points'], or — for a fractional-gradient
+  // question while still in the scaffolded tier — ['table',
+  // 'gradient-method', 'points']. See nextQuestion().
+  var steps = [];
   var stepIndex = 0;
-  var stepAnswered = false; // has the (ungraded) 'table' step been answered correctly?
+  var stepAnswered = false; // has the current (ungraded) scaffold step been answered correctly?
   var answered = false;     // has the final 'points' step been checked at all?
   var working = null;       // the "shown work" trail for the current question — see working-trail.js
   var clickedPoints = [];   // up to two { x, y } points placed by clicking the grid, for the current attempt
@@ -117,7 +134,23 @@ VM.PracticeGraphLinear = (function(){
     var c = randInt(C_MIN, C_MAX);
     current = { m: m, c: c };
 
-    steps = needsScaffold() ? ['table', 'points'] : ['points'];
+    // A fractional gradient gets its own 'gradient-method' step (teaching
+    // y-intercept + rise/run) ahead of 'points', for the student's first
+    // few fractional-gradient questions — regardless of needsScaffold(),
+    // so a student who exited the general scaffold on accuracy still
+    // gets taught the method the first time they actually need it. The
+    // general 'table' scaffold, if still active, stays alongside it;
+    // once past it, the tutorial appears on its own ahead of 'points'.
+    // Integer-gradient questions are unaffected either way.
+    var fractional = current.m && typeof current.m === 'object';
+    var showGradientTutorial = fractional && fractionalGradientsSeen < GRADIENT_TUTORIAL_MAX_SHOWS;
+    if(fractional) fractionalGradientsSeen++;
+
+    if(showGradientTutorial){
+      steps = needsScaffold() ? ['table', 'gradient-method', 'points'] : ['gradient-method', 'points'];
+    } else {
+      steps = needsScaffold() ? ['table', 'points'] : ['points'];
+    }
     stepIndex = 0;
     stepAnswered = false;
     answered = false;
@@ -303,6 +336,66 @@ VM.PracticeGraphLinear = (function(){
     return ok;
   }
 
+  // ---- The 'gradient-method' step (ungraded scaffold, fractional-
+  // gradient questions only) -------------------------------------------
+  // A distinct method from the substitution table: read the y-intercept
+  // straight off the equation, then use the gradient itself (numerator =
+  // rise, denominator = run) to find a second point. Checked as two
+  // parts — the y-intercept, then the specific point reached by moving
+  // one gradient-step from it — rather than accepting any point that
+  // happens to lie on the line (that's what the later free-choice
+  // 'points' step already tests).
+
+  // The point reached by moving from the y-intercept by exactly one
+  // gradient-step: right by the denominator (or right 1, for an integer
+  // gradient), then up/down by the numerator.
+  function gradientStepPoint(){
+    var m = current.m;
+    if(m && typeof m === 'object') return { x: m.den, y: current.c + m.num };
+    return { x: 1, y: current.c + m };
+  }
+
+  function checkGradientMethod(){
+    var wantYint = current.c;
+    var yintVal = parseFraction(els.yint.value);
+    var yintOk = !isNaN(yintVal) && Math.abs(yintVal - wantYint) < 0.01;
+    els.yint.classList.toggle('right', yintOk);
+    els.yint.classList.toggle('wrong', !yintOk);
+
+    var gx = parseFraction(els.gmX.value);
+    var gy = parseFraction(els.gmY.value);
+    var expected = gradientStepPoint();
+    var m = mNum(current.m);
+    var hasCoords = !isNaN(gx) && !isNaN(gy);
+    var onLine = hasCoords && Math.abs(gy - (m * gx + current.c)) < 0.01;
+    var isStepPoint = hasCoords && Math.abs(gx - expected.x) < 0.01 && Math.abs(gy - expected.y) < 0.01;
+    els.gmX.classList.toggle('right', isStepPoint);
+    els.gmX.classList.toggle('wrong', !isStepPoint);
+    els.gmY.classList.toggle('right', isStepPoint);
+    els.gmY.classList.toggle('wrong', !isStepPoint);
+
+    var ok = yintOk && isStepPoint;
+    var runLabel = (current.m && typeof current.m === 'object') ? current.m.den : 1;
+    var expectedStr = '(' + expected.x + ', ' + expected.y + ')';
+
+    if(!yintOk){
+      els.feedback.textContent = 'Not quite. The y-intercept is the constant term in y = mx + c — read it ' +
+        'straight off the equation: y-intercept = ' + wantYint + '.';
+    } else if(!isStepPoint){
+      els.feedback.textContent = (onLine ?
+        'That point lies on the line, but it\'s not one gradient-step from the y-intercept. ' :
+        'Not quite. ') +
+        'From (0, ' + wantYint + '), move right ' + runLabel +
+        ' and then up or down by the gradient\'s numerator to reach ' + expectedStr + '.';
+    } else {
+      els.feedback.textContent = 'Correct — the y-intercept is (0, ' + wantYint + '), and moving along the ' +
+        'gradient from there gives a second point at ' + expectedStr + '.';
+    }
+    els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
+    if(ok) working.push('y-intercept = (0, ' + wantYint + '); second point = ' + expectedStr);
+    return ok;
+  }
+
   // ---- The 'points' step (final, scored) -------------------------------
   // The student places two points by clicking the grid instead of typing
   // coordinates — see handlePointClick and renderPointsGraph above.
@@ -345,20 +438,26 @@ VM.PracticeGraphLinear = (function(){
   function stepPrompt(name){
     var n = steps.length === 1 ? '' : ('Step ' + (stepIndex + 1) + ' of ' + steps.length + ': ');
     if(name === 'table') return n + 'Substitute each x-value to complete the table.';
+    if(name === 'gradient-method') return n + 'State the y-intercept, then use the gradient to find a second point.';
     return n + 'Give the coordinates of two points on the line.';
   }
 
   function stepHint(name){
     if(name === 'table') return 'Substitute each x-value into y = mx + c.';
+    if(name === 'gradient-method') return 'The y-intercept is the constant term in y = mx + c. From that point, ' +
+      'the gradient\'s denominator tells you how far to move right (or move right 1, for a whole-number ' +
+      'gradient), and its numerator tells you how far to move up or down from there.';
     return 'Any two points that satisfy the equation work — try x = 0 for one of them.';
   }
 
   function clearStepInputs(name){
     if(name === 'table'){
       els.tableInputs.forEach(function(el){ el.value = ''; el.classList.remove('right', 'wrong'); });
+    } else if(name === 'gradient-method'){
+      [els.yint, els.gmX, els.gmY].forEach(function(el){ el.value = ''; el.classList.remove('right', 'wrong'); });
     } else {
       // Entering the 'points' step — for a new question, or (re)entering
-      // it after the table scaffold — starts the click-to-plot attempt
+      // it after the scaffold step(s) — starts the click-to-plot attempt
       // over with no points placed yet.
       clickedPoints = [];
       renderPointsGraph();
@@ -383,6 +482,7 @@ VM.PracticeGraphLinear = (function(){
   function renderStep(){
     var name = currentStepName();
     els.rowTable.hidden = (name !== 'table');
+    els.rowGradient.hidden = (name !== 'gradient-method');
     els.rowPoints.hidden = (name !== 'points');
     clearStepInputs(name);
     els.stepPrompt.textContent = stepPrompt(name);
@@ -391,6 +491,7 @@ VM.PracticeGraphLinear = (function(){
     els.feedback.className = 'feedback';
     els.checkBtn.textContent = 'Check answer';
     if(name === 'table') els.tableInputs[0].focus();
+    if(name === 'gradient-method') els.yint.focus();
   }
 
   function advanceStep(){
@@ -413,7 +514,8 @@ VM.PracticeGraphLinear = (function(){
       return;
     }
     if(!stepAnswered){
-      var ok = checkTable();
+      var name = currentStepName();
+      var ok = name === 'table' ? checkTable() : checkGradientMethod();
       if(ok){
         stepAnswered = true;
         els.checkBtn.textContent = 'Continue';
@@ -435,6 +537,11 @@ VM.PracticeGraphLinear = (function(){
     els.table = document.getElementById('graphline-table');
     els.tableInputs = [1, 2, 3, 4, 5].map(function(i){ return document.getElementById('graphline-y-' + i); });
 
+    els.rowGradient = document.getElementById('graphline-step-gradient');
+    els.yint = document.getElementById('graphline-yint');
+    els.gmX = document.getElementById('graphline-gm-x');
+    els.gmY = document.getElementById('graphline-gm-y');
+
     els.rowPoints = document.getElementById('graphline-step-points');
     els.pointReadout1 = document.getElementById('graphline-point-readout-1');
     els.pointReadout2 = document.getElementById('graphline-point-readout-2');
@@ -453,7 +560,7 @@ VM.PracticeGraphLinear = (function(){
     els.checkBtn.addEventListener('click', handleCheckOrAdvance);
     els.nextBtn.addEventListener('click', nextQuestion);
     els.svg.addEventListener('click', handlePointClick);
-    els.tableInputs.forEach(function(input){
+    els.tableInputs.concat([els.yint, els.gmX, els.gmY]).forEach(function(input){
       input.addEventListener('keydown', function(e){
         if(e.key === 'Enter' && !e.repeat){ e.preventDefault(); handleCheckOrAdvance(); }
       });
@@ -463,6 +570,7 @@ VM.PracticeGraphLinear = (function(){
 
   function start(){
     score = { correct: 0, attempted: 0 };
+    fractionalGradientsSeen = 0;
     els.score.textContent = '0 / 0';
     nextQuestion();
   }
