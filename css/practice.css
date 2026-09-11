@@ -183,6 +183,33 @@
 .keybind-help-result{ color:var(--algebra); font-weight:700; }
 .keybind-help-desc{ color:var(--ink-soft); }
 
+/* ---- Radical / fraction rendering (formula-render.js) ---- */
+/* A plain-CSS square root: the "√" glyph sized/positioned to the
+   left of the radicand, and a top border on the radicand span
+   standing in for the overline — the well-known plain-CSS radical
+   technique, no image or library involved. Sits inline wherever it's
+   used (an .equation-line, a .feedback string, a .formula-preview). */
+.radical{ display:inline-flex; align-items:flex-start; }
+.radical-sign{ padding-right:.05em; transform:scaleY(1.12) translateY(.03em); }
+.radical-body{ border-top:.09em solid currentColor; padding:0 .14em 0 .08em; }
+
+/* A typed "/" rendered as a stacked fraction in the live preview
+   only (see formula-preview.js) — numerator over denominator with a
+   rule between them, the input itself still holds the plain "/". */
+.frac{
+  display:inline-flex; flex-direction:column; text-align:center;
+  vertical-align:middle; line-height:1.15; margin:0 .15em; font-size:.85em;
+}
+.frac-num{ border-bottom:1px solid currentColor; padding:0 .2em .05em; }
+.frac-den{ padding:.05em .2em 0; }
+
+/* ---- Live formula-typing preview (formula-preview.js) ---- */
+.formula-preview{
+  flex-basis:100%; font-family:'IBM Plex Mono', monospace; font-size:1rem;
+  color:var(--ink-soft); min-height:1.3em; margin-top:.15rem;
+}
+.formula-preview:empty{ display:none; }
+
 /* ---- Click-to-plot points (PracticeGraphLinear "points" step) ---- */
 .practice-graph svg.clickable{ cursor:pointer; }
 .plot-point-correct{ fill:var(--success); }

@@ -4,8 +4,12 @@
    guess (currently: "^" for a power/exponent). Click toggles a
    popover listing the keybind; click elsewhere, or Escape, closes it.
 
-   Public API: VM.KeybindHelp.attach(mountEl) — appends the button and
-   its popover into mountEl.
+   Public API: VM.KeybindHelp.attach(mountEl, entries) — appends the
+   button and its popover into mountEl. entries is optional: a list
+   of { keys, result, desc } rows to show instead of the default
+   single "^" entry, for a component whose input accepts more
+   shorthand than just powers (e.g. rearranging formulae's "sqrt(...)",
+   "pi", "rho", "/" — see practice-rearrange-formulae.js).
    ============================================================ */
 window.VM = window.VM || {};
 
@@ -29,7 +33,7 @@ VM.KeybindHelp = (function(){
     return row;
   }
 
-  function attach(mountEl){
+  function attach(mountEl, entries){
     if(!mountEl) return;
     mountEl.classList.add('keybind-help');
 
@@ -47,7 +51,7 @@ VM.KeybindHelp = (function(){
     title.className = 'keybind-help-title';
     title.textContent = 'Typing equations';
     panel.appendChild(title);
-    KEYBINDS.forEach(function(k){ panel.appendChild(buildRow(k)); });
+    (entries || KEYBINDS).forEach(function(k){ panel.appendChild(buildRow(k)); });
 
     mountEl.appendChild(btn);
     mountEl.appendChild(panel);

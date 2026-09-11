@@ -19,7 +19,15 @@ VM.WorkingTrail = function(cardEl, linesEl){
     linesEl.innerHTML = '';
     lines.forEach(function(line){
       var div = document.createElement('div');
-      div.textContent = line;
+      // Every line pushed here is program-generated, fixed content
+      // (never raw user input) — where a page also loads
+      // formula-render.js (e.g. rearranging formulae, whose working
+      // lines can contain "√"), render it properly instead of as a
+      // flat string. Pages that don't load it keep the old plain-text
+      // behaviour exactly, since toDisplayHtml is a strict superset
+      // of textContent for a string with nothing to convert.
+      if(window.VM && VM.FormulaRender) div.innerHTML = VM.FormulaRender.toDisplayHtml(line);
+      else div.textContent = line;
       linesEl.appendChild(div);
     });
   }
