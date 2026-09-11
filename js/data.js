@@ -10,8 +10,8 @@
    Neither is built out for most skills yet, so their Learn/Practice
    buttons render disabled (greyed out) by default in DagView. Add
    `ready:true` to a topic once its Learn and/or Practice content
-   actually exists, to turn its buttons on. Seventeen topics are ready
-   so far: "line-from-graph" (js/practice-line-graph.js),
+   actually exists, to turn its buttons on. Twenty-three topics are
+   ready so far: "line-from-graph" (js/practice-line-graph.js),
    "parabola-from-intercepts" (js/practice-parabola-intercepts.js),
    "parabola-from-vertex" (js/practice-parabola-vertex.js),
    "simultaneous" (js/practice-simultaneous.js),
@@ -26,8 +26,14 @@
    "graph-quadratic" (js/practice-graph-quadratic.js),
    "factor-single" (js/practice-factor-single.js),
    "rearrange" (js/practice-rearrange-formulae.js),
-   "eqs-exponents" (js/practice-eqs-exponents.js) and
-   "solving-polys" (js/practice-solving-polys.js).
+   "eqs-exponents" (js/practice-eqs-exponents.js),
+   "solving-polys" (js/practice-solving-polys.js),
+   "simp-expr" (js/practice-simp-expr.js),
+   "one-step" (js/practice-one-step.js),
+   "substitution" (js/practice-substitution.js),
+   "simp-exp" (js/practice-simp-exp.js),
+   "expand-single" (js/practice-expand-single.js) and
+   "multi-step" (js/practice-multi-step.js).
    Learn isn't built for any of them yet, so its button still just
    toasts.
    ============================================================ */
@@ -50,13 +56,13 @@ VM.data = (function(){
   // Each topic's `prereqs` lists the ids of skills required BEFORE
   // this one. That's the only thing that drives the diagram's shape.
   var topics = [
-    { id:"simp-expr", name:"Simplifying expressions with addition and multiplication", status:"mastered", lane:1, prereqs:[] },
-    { id:"one-step", name:"Solving one-step equations", status:"mastered", lane:0, prereqs:[] },
+    { id:"simp-expr", name:"Simplifying expressions with addition and multiplication", status:"mastered", lane:1, prereqs:[], ready:true },
+    { id:"one-step", name:"Solving one-step equations", status:"mastered", lane:0, prereqs:[], ready:true },
 
-    { id:"substitution", name:"Substitution", status:"mastered", lane:2, prereqs:["simp-expr"] },
-    { id:"simp-exp", name:"Simplifying exponents", status:"mastered", lane:1, prereqs:["simp-expr"] },
-    { id:"expand-single", name:"Expanding single brackets", status:"mastered", lane:3, prereqs:["simp-expr"] },
-    { id:"multi-step", name:"Solving multi-step equations", status:"mastered", lane:0, prereqs:["one-step","simp-expr"] },
+    { id:"substitution", name:"Substitution", status:"mastered", lane:2, prereqs:["simp-expr"], ready:true },
+    { id:"simp-exp", name:"Simplifying exponents", status:"mastered", lane:1, prereqs:["simp-expr"], ready:true },
+    { id:"expand-single", name:"Expanding single brackets", status:"mastered", lane:3, prereqs:["simp-expr"], ready:true },
+    { id:"multi-step", name:"Solving multi-step equations", status:"mastered", lane:0, prereqs:["one-step","simp-expr"], ready:true },
 
     { id:"factor-single", name:"Factoring single brackets", status:"mastered", lane:3, prereqs:["expand-single"], ready:true },
     { id:"expand-double", name:"Expanding double brackets", status:"mastered", lane:3, prereqs:["expand-single"] },

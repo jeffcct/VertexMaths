@@ -24,7 +24,13 @@
     'factor-single': 'practice-factor-single.html',
     'rearrange': 'practice-rearrange-formulae.html',
     'eqs-exponents': 'practice-eqs-exponents.html',
-    'solving-polys': 'practice-solving-polys.html'
+    'solving-polys': 'practice-solving-polys.html',
+    'simp-expr': 'practice-simp-expr.html',
+    'one-step': 'practice-one-step.html',
+    'substitution': 'practice-substitution.html',
+    'simp-exp': 'practice-simp-exp.html',
+    'expand-single': 'practice-expand-single.html',
+    'multi-step': 'practice-multi-step.html'
   };
 
   document.addEventListener('DOMContentLoaded', function(){
