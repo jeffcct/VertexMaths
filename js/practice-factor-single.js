@@ -28,6 +28,19 @@
    Practice component's adaptive difficulty (see the note at the top
    of practice-parabola-intercepts.js).
 
+   The final step also recognises a third, non-scoring "close" state
+   (GitHub issue #10 follow-up): negating the GCF and everything
+   inside the bracket — e.g. 4(-x + 3) instead of -4(x - 3) — is
+   multiplying the whole expression by (-1)*(-1), an identity, so
+   it's mathematically the same expression as the canonical answer,
+   just not in the fully-factored convention. That submission is
+   neither `.right` nor `.wrong`; it gets the `.close` style (amber,
+   via the --warn/--warn-soft tokens already in base.css) and a
+   message pointing at the canonical form, but does NOT increment
+   score.attempted or advance the question — the student can just
+   retype it. Only the genuinely-canonical form scores correct, and
+   anything else (including the flipped form) scores as wrong.
+
    Unlike the monic/non-monic factoring generators, there's only one
    bracket and only one correct factorization here — no order
    ambiguity to account for.
@@ -155,11 +168,11 @@ VM.PracticeFactorSingle = (function(){
   function stepHint(name){
     switch(name){
       case 'find-gcf': return 'List the factors of each number and find the largest one they share. If the coefficient of x is negative, the greatest common factor is negative too — e.g. for -8x - 12, it’s -4, not 4.';
-      case 'factored': return 'Write it as a(bx + c), e.g. 3(2x + 5) — pull the greatest common factor outside a single bracket. If the x-coefficient is negative, factor out a negative number so the bracket’s x-term is positive — e.g. -8x - 12 factors as -4(2x + 3), not 4(-2x - 3).';
+      case 'factored': return 'Write it as a(bx + c), e.g. 3(2x + 5) — pull the greatest common factor outside a single bracket. If the x-coefficient is negative, factor out a negative number so the bracket’s x-term is positive — e.g. -8x - 12 factors as -4(2x + 3), not 4(-2x - 3). Flipping every sign (like 4(-2x - 3) above) gives the same value but isn’t the fully-factored form, so it won’t count as correct.';
     }
   }
 
-  function clearInputs(list){ list.forEach(function(el){ el.value = ''; el.classList.remove('right', 'wrong'); }); }
+  function clearInputs(list){ list.forEach(function(el){ el.value = ''; el.classList.remove('right', 'wrong', 'close'); }); }
 
   function renderStep(){
     var name = currentStepName();
@@ -218,9 +231,24 @@ VM.PracticeFactorSingle = (function(){
     }
 
     var ok = parsed.gcf === current.A && parsed.b === current.B && parsed.c === current.C;
+    var correctStr = bracketString(current.A, current.B, current.C);
+
+    // The "flipped" form: negate the GCF and everything inside the
+    // bracket. That's multiplying the whole expression by (-1)*(-1) —
+    // an identity — so it's mathematically the same expression, just
+    // not in the fully-factored convention (positive bracket x-term).
+    // It's neither right nor wrong: it doesn't score the attempt, and
+    // the student gets to try again (see GitHub issue #10 follow-up).
+    var flipped = !ok && parsed.gcf === -current.A && parsed.b === -current.B && parsed.c === -current.C;
+    els.factoredInput.classList.remove('right', 'wrong', 'close');
+    if(flipped){
+      els.factoredInput.classList.add('close');
+      els.feedback.textContent = "That's the same expression, but not in fully-factored form — try writing it as " + correctStr + ' instead.';
+      els.feedback.className = 'feedback close';
+      return false;
+    }
     els.factoredInput.classList.toggle('right', ok); els.factoredInput.classList.toggle('wrong', !ok);
 
-    var correctStr = bracketString(current.A, current.B, current.C);
     score.attempted++;
     if(ok){
       score.correct++;

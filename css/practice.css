@@ -39,6 +39,7 @@
 .answer-input:focus-visible{ border-color:var(--algebra); outline:none; }
 .answer-input.right{ border-color:var(--success); background:var(--success-soft); }
 .answer-input.wrong{ border-color:var(--danger); background:var(--danger-soft); }
+.answer-input.close{ border-color:var(--warn); background:var(--warn-soft); }
 .answer-input-wide{ width:170px; text-align:left; padding-left:.6rem; }
 .answer-hint{ font-size:.78rem; color:var(--ink-soft); }
 .answer-hint-row{ display:flex; align-items:flex-start; gap:.3rem; }
@@ -64,6 +65,7 @@
 .feedback:empty{ padding:0; }
 .feedback.correct{ background:var(--success-soft); color:var(--success); }
 .feedback.incorrect{ background:var(--danger-soft); color:var(--danger); }
+.feedback.close{ background:var(--warn-soft); color:var(--warn); }
 
 .practice-score-row{ font-size:.85rem; color:var(--ink-soft); }
 
