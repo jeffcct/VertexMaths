@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Practice: Substitution — Vertex Maths</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/practice.css">
+</head>
+<body>
+<div class="wrap wrap-wide" id="page-wrap">
+
+  <div class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">V</span>
+      <div>
+        <div class="brand-name">Vertex Maths</div>
+        <div class="brand-sub">Year 11 &middot; Mathematics</div>
+      </div>
+    </a>
+    <div class="greeting">Kia ora, <b>Amelia</b> &mdash; Room 14</div>
+  </div>
+
+  <!-- ============ PracticeSubstitution component ============ -->
+  <section class="view" id="view-practice-substitution">
+
+    <div class="breadcrumb">
+      <button id="subst-back-btn">← Algebra &amp; Graphing</button>
+      <span class="sep">/</span>
+      <span class="current">Practice: substitution</span>
+    </div>
+
+    <div class="practice-layout">
+      <div class="equations-card">
+        <div class="equation-label">Expression</div>
+        <div class="equation-line" id="subst-expression"></div>
+        <div class="equation-label">Given</div>
+        <div class="equation-line" id="subst-given"></div>
+      </div>
+
+      <div class="practice-panel-group">
+      <div class="practice-panel">
+        <div>
+          <div class="practice-title">Evaluate the expression</div>
+          <div class="practice-sub">Substitute the given value(s) into the expression, then work out the result.</div>
+        </div>
+
+        <div class="answer-row">
+          <span class="mono">Value =</span>
+          <input type="text" id="subst-answer-input" class="answer-input" inputmode="text" autocomplete="off" aria-label="Value of the expression">
+        </div>
+
+        <div class="answer-hint" id="subst-hint"></div>
+
+        <div class="practice-actions">
+          <button class="practice-check-btn" id="subst-check-btn">Check answer</button>
+          <button class="practice-next-btn" id="subst-next-btn">New question</button>
+        </div>
+
+        <div class="feedback" id="subst-feedback"></div>
+        <div class="practice-score-row">Score: <span class="mono" id="subst-score">0 / 0</span></div>
+      </div>
+
+      <div class="working-sidebar">
+        <div class="working-card" id="subst-working-card" hidden>
+          <div class="equation-label">Working</div>
+          <div class="working-lines" id="subst-working-lines"></div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <footer>A freshly generated expression each time &middot; sometimes one variable, sometimes two</footer>
+  </section>
+
+</div>
+
+<script src="js/working-trail.js"></script>
+<script src="js/practice-substitution.js"></script>
+<script src="js/page-practice-substitution.js"></script>
+</body>
+</html>
