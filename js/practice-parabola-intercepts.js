@@ -182,7 +182,7 @@ VM.PracticeParabolaIntercepts = (function(){
     var n = steps.length === 1 ? '' : ('Step ' + (stepIndex + 1) + ' of ' + steps.length + ': ');
     switch(name){
       case 'intercepts': return n + 'What are the two x-intercepts?';
-      case 'brackets': return n + 'Write the part of the equation the intercepts give you.';
+      case 'brackets': return n + 'Write the equation so far, with a still unknown.';
       case 'point': return n + "Read off the marked point that isn't an x-intercept.";
       case 'solvea': return n + 'Use that point to solve for a.';
       case 'equation': return steps.length === 1 ? 'Write the full equation.' : (n + 'Put it all together.');
@@ -194,7 +194,7 @@ VM.PracticeParabolaIntercepts = (function(){
       case 'intercepts':
         return 'These are where the curve crosses the x-axis.';
       case 'brackets':
-        return 'Write it as (x - p)(x - q), e.g. (x - 3)(x + 1). The order of the two factors doesn\'t matter.';
+        return 'Write it as y = a(x - p)(x - q), e.g. y = a(x - 3)(x + 1) — the coefficient a is still unknown at this point, so it\'s written as a literal "a", not a number yet. The order of the two factors doesn\'t matter.';
       case 'point':
         return 'It\'s the marked point that isn\'t sitting on the x-axis.';
       case 'solvea':
@@ -251,10 +251,13 @@ VM.PracticeParabolaIntercepts = (function(){
     return Math.abs(got[0] - want[0]) < 0.01 && Math.abs(got[1] - want[1]) < 0.01;
   }
 
-  // "(x - 3)(x + 1)" — just the two factors, no "a", no "y =".
+  // "y = a(x - 3)(x + 1)" — the equation as far as it can be written
+  // before the point step solves for a, so it's literally the letter
+  // "a" here (not a number) — the same thing a student would write on
+  // their own page at this point in the working (see GitHub issue #16).
   function parseBrackets(raw){
     var s = (raw || '').toLowerCase().replace(/\s+/g, '');
-    var m = s.match(/^\(x([+-]\d+(?:\.\d+)?)\)\(x([+-]\d+(?:\.\d+)?)\)$/);
+    var m = s.match(/^y=a\(x([+-]\d+(?:\.\d+)?)\)\(x([+-]\d+(?:\.\d+)?)\)$/);
     if(!m) return null;
     return { roots: [-parseFloat(m[1]), -parseFloat(m[2])] };
   }
@@ -271,7 +274,13 @@ VM.PracticeParabolaIntercepts = (function(){
     return { a: a, roots: [-parseFloat(m[2]), -parseFloat(m[3])] };
   }
 
-  function bracketsString(p, q){ return '(' + factorLabel(p) + ')(' + factorLabel(q) + ')'; }
+  // "(x - 3)(x + 1)" — just the two bare factors, used once a is
+  // actually known (see formatEquation).
+  function plainBracketsString(p, q){ return '(' + factorLabel(p) + ')(' + factorLabel(q) + ')'; }
+
+  // "y = a(x - 3)(x + 1)" — matches parseBrackets: a is still a literal,
+  // unsolved-for letter at this point, not a number.
+  function bracketsString(p, q){ return 'y = a' + plainBracketsString(p, q); }
 
   // "a = 1" should say "1", but "a" as a coefficient right before a
   // bracket should be omitted (or a bare "-") the same way any other
@@ -288,7 +297,7 @@ VM.PracticeParabolaIntercepts = (function(){
     return aPlainLabel(aNum, aDen);
   }
   function formatEquation(aNum, aDen, p, q){
-    return 'y = ' + aCoeffLabel(aNum, aDen) + bracketsString(p, q);
+    return 'y = ' + aCoeffLabel(aNum, aDen) + plainBracketsString(p, q);
   }
 
   // ---- Checking: the four ungraded scaffold steps ------------------
