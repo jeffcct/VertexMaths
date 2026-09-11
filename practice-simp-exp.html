@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Practice: Simplifying Exponents — Vertex Maths</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/practice.css">
+</head>
+<body>
+<div class="wrap wrap-wide" id="page-wrap">
+
+  <div class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">V</span>
+      <div>
+        <div class="brand-name">Vertex Maths</div>
+        <div class="brand-sub">Year 11 &middot; Mathematics</div>
+      </div>
+    </a>
+    <div class="greeting">Kia ora, <b>Amelia</b> &mdash; Room 14</div>
+  </div>
+
+  <!-- ============ PracticeSimpExp component ============ -->
+  <section class="view" id="view-practice-simp-exp">
+
+    <div class="breadcrumb">
+      <button id="simpexp-back-btn">← Algebra &amp; Graphing</button>
+      <span class="sep">/</span>
+      <span class="current">Practice: simplifying exponents</span>
+    </div>
+
+    <div class="practice-layout">
+      <div class="equations-card">
+        <div class="equation-label">Simplify</div>
+        <div class="equation-line" id="simpexp-expression"></div>
+      </div>
+
+      <div class="practice-panel-group">
+      <div class="practice-panel">
+        <div>
+          <div class="practice-title">Simplify the expression</div>
+          <div class="practice-sub">Apply the exponent rule and write the result as a single power of x.</div>
+        </div>
+
+        <div class="answer-row">
+          <span class="mono">=</span>
+          <input type="text" id="simpexp-answer-input" class="answer-input" inputmode="text" autocomplete="off" aria-label="Simplified result">
+        </div>
+
+        <div class="answer-hint" id="simpexp-hint"></div>
+
+        <div class="practice-actions">
+          <button class="practice-check-btn" id="simpexp-check-btn">Check answer</button>
+          <button class="practice-next-btn" id="simpexp-next-btn">New question</button>
+        </div>
+
+        <div class="feedback" id="simpexp-feedback"></div>
+        <div class="practice-score-row">Score: <span class="mono" id="simpexp-score">0 / 0</span></div>
+      </div>
+
+      <div class="working-sidebar">
+        <div class="working-card" id="simpexp-working-card" hidden>
+          <div class="equation-label">Working</div>
+          <div class="working-lines" id="simpexp-working-lines"></div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <footer>A freshly generated exponent-rule question each time &middot; product, quotient and power-of-a-power rules, one variable base</footer>
+  </section>
+
+</div>
+
+<script src="js/working-trail.js"></script>
+<script src="js/practice-simp-exp.js"></script>
+<script src="js/page-practice-simp-exp.js"></script>
+</body>
+</html>
