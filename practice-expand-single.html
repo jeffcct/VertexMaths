@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Practice: Expanding Single Brackets — Vertex Maths</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/practice.css">
+</head>
+<body>
+<div class="wrap wrap-wide" id="page-wrap">
+
+  <div class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">V</span>
+      <div>
+        <div class="brand-name">Vertex Maths</div>
+        <div class="brand-sub">Year 11 &middot; Mathematics</div>
+      </div>
+    </a>
+    <div class="greeting">Kia ora, <b>Amelia</b> &mdash; Room 14</div>
+  </div>
+
+  <!-- ============ PracticeExpandSingle component ============ -->
+  <section class="view" id="view-practice-expand-single">
+
+    <div class="breadcrumb">
+      <button id="expandsingle-back-btn">← Algebra &amp; Graphing</button>
+      <span class="sep">/</span>
+      <span class="current">Practice: expanding single brackets</span>
+    </div>
+
+    <div class="practice-layout">
+      <div class="equations-card">
+        <div class="equation-label">Expand</div>
+        <div class="equation-line" id="expandsingle-expression"></div>
+      </div>
+
+      <div class="practice-panel-group">
+      <div class="practice-panel">
+        <div>
+          <div class="practice-title">Expand the expression</div>
+          <div class="practice-sub">Multiply the term outside the bracket by each term inside, then write the result as ax + b.</div>
+        </div>
+
+        <div class="form-template mono">a(bx + c) = abx + ac</div>
+
+        <div class="answer-row">
+          <input type="text" id="expandsingle-answer-input" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Expanded expression" placeholder="e.g. 6x + 15">
+        </div>
+
+        <div class="answer-hint" id="expandsingle-hint"></div>
+
+        <div class="practice-actions">
+          <button class="practice-check-btn" id="expandsingle-check-btn">Check answer</button>
+          <button class="practice-next-btn" id="expandsingle-next-btn">New question</button>
+        </div>
+
+        <div class="feedback" id="expandsingle-feedback"></div>
+        <div class="practice-score-row">Score: <span class="mono" id="expandsingle-score">0 / 0</span></div>
+      </div>
+
+      <div class="working-sidebar">
+        <div class="working-card" id="expandsingle-working-card" hidden>
+          <div class="equation-label">Working</div>
+          <div class="working-lines" id="expandsingle-working-lines"></div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <footer>A freshly generated expression each time &middot; distribute the outer coefficient across the bracket to expand it fully</footer>
+  </section>
+
+</div>
+
+<script src="js/working-trail.js"></script>
+<script src="js/practice-expand-single.js"></script>
+<script src="js/page-practice-expand-single.js"></script>
+</body>
+</html>
