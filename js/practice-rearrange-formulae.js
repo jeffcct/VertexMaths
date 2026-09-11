@@ -1,60 +1,220 @@
 /* ============================================================
    practice-rearrange-formulae.js — the PracticeRearrangeFormulae
-   component: a question generator for "Rearranging formulae". Unlike
-   this site's line-equation generators, which always use x and y,
-   this one is generic algebra: it picks two DIFFERENT single-letter
-   variables P and Q at random each question, shows a formula
-   P = coeff*Q + constant relating them, and asks the student to make
-   Q the subject.
+   component: a question generator for "Rearranging formulae".
 
-   coeff is always drawn from a pool that excludes 0 and ±1, so
-   rearranging always divides by something other than ±1 — the
-   answer's Q-coefficient side (1/coeff) is therefore always a
-   genuine fraction, never a whole number. That's the point of this
-   skill, so there's no "easy" version of the final step the way
-   c always came out whole in practice-line-from-point.js.
+   Unlike the old version of this component (generic P = coeff*Q +
+   constant with random letters and coefficients), this one uses a
+   fixed BANK of real, recognisable formulae — speed, force, density,
+   SUVAT, circle area, Pythagoras, perimeter, Ohm's law, cylinder
+   volume, pendulum period — each with a hardcoded, hand-checked
+   sequence of rearrangement steps for each variable it can be made
+   the subject of. There's no symbolic algebra engine here: every
+   (formula, subject) pair's steps and their resulting equations are
+   authored directly, matching this codebase's usual philosophy of
+   precomputed correct answers rather than a live CAS.
 
-   Below 3 questions answered, or under 90% accuracy, a two-step
-   scaffold:
-     1. isolate — move the constant term to the other side, leaving
-        coeff*Q alone on one side (ungraded).
-     2. rearranged — divide through by coeff to make Q the subject
-        (the only step that's scored).
-   At 3+ questions and 90%+ accuracy, the scaffold is skipped and the
-   question goes straight to step 2 — same adaptive-difficulty
-   convention as every other Practice component.
+   The core complaint this redesign answers is that the old scaffold
+   forced a fixed "move the constant, then divide" shape onto every
+   question, which doesn't fit formulae that need a different set of
+   operations (clearing a fraction, squaring, square-rooting) or that
+   have no constant term at all. Instead, each hardcoded step is
+   walked through in two halves:
+     1. an action-choice step — the current equation is shown, and
+        the student picks which of 4 actions (1 correct + 3
+        distractors built from "multiply/divide/add/subtract by a
+        symbol in the current equation", "square both sides" or
+        "take the square root of both sides") is the right thing to
+        do next. Picking wrong just gives feedback and disables that
+        option so they can try again — it never reveals the right
+        answer outright.
+     2. a write step — once the right action is picked, the student
+        writes the resulting equation themselves. This (like every
+        ungraded scaffold step elsewhere in this codebase) reveals
+        the correct string if they get it wrong, but only advances
+        once they've entered it correctly.
+   Every pair before the last one is ungraded scaffolding; only the
+   final write step (the fully rearranged formula) is scored.
 
-   The rearranged answer is checked by numeric value, not exact
-   string, so an unreduced fraction (e.g. 2/6 for an expected 1/3) is
-   accepted — and it accepts either of two natural ways to write the
-   Q-coefficient term, since its numerator is always ±1:
-     "1/3P" / "-1/3P"   (coefficient-first, matching this site's
-                         fraction style elsewhere — see formatRHS)
-     "P/3"  / "-P/3"    (variable-first, the more common textbook way
-                         to write a unit fraction times a letter)
+   Below 3 questions answered, or under 90% accuracy, that full
+   action/write walkthrough runs for every hardcoded step. At 3+
+   questions and 90%+ accuracy, the scaffold is skipped entirely and
+   the question goes straight to a single "make X the subject" step —
+   same adaptive-difficulty convention as every other Practice
+   component.
+
+   Equations are checked with simple, tolerant string comparison
+   (see normalizeEqStr/equationsMatch) rather than per-formula regex:
+   whitespace is ignored, either side may come first (via
+   VM.EquationParse.parseEitherSide), "sqrt(...)" is accepted for
+   "√(...)", "pi"/"rho" for "π"/"ρ", and "^2" for "²". This is enough
+   because every expected string is fixed, authored content — there's
+   no need to parse out arbitrary numeric coefficients the way the
+   line/parabola generators do.
 
    Public API: VM.PracticeRearrangeFormulae.init({ onBack }), .start()
    ============================================================ */
 window.VM = window.VM || {};
 
 VM.PracticeRearrangeFormulae = (function(){
-  var parseGradient = VM.EquationParse.parseGradient;
-  var parseFraction = VM.EquationParse.parseFraction;
-
-  var LETTER_POOL = ['a', 'b', 'p', 'q', 'v', 'u', 'r', 's', 't', 'w'];
-  var COEFF_VALUES = [-4, -3, -2, 2, 3, 4];   // never 0 or ±1 — the answer always needs a fraction
-  var CONST_MIN = -9, CONST_MAX = 9;          // can be 0
+  var parseEitherSide = VM.EquationParse.parseEitherSide;
 
   var SCAFFOLD_MIN_ATTEMPTS = 3;
   var SCAFFOLD_MIN_ACCURACY = 0.90;
 
-  var NUM_PATTERN = '\\d+(?:\\.\\d+)?';
-  var FRAC_PATTERN = NUM_PATTERN + '(?:/' + NUM_PATTERN + ')?';
+  // ---- The formula bank ---------------------------------------------
+  // Each formula lists the variables it relates and, per subject it
+  // can be rearranged for, an ordered list of steps. Each step is:
+  //   action: { type, operand } — operand is a symbol/term string for
+  //     multiply/divide/add/subtract, and omitted for square/sqrt.
+  //   symbols: the terms that actually appear in the equation THIS
+  //     step starts from — the pool that action-choice distractors
+  //     for this step are built from, so they always look tempting
+  //     (real symbols from the equation on screen) but are wrong.
+  //   result: the equation after doing `action`, exactly as it should
+  //     be written (subject conventionally on the left once solved).
+  var FORMULA_BANK = [
+    {
+      name: 'Speed',
+      given: 'v = d/t',
+      subjects: {
+        d: { steps: [
+          { action: { type: 'multiply', operand: 't' }, symbols: ['v', 'd', 't'], result: 'd = vt' }
+        ] },
+        t: { steps: [
+          { action: { type: 'multiply', operand: 't' }, symbols: ['v', 'd', 't'], result: 'vt = d' },
+          { action: { type: 'divide', operand: 'v' }, symbols: ['v', 'd', 't'], result: 't = d/v' }
+        ] }
+      }
+    },
+    {
+      name: "Newton's second law (force)",
+      given: 'F = ma',
+      subjects: {
+        m: { steps: [
+          { action: { type: 'divide', operand: 'a' }, symbols: ['F', 'm', 'a'], result: 'm = F/a' }
+        ] },
+        a: { steps: [
+          { action: { type: 'divide', operand: 'm' }, symbols: ['F', 'm', 'a'], result: 'a = F/m' }
+        ] }
+      }
+    },
+    {
+      name: 'Density',
+      given: 'ρ = m/V',
+      subjects: {
+        m: { steps: [
+          { action: { type: 'multiply', operand: 'V' }, symbols: ['ρ', 'm', 'V'], result: 'm = ρV' }
+        ] },
+        V: { steps: [
+          { action: { type: 'multiply', operand: 'V' }, symbols: ['ρ', 'm', 'V'], result: 'ρV = m' },
+          { action: { type: 'divide', operand: 'ρ' }, symbols: ['ρ', 'm', 'V'], result: 'V = m/ρ' }
+        ] }
+      }
+    },
+    {
+      name: 'Kinematics (SUVAT)',
+      given: 'v = u + at',
+      subjects: {
+        u: { steps: [
+          { action: { type: 'subtract', operand: 'at' }, symbols: ['v', 'u', 'a', 't', 'at'], result: 'u = v - at' }
+        ] },
+        a: { steps: [
+          { action: { type: 'subtract', operand: 'u' }, symbols: ['v', 'u', 'a', 't'], result: 'v - u = at' },
+          { action: { type: 'divide', operand: 't' }, symbols: ['v', 'u', 'a', 't'], result: 'a = (v - u)/t' }
+        ] },
+        t: { steps: [
+          { action: { type: 'subtract', operand: 'u' }, symbols: ['v', 'u', 'a', 't'], result: 'v - u = at' },
+          { action: { type: 'divide', operand: 'a' }, symbols: ['v', 'u', 'a', 't'], result: 't = (v - u)/a' }
+        ] }
+      }
+    },
+    {
+      name: 'Circle area',
+      given: 'A = πr²',
+      subjects: {
+        r: { steps: [
+          { action: { type: 'divide', operand: 'π' }, symbols: ['A', 'π', 'r', 'r²'], result: 'A/π = r²' },
+          { action: { type: 'sqrt' }, symbols: ['A', 'π', 'r'], result: 'r = √(A/π)' }
+        ] }
+      }
+    },
+    {
+      name: "Pythagoras' theorem",
+      given: 'c² = a² + b²',
+      subjects: {
+        a: { steps: [
+          { action: { type: 'subtract', operand: 'b²' }, symbols: ['c²', 'a²', 'b²'], result: 'c² - b² = a²' },
+          { action: { type: 'sqrt' }, symbols: ['c', 'a', 'b'], result: 'a = √(c² - b²)' }
+        ] },
+        b: { steps: [
+          { action: { type: 'subtract', operand: 'a²' }, symbols: ['c²', 'a²', 'b²'], result: 'c² - a² = b²' },
+          { action: { type: 'sqrt' }, symbols: ['c', 'a', 'b'], result: 'b = √(c² - a²)' }
+        ] }
+      }
+    },
+    {
+      name: 'Perimeter of a rectangle',
+      given: 'P = 2l + 2w',
+      subjects: {
+        l: { steps: [
+          { action: { type: 'subtract', operand: '2w' }, symbols: ['P', '2l', '2w'], result: 'P - 2w = 2l' },
+          { action: { type: 'divide', operand: '2' }, symbols: ['P', '2', '2w'], result: 'l = (P - 2w)/2' }
+        ] },
+        w: { steps: [
+          { action: { type: 'subtract', operand: '2l' }, symbols: ['P', '2l', '2w'], result: 'P - 2l = 2w' },
+          { action: { type: 'divide', operand: '2' }, symbols: ['P', '2', '2l'], result: 'w = (P - 2l)/2' }
+        ] }
+      }
+    },
+    {
+      name: "Ohm's law",
+      given: 'V = IR',
+      subjects: {
+        I: { steps: [
+          { action: { type: 'divide', operand: 'R' }, symbols: ['V', 'I', 'R'], result: 'I = V/R' }
+        ] },
+        R: { steps: [
+          { action: { type: 'divide', operand: 'I' }, symbols: ['V', 'I', 'R'], result: 'R = V/I' }
+        ] }
+      }
+    },
+    {
+      name: 'Volume of a cylinder',
+      given: 'V = πr²h',
+      subjects: {
+        h: { steps: [
+          { action: { type: 'divide', operand: 'πr²' }, symbols: ['V', 'π', 'r²', 'h', 'πr²'], result: 'h = V/(πr²)' }
+        ] }
+      }
+    },
+    {
+      name: 'Pendulum period',
+      given: 'T = 2π√(L/g)',
+      subjects: {
+        L: { steps: [
+          { action: { type: 'divide', operand: '2π' }, symbols: ['T', '2π', 'L', 'g'], result: 'T/(2π) = √(L/g)' },
+          { action: { type: 'square' }, symbols: ['T', 'L', 'g'], result: '(T/(2π))² = L/g' },
+          { action: { type: 'multiply', operand: 'g' }, symbols: ['T', 'L', 'g'], result: 'L = g(T/(2π))²' }
+        ] }
+      }
+    }
+  ];
+
+  // Every (formula, subject) pair, flattened once — nextQuestion picks
+  // uniformly from this rather than a formula then a subject, so
+  // formulae with more subjects aren't picked disproportionately less
+  // often per-subject than formulae with only one.
+  var ALL_PAIRS = [];
+  FORMULA_BANK.forEach(function(formula){
+    Object.keys(formula.subjects).forEach(function(subject){
+      ALL_PAIRS.push({ formula: formula, subject: subject, steps: formula.subjects[subject].steps });
+    });
+  });
 
   var els = {};
-  var current = null;    // { P, Q, coeff, constant, coeffNum, coeffDen, constNum, constDen }
+  var current = null;    // { formula, subject, stepData, currentEq }
   var score = { correct: 0, attempted: 0 };
-  var steps = [];
+  var steps = [];         // flat list of step names for this question, e.g. ['choice-0','write-0','choice-1','write-1']
   var stepIndex = 0;
   var stepAnswered = false;
   var answered = false;
@@ -62,222 +222,212 @@ VM.PracticeRearrangeFormulae = (function(){
 
   function randChoice(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
   function randInt(lo, hi){ return lo + Math.floor(Math.random() * (hi - lo + 1)); }
-  function close(a, b){ return Math.abs(a - b) < 0.01; }
   function accuracy(){ return score.attempted ? score.correct / score.attempted : 0; }
   function needsScaffold(){
     return score.attempted < SCAFFOLD_MIN_ATTEMPTS || accuracy() < SCAFFOLD_MIN_ACCURACY;
   }
-  function gcd(a, b){
-    a = Math.abs(a); b = Math.abs(b);
-    while(b){ var t = b; b = a % b; a = t; }
-    return a || 1;
-  }
 
   function currentStepName(){ return steps[stepIndex]; }
-  function isFinalStep(){ return currentStepName() === 'rearranged'; }
+  function isChoiceStep(name){ return name.indexOf('choice-') === 0; }
+  function lastStepIdx(){ return current.stepData.length - 1; }
+  function isFinalStep(name){ return name === 'final' || name === ('write-' + lastStepIdx()); }
 
-  // Two distinct letters from the pool, so the same pair (or order)
-  // doesn't always come up — this is what keeps the exercise reading
-  // as generic formula work rather than another line-equation drill.
-  function pickLetters(){
-    var pool = LETTER_POOL.slice();
-    var i = randInt(0, pool.length - 1);
-    var P = pool[i];
-    pool.splice(i, 1);
-    var Q = pool[randInt(0, pool.length - 1)];
-    return { P: P, Q: Q };
+  // ---- Tolerant equation comparison -----------------------------------
+  // Every expected string is fixed, authored content, so this doesn't
+  // need to be a real parser — just forgiving enough to not fail a
+  // student over formatting: whitespace, "sqrt"/"pi"/"rho" instead of
+  // √/π/ρ, "^2" instead of ², and stray "*"/"×" for multiplication.
+  function normalizeEqStr(raw){
+    var s = (raw || '').toLowerCase();
+    s = s.replace(/\s+/g, '');
+    s = s.replace(/[*×]/g, '');
+    s = s.replace(/sqrt/g, '√');
+    s = s.replace(/rho/g, 'ρ');
+    s = s.replace(/pi/g, 'π');
+    s = s.replace(/\^2/g, '²');
+    return s;
   }
 
-  // Q = (P - constant) / coeff = (1/coeff)P + (-constant/coeff).
-  // The P-coefficient's numerator is always exactly ±1 (coeff is
-  // never ±1 itself), so it never reduces further than its sign —
-  // only the constant term ever needs a real gcd reduction.
-  function computeRearranged(coeff, constant){
-    var coeffNum = 1, coeffDen = coeff;
-    if(coeffDen < 0){ coeffNum = -coeffNum; coeffDen = -coeffDen; }
+  // Accepts the sides swapped too, via the shared parseEitherSide
+  // helper (it re-splits the raw string on '=' and retries).
+  function equationsMatch(raw, expected){
+    var expectedNorm = normalizeEqStr(expected);
+    var result = parseEitherSide(raw, function(s){
+      return normalizeEqStr(s) === expectedNorm ? true : null;
+    });
+    return !!result;
+  }
 
-    var constNum = -constant, constDen = coeff;
-    if(constDen < 0){ constNum = -constNum; constDen = -constDen; }
-    var g = gcd(constNum, constDen);
-    constNum /= g; constDen /= g;
+  // ---- Action formatting / distractors --------------------------------
 
-    return { coeffNum: coeffNum, coeffDen: coeffDen, constNum: constNum, constDen: constDen };
+  function actionLabel(a){
+    switch(a.type){
+      case 'multiply': return 'Multiply both sides by ' + a.operand;
+      case 'divide': return 'Divide both sides by ' + a.operand;
+      case 'add': return 'Add ' + a.operand + ' to both sides';
+      case 'subtract': return 'Subtract ' + a.operand + ' from both sides';
+      case 'square': return 'Square both sides';
+      case 'sqrt': return 'Take the square root of both sides';
+    }
+  }
+
+  function actionsEqual(a, b){ return a.type === b.type && (a.operand || '') === (b.operand || ''); }
+
+  // 3 wrong-but-plausible actions for this step, built only from
+  // symbols that actually appear in the equation on screen — so e.g.
+  // if the correct move is "divide both sides by a", a distractor
+  // might be "multiply both sides by a" (same symbol, wrong
+  // operation) or "subtract t from both sides" (different symbol
+  // that's genuinely in the equation, wrong operation for isolating
+  // the subject here).
+  function buildDistractors(step){
+    var correct = step.action;
+    var pool = [];
+    step.symbols.forEach(function(sym){
+      ['multiply', 'divide', 'add', 'subtract'].forEach(function(type){
+        pool.push({ type: type, operand: sym });
+      });
+    });
+    pool.push({ type: 'square' });
+    pool.push({ type: 'sqrt' });
+    pool = pool.filter(function(o){ return !actionsEqual(o, correct); });
+
+    var distractors = [];
+    // Prefer leading with a same-symbol, different-operation
+    // alternative first, when the correct action has an operand —
+    // that's the most tempting kind of wrong option.
+    if(correct.operand){
+      var sameOperand = pool.filter(function(o){ return o.operand === correct.operand; });
+      if(sameOperand.length){
+        var pick = randChoice(sameOperand);
+        distractors.push(pick);
+        pool = pool.filter(function(o){ return o !== pick; });
+      }
+    }
+    while(distractors.length < 3 && pool.length){
+      var idx = randInt(0, pool.length - 1);
+      distractors.push(pool[idx]);
+      pool.splice(idx, 1);
+    }
+    return distractors;
+  }
+
+  function shuffledOptions(step){
+    var options = buildDistractors(step).concat([step.action]);
+    for(var i = options.length - 1; i > 0; i--){
+      var j = randInt(0, i);
+      var t = options[i]; options[i] = options[j]; options[j] = t;
+    }
+    return options;
   }
 
   // ---- Question generation -----------------------------------------
 
   function nextQuestion(){
-    var letters = pickLetters();
-    var coeff = randChoice(COEFF_VALUES);
-    var constant = randInt(CONST_MIN, CONST_MAX);
-    var r = computeRearranged(coeff, constant);
-
+    var pair = randChoice(ALL_PAIRS);
     current = {
-      P: letters.P, Q: letters.Q, coeff: coeff, constant: constant,
-      coeffNum: r.coeffNum, coeffDen: r.coeffDen, constNum: r.constNum, constDen: r.constDen
+      formula: pair.formula, subject: pair.subject,
+      stepData: pair.steps, currentEq: pair.formula.given
     };
 
     var scaffold = needsScaffold();
-    steps = scaffold ? ['isolate', 'rearranged'] : ['rearranged'];
+    if(scaffold){
+      steps = [];
+      current.stepData.forEach(function(_, i){ steps.push('choice-' + i, 'write-' + i); });
+    } else {
+      steps = ['final'];
+    }
     stepIndex = 0;
     stepAnswered = false;
     answered = false;
     working.reset();
-    els.modeNote.textContent = scaffold ? '' : "You've got this — go straight to making " + current.Q + " the subject.";
+    els.modeNote.textContent = scaffold ? '' :
+      "You've got this — go straight to making " + current.subject + " the subject.";
 
     renderGiven();
     renderStep();
   }
 
   function renderGiven(){
-    els.given.textContent = formatGiven();
+    els.formulaLabel.textContent = current.formula.name;
+    els.given.textContent = current.formula.given;
   }
 
-  // ---- Formatting ------------------------------------------------
-
-  function coeffLabel(v){ return v === 1 ? '' : (v === -1 ? '-' : String(v)); }
-  function signedConst(v){ return v === 0 ? '' : (v > 0 ? (' + ' + v) : (' - ' + Math.abs(v))); }
-
-  // "v = 3u + 4" or "v = -2u - 5" — the given formula.
-  function formatGiven(){
-    return current.P + ' = ' + coeffLabel(current.coeff) + current.Q + signedConst(current.constant);
-  }
-
-  // "v - 4 = 3u" or "v + 5 = -2u" — the constant moved to the other
-  // side (coeff is never ±1, so the right-hand coefficient always
-  // shows as a plain number).
-  function formatIsolate(){
-    var left = current.P + (current.constant === 0 ? '' :
-      (current.constant > 0 ? (' - ' + current.constant) : (' + ' + Math.abs(current.constant))));
-    return left + ' = ' + coeffLabel(current.coeff) + current.Q;
-  }
-
-  // Rational-number formatting for the rearranged answer — same
-  // approach as practice-simultaneous.js's rearrange step: coefficient
-  // of 1 omitted, -1 shown as a bare "-", a zero constant term left
-  // out entirely, fractions written num/den.
-  function formatRational(num, den){
-    return den === 1 ? String(num) : (num + '/' + den);
-  }
-  function formatCoeffLabel(num, den){
-    if(den === 1){
-      if(num === 1) return '';
-      if(num === -1) return '-';
-    }
-    return formatRational(num, den);
-  }
-  function formatRHS(coeffNum, coeffDen, varName, constNum, constDen){
-    var s = formatCoeffLabel(coeffNum, coeffDen) + varName;
-    if(constNum !== 0){
-      s += (constNum > 0 ? ' + ' : ' - ') + formatRational(Math.abs(constNum), constDen);
-    }
-    return s;
-  }
-  // "u = 1/3v - 4/3" — the canonical rearranged form shown in
-  // feedback and pushed to the working trail.
-  function formatRearranged(){
-    return current.Q + ' = ' + formatRHS(current.coeffNum, current.coeffDen, current.P, current.constNum, current.constDen);
-  }
-
-  // "v-4=3u" — the constant moved across, using the actual letters
-  // for this question. Built dynamically per question since the
-  // letters change. Also accepts the sides swapped, e.g. "3u=v-4".
-  function parseIsolate(raw){
-    return VM.EquationParse.parseEitherSide(raw, function(s){
-      s = (s || '').toLowerCase().replace(/\s+/g, '');
-      var re = new RegExp('^' + current.P + '([+-]\\d+)?=([+-]?\\d*)' + current.Q + '$');
-      var m = s.match(re);
-      if(!m) return null;
-      var leftConst = m[1] ? parseInt(m[1], 10) : 0;
-      var coeffVal = parseGradient(m[2]);
-      if(isNaN(coeffVal)) return null;
-      return { leftConst: leftConst, coeffVal: coeffVal };
-    });
-  }
-
-  // The Q-term of the rearranged RHS, in either of two equivalent
-  // written forms (its numerator is always ±1, so both are valid):
-  //   "1/3v" / "-1/3v"  — coefficient-first (tryStyleA)
-  //   "v/3"  / "-v/3"   — variable-first (tryStyleB)
-  // plus an optional signed constant fraction tacked on the end.
-  function tryStyleA(rhs){
-    var re = new RegExp('^([+-]?' + FRAC_PATTERN + ')' + current.P + '([+-]' + FRAC_PATTERN + ')?$');
-    var m = rhs.match(re);
-    if(!m) return null;
-    var coeffVal = parseFraction(m[1]);
-    var constVal = m[2] ? parseFraction(m[2]) : 0;
-    if(isNaN(coeffVal) || isNaN(constVal)) return null;
-    return { coeffVal: coeffVal, constVal: constVal };
-  }
-  function tryStyleB(rhs){
-    var re = new RegExp('^([+-]?)' + current.P + '(?:/(' + NUM_PATTERN + '))?([+-]' + FRAC_PATTERN + ')?$');
-    var m = rhs.match(re);
-    if(!m) return null;
-    var den = m[2] ? parseFloat(m[2]) : 1;
-    if(!den) return null;
-    var coeffVal = (m[1] === '-' ? -1 : 1) / den;
-    var constVal = m[3] ? parseFraction(m[3]) : 0;
-    if(isNaN(constVal)) return null;
-    return { coeffVal: coeffVal, constVal: constVal };
-  }
-
-  // "u=1/3v-4/3" or "u=v/3-4/3" — the full rearranged equation. Also
-  // accepts the sides swapped.
-  function parseRearranged(raw){
-    return VM.EquationParse.parseEitherSide(raw, function(s){
-      s = (s || '').toLowerCase().replace(/\s+/g, '');
-      var prefix = current.Q + '=';
-      if(s.slice(0, prefix.length) !== prefix) return null;
-      var rhs = s.slice(prefix.length);
-      return tryStyleA(rhs) || tryStyleB(rhs);
-    });
-  }
-
-  // ---- Step rendering -------------------------------------------------
+  // ---- Step prompt / hint ---------------------------------------------
 
   function stepPrompt(name){
-    var n = steps.length === 1 ? '' : ('Step ' + (stepIndex + 1) + ' of ' + steps.length + ': ');
-    switch(name){
-      case 'isolate': return n + 'Move the constant term to the other side.';
-      case 'rearranged': return steps.length === 1 ?
-        ('Make ' + current.Q + ' the subject.') : (n + 'Make ' + current.Q + ' the subject.');
+    if(name === 'final') return 'Make ' + current.subject + ' the subject.';
+    var n = 'Step ' + (stepIndex + 1) + ' of ' + steps.length + ': ';
+    if(isChoiceStep(name)){
+      var idx = parseInt(name.slice('choice-'.length), 10);
+      return n + (idx === 0
+        ? ('You need to find ' + current.subject + ' — what should you do first?')
+        : 'What should you do next?');
     }
+    var writeIdx = parseInt(name.slice('write-'.length), 10);
+    var isLast = writeIdx === lastStepIdx();
+    return n + 'Write the new equation after doing that.' +
+      (isLast ? ' This is the fully rearranged formula, with ' + current.subject + ' alone on one side.' : '');
   }
 
   function stepHint(name){
-    switch(name){
-      case 'isolate':
-        return 'Add or subtract the constant term on both sides so that only the term with ' + current.Q + ' is left on one side.';
-      case 'rearranged':
-        return 'Divide every term on the right-hand side by the coefficient of ' + current.Q +
-          '. Since that coefficient isn’t 1, the ' + current.P + '-term and the constant will both become fractions — ' +
-          'e.g. if m = 2n + 6, then n = m/2 - 3.';
+    if(name === 'final'){
+      return 'Keep undoing one operation at a time, on both sides, until the subject is alone on one side. ' +
+        'For example, rearranging y = mx + c for x eventually gives x = (y - c)/m.';
     }
+    if(isChoiceStep(name)){
+      return 'Look at what operation currently connects ' + current.subject + ' to the rest of the equation — ' +
+        'multiplied, divided, added, subtracted, squared, or under a square root — and undo it by doing the ' +
+        'same thing to both sides.';
+    }
+    return 'Carry out the action you just chose on both sides of the current equation, then simplify.';
   }
 
   function clearInputs(list){ list.forEach(function(el){ el.value = ''; el.classList.remove('right', 'wrong'); }); }
 
+  function renderChoiceButtons(step){
+    els.choiceRow.innerHTML = '';
+    var options = shuffledOptions(step);
+    var buttons = options.map(function(){
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'choice-btn';
+      return btn;
+    });
+    options.forEach(function(action, i){
+      var btn = buttons[i];
+      btn.textContent = actionLabel(action);
+      btn.addEventListener('click', function(){ handleChoiceClick(step, action, btn, buttons); });
+      els.choiceRow.appendChild(btn);
+    });
+  }
+
   function renderStep(){
     var name = currentStepName();
-    ['isolate', 'rearranged'].forEach(function(n){ els.rowsByName[n].hidden = (n !== name); });
+    var showCurrentEq = name !== 'final';
+    els.currentEqWrap.hidden = !showCurrentEq;
+    if(showCurrentEq) els.currentEq.textContent = current.currentEq;
 
-    if(name === 'isolate'){
-      clearInputs([els.isolateInput]);
-      els.isolateInput.placeholder = 'e.g. ' + current.P + ' - 4 = 3' + current.Q;
+    els.stepChoice.hidden = !isChoiceStep(name);
+    els.stepWrite.hidden = !(name.indexOf('write-') === 0);
+    els.stepFinal.hidden = (name !== 'final');
+
+    if(isChoiceStep(name)){
+      var idx = parseInt(name.slice('choice-'.length), 10);
+      renderChoiceButtons(current.stepData[idx]);
     }
-    if(name === 'rearranged'){
-      clearInputs([els.answerInput]);
-      els.answerInput.placeholder = 'e.g. ' + current.Q + ' = ' + current.P + '/5 - 2/5';
-    }
+    if(name.indexOf('write-') === 0) clearInputs([els.writeInput]);
+    if(name === 'final') clearInputs([els.finalInput]);
 
     els.stepPrompt.textContent = stepPrompt(name);
     els.hint.textContent = stepHint(name);
     els.feedback.textContent = '';
     els.feedback.className = 'feedback';
     els.checkBtn.textContent = 'Check answer';
+    els.checkBtn.disabled = isChoiceStep(name);
 
-    var focusMap = { isolate: els.isolateInput, rearranged: els.answerInput };
-    if(focusMap[name]) focusMap[name].focus();
+    if(name.indexOf('write-') === 0) els.writeInput.focus();
+    if(name === 'final') els.finalInput.focus();
   }
 
   function advanceStep(){
@@ -286,64 +436,97 @@ VM.PracticeRearrangeFormulae = (function(){
     renderStep();
   }
 
-  // ---- Checking: the ungraded scaffold step --------------------------
+  // ---- Checking: the action-choice step (clicked directly) -----------
 
-  function checkIsolate(){
-    var parsed = parseIsolate(els.isolateInput.value);
-    var ok = !!parsed && close(parsed.leftConst, -current.constant) && close(parsed.coeffVal, current.coeff);
-    els.isolateInput.classList.toggle('right', ok); els.isolateInput.classList.toggle('wrong', !ok);
-    var correctStr = formatIsolate();
-    els.feedback.textContent = ok ? ('Correct — ' + correctStr + '.') : ('Not quite. It should be ' + correctStr + '.');
+  function handleChoiceClick(step, action, btnEl, allBtns){
+    if(stepAnswered) return;
+    var ok = actionsEqual(action, step.action);
+    if(ok){
+      btnEl.classList.add('right');
+      allBtns.forEach(function(b){ b.disabled = true; });
+      els.feedback.textContent = 'Correct — ' + actionLabel(action) + '. Now write the new equation.';
+      els.feedback.className = 'feedback correct';
+      stepAnswered = true;
+      els.checkBtn.disabled = false;
+      els.checkBtn.textContent = 'Continue';
+    } else {
+      btnEl.classList.add('wrong');
+      btnEl.disabled = true;
+      els.feedback.textContent = 'Not quite — that won’t correctly isolate ' + current.subject + ' here. Try another option.';
+      els.feedback.className = 'feedback incorrect';
+    }
+  }
+
+  // ---- Checking: the write step ---------------------------------------
+  // Used for every write-<n> step. Ungraded ones (isFinal=false) must
+  // be answered correctly to advance — same convention as every other
+  // ungraded scaffold step in this codebase, right down to revealing
+  // the correct string on a wrong attempt. The last write-<n> step is
+  // also the scored step (isFinal=true): the attempt always counts,
+  // right or wrong, and the correct string is always shown before
+  // moving on — same convention as every other generator's final step.
+  function checkWriteStep(idx, isFinal){
+    var step = current.stepData[idx];
+    var ok = equationsMatch(els.writeInput.value, step.result);
+    els.writeInput.classList.toggle('right', ok); els.writeInput.classList.toggle('wrong', !ok);
+    els.feedback.textContent = ok ? ('Correct — ' + step.result + '.') : ('Not quite. It should be ' + step.result + '.');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
-    if(ok) working.push(correctStr);
+    if(ok){
+      current.currentEq = step.result;
+      working.push(actionLabel(step.action) + ' → ' + step.result);
+    }
+    if(isFinal){
+      score.attempted++;
+      if(ok) score.correct++;
+      els.score.textContent = score.correct + ' / ' + score.attempted;
+    }
     return ok;
   }
 
-  function checkStep(name){
-    if(name === 'isolate') return checkIsolate();
-    return false;
-  }
+  // ---- Checking: the direct final step (adaptive tier, no scaffold) --
 
-  // ---- Checking: the final, scored step ------------------------------
-
-  function checkRearranged(){
-    if(!current) return false;
-    var parsed = parseRearranged(els.answerInput.value);
-    var expectedCoeff = current.coeffNum / current.coeffDen;
-    var expectedConst = current.constNum / current.constDen;
-    var ok = !!parsed && close(parsed.coeffVal, expectedCoeff) && close(parsed.constVal, expectedConst);
-    els.answerInput.classList.toggle('right', ok); els.answerInput.classList.toggle('wrong', !ok);
+  function checkFinalAnswer(){
+    var expected = current.stepData[lastStepIdx()].result;
+    var ok = equationsMatch(els.finalInput.value, expected);
+    els.finalInput.classList.toggle('right', ok); els.finalInput.classList.toggle('wrong', !ok);
 
     score.attempted++;
-    var correctStr = formatRearranged();
     if(ok){
       score.correct++;
-      els.feedback.textContent = 'Correct — ' + correctStr + '.';
+      els.feedback.textContent = 'Correct — ' + expected + '.';
       els.feedback.className = 'feedback correct';
-      working.push(correctStr);
+      working.push(expected);
     } else {
-      els.feedback.textContent = 'Not quite. ' + correctStr + '.';
+      els.feedback.textContent = 'Not quite. It should be ' + expected + '.';
       els.feedback.className = 'feedback incorrect';
     }
     els.score.textContent = score.correct + ' / ' + score.attempted;
-    return true;
   }
 
   // ---- Check/Continue/Next button --------------------------------
 
   function handleCheckOrAdvance(){
     var name = currentStepName();
-    if(isFinalStep()){
+    if(isFinalStep(name)){
       if(!answered){
-        var scored = checkRearranged();
-        if(scored){ answered = true; els.checkBtn.textContent = 'Next question'; }
+        if(name === 'final') checkFinalAnswer();
+        else checkWriteStep(parseInt(name.slice('write-'.length), 10), true);
+        answered = true;
+        els.checkBtn.textContent = 'Next question';
       } else {
         nextQuestion();
       }
       return;
     }
+    if(isChoiceStep(name)){
+      // Choice steps are answered by clicking a choice button
+      // directly; this button only ever advances once one has been
+      // picked correctly (see renderStep, which disables it until then).
+      if(stepAnswered) advanceStep();
+      return;
+    }
     if(!stepAnswered){
-      var ok = checkStep(name);
+      var ok = checkWriteStep(parseInt(name.slice('write-'.length), 10), false);
       if(ok){ stepAnswered = true; els.checkBtn.textContent = 'Continue'; }
     } else {
       advanceStep();
@@ -352,9 +535,12 @@ VM.PracticeRearrangeFormulae = (function(){
 
   function init(opts){
     opts = opts || {};
+    els.formulaLabel = document.getElementById('formula-equation-label');
     els.given = document.getElementById('formula-given');
     els.modeNote = document.getElementById('formula-mode-note');
     els.stepPrompt = document.getElementById('formula-step-prompt');
+    els.currentEqWrap = document.getElementById('formula-current-eq-wrap');
+    els.currentEq = document.getElementById('formula-current-eq');
     els.hint = document.getElementById('formula-hint');
     els.feedback = document.getElementById('formula-feedback');
     els.score = document.getElementById('formula-score');
@@ -365,18 +551,17 @@ VM.PracticeRearrangeFormulae = (function(){
     els.workingLines = document.getElementById('formula-working-lines');
     working = VM.WorkingTrail(els.workingCard, els.workingLines);
 
-    els.isolateInput = document.getElementById('formula-isolate-input');
-    els.answerInput = document.getElementById('formula-answer-input');
-
-    els.rowsByName = {
-      isolate: document.getElementById('formula-step-isolate'),
-      rearranged: document.getElementById('formula-step-rearranged')
-    };
+    els.stepChoice = document.getElementById('formula-step-choice');
+    els.choiceRow = document.getElementById('formula-choice-row');
+    els.stepWrite = document.getElementById('formula-step-write');
+    els.writeInput = document.getElementById('formula-write-input');
+    els.stepFinal = document.getElementById('formula-step-final');
+    els.finalInput = document.getElementById('formula-final-input');
 
     els.checkBtn.addEventListener('click', handleCheckOrAdvance);
     els.nextBtn.addEventListener('click', nextQuestion);
 
-    [els.isolateInput, els.answerInput].forEach(function(input){
+    [els.writeInput, els.finalInput].forEach(function(input){
       input.addEventListener('keydown', function(e){
         if(e.key === 'Enter' && !e.repeat){ e.preventDefault(); handleCheckOrAdvance(); }
       });

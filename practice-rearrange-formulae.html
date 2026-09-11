@@ -33,7 +33,7 @@
 
     <div class="practice-layout">
       <div class="equations-card">
-        <div class="equation-label">Formula</div>
+        <div class="equation-label" id="formula-equation-label">Formula</div>
         <div class="equation-line" id="formula-given"></div>
       </div>
 
@@ -41,20 +41,27 @@
       <div class="practice-panel">
         <div>
           <div class="practice-title">Rearrange the formula</div>
-          <div class="practice-sub">Make the given letter the subject.</div>
+          <div class="practice-sub">A real formula each time — work out what action isolates the given variable, one step at a time.</div>
         </div>
-
-        <div class="form-template mono">P = aQ + b</div>
 
         <div class="practice-mode-note" id="formula-mode-note"></div>
         <div class="step-prompt" id="formula-step-prompt"></div>
 
-        <div class="answer-row" id="formula-step-isolate" hidden>
-          <input type="text" id="formula-isolate-input" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Equation with the constant moved across">
+        <div id="formula-current-eq-wrap" hidden>
+          <div class="equation-label">Current equation</div>
+          <div class="equation-line" id="formula-current-eq"></div>
         </div>
 
-        <div class="answer-row" id="formula-step-rearranged" hidden>
-          <input type="text" id="formula-answer-input" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Rearranged formula">
+        <div class="answer-row" id="formula-step-choice" hidden>
+          <div class="choice-row" id="formula-choice-row"></div>
+        </div>
+
+        <div class="answer-row" id="formula-step-write" hidden>
+          <input type="text" id="formula-write-input" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Equation after doing that action">
+        </div>
+
+        <div class="answer-row" id="formula-step-final" hidden>
+          <input type="text" id="formula-final-input" class="answer-input answer-input-wide" inputmode="text" autocomplete="off" aria-label="Rearranged formula">
         </div>
 
         <div class="answer-hint" id="formula-hint"></div>
@@ -77,7 +84,7 @@
       </div>
     </div>
 
-    <footer>A freshly generated formula each time, with different letters &middot; the coefficient is never 1, so the answer always needs a fraction</footer>
+    <footer>A real formula each time &middot; pick the right action, then write the equation it produces &middot; only the fully rearranged formula is scored</footer>
   </section>
 
 </div>
