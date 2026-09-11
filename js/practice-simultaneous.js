@@ -53,10 +53,31 @@ VM.PracticeSimultaneous = (function(){
   var SCAFFOLD_MIN_ATTEMPTS = 5;    // "5 or more questions answered" — below this, scaffold
   var SCAFFOLD_MIN_ACCURACY = 0.50; // "50% accuracy" — below this, scaffold
 
+  // Independent of the scaffold switch above: once unlocked, x0
+  // and/or y0 (the system's actual solution) can be a genuine
+  // fraction like 7/3 instead of always a whole number — same
+  // attempts/accuracy shape as the fractional-answer tiers in
+  // practice-graph-linear.js (EXTRA_TIP_MIN_*/FRACTION_GRADIENT_MIN_*).
+  var FRACTION_SOLUTION_MIN_ATTEMPTS = 10;
+  var FRACTION_SOLUTION_MIN_ACCURACY = 0.60;
+
   // eqB's coefficients, and eqA's non-unit coefficient, are drawn
   // from this set (never 0, never ±1 — ±1 is reserved for whichever
   // side of eqA is the deliberately-isolable one).
   var OTHER_COEFFS = [-3, -2, 2, 3];
+
+  // Pool of fraction values x0/y0 can land on once the fractional
+  // tier unlocks (see usesFractionSolution()/pickSolutionValue()) —
+  // small coprime numerator/denominator pairs, denominator never ±1
+  // (that would just be an integer written oddly), same shape as
+  // FRACTION_M_VALUES in practice-graph-linear.js.
+  var FRACTION_SOLUTION_VALUES = [
+    { num: 7, den: 3 }, { num: -7, den: 3 },
+    { num: 5, den: 3 }, { num: -5, den: 3 },
+    { num: 8, den: 3 }, { num: -8, den: 3 },
+    { num: 7, den: 2 }, { num: -7, den: 2 },
+    { num: 5, den: 2 }, { num: -5, den: 2 }
+  ];
 
   var els = {};
   var current = null;
@@ -78,18 +99,69 @@ VM.PracticeSimultaneous = (function(){
     while(b){ var t = b; b = a % b; a = t; }
     return a || 1;
   }
+  function usesFractionSolution(){
+    return score.attempted >= FRACTION_SOLUTION_MIN_ATTEMPTS && accuracy() >= FRACTION_SOLUTION_MIN_ACCURACY;
+  }
+  // Roughly half the time, once the fractional-solution tier has
+  // unlocked, x0/y0 lands on a genuine fraction instead of a whole
+  // number — the integer pool stays in the mix too (same "keep both
+  // pools live" convention as pickM() in practice-graph-linear.js).
+  function pickSolutionValue(){
+    if(usesFractionSolution() && Math.random() < 0.5){
+      var f = randChoice(FRACTION_SOLUTION_VALUES);
+      return frac(f.num, f.den);
+    }
+    var v = randInt(-6, 6); if(v === 0) v = 1;
+    return frac(v, 1);
+  }
+
+  // ---- Exact rational arithmetic ------------------------------------
+  //
+  // x0/y0 (the system's actual solution) can now be a fraction, which
+  // makes the equations' constant terms (aC/bC) fractional too, and
+  // everything computed from them downstream (the rearranged
+  // constant, the multiplied equations, the eliminated equation's
+  // RHS). Those constants are carried as exact { num, den } pairs
+  // (den always > 0, already reduced) rather than plain floats, so
+  // every displayed "correct answer" can be rendered as a clean
+  // fraction via formatRational(num, den) instead of a long decimal —
+  // only fracNum() ever converts one to a float, and only for the
+  // epsilon-tolerant numeric comparisons in the check* functions.
+  function frac(num, den){
+    if(den < 0){ num = -num; den = -den; }
+    var g = gcd(num, den);
+    return { num: num / g, den: den / g };
+  }
+  function fracNeg(f){ return { num: -f.num, den: f.den }; }
+  function fracAdd(a, b){ return frac(a.num * b.den + b.num * a.den, a.den * b.den); }
+  function fracSub(a, b){ return fracAdd(a, fracNeg(b)); }
+  // coeff*f — coeff is normally a plain integer (every generated
+  // multiplier, and every realistic student-entered one); a
+  // non-integer coeff (a fraction a student is nonetheless entitled
+  // to submit as a multiplier — see checkMultipliers) is reconstructed
+  // to the nearest /1000 first so the result still reduces to a clean
+  // fraction instead of drifting into a float.
+  function fracScale(coeff, f){
+    var m = (Math.round(coeff) === coeff) ? frac(coeff, 1) : frac(Math.round(coeff * 1000), 1000);
+    return frac(m.num * f.num, m.den * f.den);
+  }
+  function fracNum(f){ return f.num / f.den; }
 
   // chosen = (constant - coeffOther*other) / coeffChosen
   //        = (-coeffOther/coeffChosen)*other + (constant/coeffChosen)
   // Normalized so the denominator is positive, then reduced — shared
   // by both equations, since rearranging either one for the chosen
   // variable is equally valid (see selectVariable/checkRearrange).
+  // `constant` is a { num, den } fraction (aC/bC — see the "Exact
+  // rational arithmetic" note above); this still handles a plain
+  // whole-number constant exactly as before, since that's just the
+  // den === 1 case.
   function computeRearrangement(coeffChosen, coeffOther, constant){
     var coeffNum = -coeffOther, coeffDen = coeffChosen;
     if(coeffDen < 0){ coeffNum = -coeffNum; coeffDen = -coeffDen; }
     var cg = gcd(coeffNum, coeffDen); coeffNum /= cg; coeffDen /= cg;
 
-    var constNum = constant, constDen = coeffChosen;
+    var constNum = constant.num, constDen = constant.den * coeffChosen;
     if(constDen < 0){ constNum = -constNum; constDen = -constDen; }
     var kg = gcd(constNum, constDen); constNum /= kg; constDen /= kg;
 
@@ -101,21 +173,27 @@ VM.PracticeSimultaneous = (function(){
   // shared by question generation and by checkMultipliers, since a
   // student can pick a different (but equally valid) multiplier pair
   // than the one generated, and everything downstream has to follow it.
+  // aC/bC are { num, den } fractions; multA/multB are plain numbers
+  // (see fracScale for how a non-integer one is handled exactly).
   function computeElimination(aX, aY, aC, p, q, bC, targetVar, operation, multA, multB){
-    var multEq1 = { a: aX * multA, b: aY * multA, c: aC * multA };
-    var multEq2 = { a: p * multB, b: q * multB, c: bC * multB };
+    var multEq1 = { a: aX * multA, b: aY * multA, c: fracScale(multA, aC) };
+    var multEq2 = { a: p * multB, b: q * multB, c: fracScale(multB, bC) };
     var elimCoeff = operation === 'subtract'
       ? (targetVar === 'x' ? multEq1.b - multEq2.b : multEq1.a - multEq2.a)
       : (targetVar === 'x' ? multEq1.b + multEq2.b : multEq1.a + multEq2.a);
-    var elimRhs = operation === 'subtract' ? multEq1.c - multEq2.c : multEq1.c + multEq2.c;
+    var elimRhs = operation === 'subtract' ? fracSub(multEq1.c, multEq2.c) : fracAdd(multEq1.c, multEq2.c);
     return { multEq1: multEq1, multEq2: multEq2, elimCoeff: elimCoeff, elimRhs: elimRhs };
   }
 
   // ---- Question generation -----------------------------------------
 
   function nextQuestion(){
-    var x0 = randInt(-6, 6); if(x0 === 0) x0 = 1;
-    var y0 = randInt(-6, 6); if(y0 === 0) y0 = 1;
+    // x0/y0 (the system's actual solution) are { num, den } fractions
+    // — plain whole numbers most of the time (den 1), but sometimes a
+    // genuine fraction like 7/3 once the fractional-solution tier
+    // unlocks (see pickSolutionValue()).
+    var x0 = pickSolutionValue();
+    var y0 = pickSolutionValue();
 
     // eqA always has a coefficient of exactly 1 on one variable
     // (chosen at random), so it can always be rearranged for that
@@ -124,21 +202,32 @@ VM.PracticeSimultaneous = (function(){
     var m = randChoice(OTHER_COEFFS);
     var aX = xIsUnit ? 1 : m;
     var aY = xIsUnit ? m : 1;
-    var aC = aX * x0 + aY * y0;
+    var aC = fracAdd(fracScale(aX, x0), fracScale(aY, y0));
+
+    // Elimination always targets eqA's NON-unit variable (never the
+    // one with coefficient 1) — otherwise that side needs no scaling
+    // at all, which is exactly the "half-trivial" case reported in
+    // issue #15 part 2.
+    var targetVar = xIsUnit ? 'y' : 'x';
 
     // eqB: general coefficients, regenerated until the system has a
     // unique solution (determinant aX*q - aY*p != 0) — with these
     // curated coefficient pools that's true of every combination, so
     // this never actually loops, but it's cheap insurance if the
-    // pools above ever change.
+    // pools above ever change — AND until the eqB coefficient on
+    // targetVar has a different magnitude than eqA's (m), so
+    // gcd(|m|, |that coefficient|) can never be their common
+    // magnitude — otherwise both multipliers reduce to 1 and the
+    // question needs no multiplication at all (the fully-trivial case
+    // from the same issue). OTHER_COEFFS has only two magnitudes (2
+    // and 3), so this converges in a couple of retries at most.
     var p, q;
     do {
       p = randChoice(OTHER_COEFFS);
       q = randChoice(OTHER_COEFFS);
-    } while (aX * q - aY * p === 0);
-    var bC = p * x0 + q * y0;
+    } while (aX * q - aY * p === 0 || Math.abs(targetVar === 'x' ? p : q) === Math.abs(m));
+    var bC = fracAdd(fracScale(p, x0), fracScale(q, y0));
 
-    var targetVar = randChoice(['x', 'y']);   // variable to eliminate
     var cA_t = targetVar === 'x' ? aX : aY;
     var cB_t = targetVar === 'x' ? p : q;
     var g = gcd(cA_t, cB_t);
@@ -195,15 +284,22 @@ VM.PracticeSimultaneous = (function(){
 
   function close(a, b){ return Math.abs(a - b) < 0.01; }
 
+  // c is a { num, den } fraction (aC/bC, or a multiplied equation's c
+  // — see the "Exact rational arithmetic" note) — rendered via
+  // formatRational so a fractional constant shows as a clean fraction
+  // rather than a decimal; formatRational is defined further down but
+  // is a function declaration, so it's available here regardless of
+  // source order.
   function formatEquation(a, b, c){
     var terms = (a < 0 ? '-' : '') + (Math.abs(a) === 1 ? '' : Math.abs(a)) + 'x';
     terms += (b < 0 ? ' - ' : ' + ') + (Math.abs(b) === 1 ? '' : Math.abs(b)) + 'y';
-    return terms + ' = ' + c;
+    return terms + ' = ' + formatRational(c.num, c.den);
   }
 
+  // rhs is a { num, den } fraction (current.elimRhs).
   function formatSingleVarEquation(coeff, varName, rhs){
     var coeffStr = coeff === 1 ? '' : (coeff === -1 ? '-' : String(coeff));
-    return coeffStr + varName + ' = ' + rhs;
+    return coeffStr + varName + ' = ' + formatRational(rhs.num, rhs.den);
   }
 
   function renderEquations(){
@@ -213,16 +309,19 @@ VM.PracticeSimultaneous = (function(){
 
   // "9x + 6y = 15" — both terms present, x before y, matching how
   // formatEquation always displays a two-variable equation. Also
-  // accepts the constant written first, e.g. "15 = 9x + 6y".
+  // accepts the constant written first, e.g. "15 = 9x + 6y". The
+  // constant can itself be a fraction like "7/3" now that x0/y0 can
+  // be (see the fractional-solution tier), so it's parsed with
+  // parseFraction rather than parseFloat.
   function parseLinearEquation(raw){
     return VM.EquationParse.parseEitherSide(raw, function(s){
       s = (s || '').toLowerCase().replace(/\s+/g, '');
-      var m = s.match(/^([+-]?\d*)x([+-])(\d*)y=([+-]?\d+)$/);
+      var m = s.match(/^([+-]?\d*)x([+-])(\d*)y=([+-]?\d+(?:\/\d+)?)$/);
       if(!m) return null;
       var a = parseGradient(m[1]);
       if(isNaN(a)) return null;
       var b = (m[2] === '-' ? -1 : 1) * (m[3] === '' ? 1 : parseInt(m[3], 10));
-      var c = parseFloat(m[4]);
+      var c = parseFraction(m[4]);
       if(isNaN(c)) return null;
       return { a: a, b: b, c: c };
     });
@@ -230,16 +329,18 @@ VM.PracticeSimultaneous = (function(){
 
   // "4y = -16" or "y = -16" or "-y = 16" — a single-variable equation
   // in whichever letter the elimination left behind. Also accepts
-  // the constant written first, e.g. "-16 = 4y".
+  // the constant written first, e.g. "-16 = 4y". The RHS can itself
+  // be a fraction (elimRhs can be, once x0/y0 can be), so it's parsed
+  // with parseFraction rather than parseFloat.
   function parseSingleVarEquation(raw, varName){
     return VM.EquationParse.parseEitherSide(raw, function(s){
       s = (s || '').toLowerCase().replace(/\s+/g, '');
-      var re = new RegExp('^([+-]?\\d*)' + varName + '=([+-]?\\d+)$');
+      var re = new RegExp('^([+-]?\\d*)' + varName + '=([+-]?\\d+(?:\\/\\d+)?)$');
       var m = s.match(re);
       if(!m) return null;
       var coeff = parseGradient(m[1]);
       if(isNaN(coeff)) return null;
-      var rhs = parseFloat(m[2]);
+      var rhs = parseFraction(m[2]);
       if(isNaN(rhs)) return null;
       return { coeff: coeff, rhs: rhs };
     });
@@ -336,7 +437,9 @@ VM.PracticeSimultaneous = (function(){
         return 'Either variable works. One of them has a coefficient of 1 in equation 1 and rearranges cleanly there; the other will need a fraction from either equation.';
       case 'rearrange':
         return 'Move the ' + current.otherVar + ' term to the other side of whichever equation you pick. Leave the coefficient box blank for 1, or type just - for -1.' +
-          (Math.abs(current.rearrangeEq1.coeffDen) > 1 || Math.abs(current.rearrangeEq2.coeffDen) > 1 ? ' Fractions like 1/2 are fine here.' : '');
+          (Math.abs(current.rearrangeEq1.coeffDen) > 1 || Math.abs(current.rearrangeEq2.coeffDen) > 1 ||
+           Math.abs(current.rearrangeEq1.constDen) > 1 || Math.abs(current.rearrangeEq2.constDen) > 1
+            ? ' Fractions like 1/2 are fine here.' : '');
       case 'multipliers':
         return 'Multiply so both equations end up with the same-size coefficient for whichever variable you’d like to eliminate — either one works.';
       case 'multiply-equations':
@@ -489,15 +592,18 @@ VM.PracticeSimultaneous = (function(){
   // Either variable is always valid to eliminate — a pair that makes
   // the x-coefficients match is just as correct as one that matches
   // the y-coefficients, even if it's not the variable generated as
-  // the "default" target. So this accepts any positive pair matching
-  // either variable's coefficients, then re-derives everything
-  // downstream (targetVar, operation, the eliminated variable, the
-  // multiplied equations) from whichever one the student's pair hits.
+  // the "default" target. So this accepts any nonzero pair matching
+  // either variable's coefficients (either sign — a negative
+  // multiplier is just as valid as a positive one, e.g. multiplying
+  // by -1 to flip which operation eliminates the variable; see issue
+  // #15 part 1), then re-derives everything downstream (targetVar,
+  // operation, the eliminated variable, the multiplied equations)
+  // from whichever one the student's pair hits.
   function checkMultipliers(){
     var a = parseFraction(els.multA.value);
     var b = parseFraction(els.multB.value);
-    var matchesX = !isNaN(a) && !isNaN(b) && a > 0 && b > 0 && close(a * Math.abs(current.aX), b * Math.abs(current.p));
-    var matchesY = !isNaN(a) && !isNaN(b) && a > 0 && b > 0 && close(a * Math.abs(current.aY), b * Math.abs(current.q));
+    var matchesX = !isNaN(a) && !isNaN(b) && a !== 0 && b !== 0 && close(Math.abs(a * current.aX), Math.abs(b * current.p));
+    var matchesY = !isNaN(a) && !isNaN(b) && a !== 0 && b !== 0 && close(Math.abs(a * current.aY), Math.abs(b * current.q));
     // If a pair happens to satisfy both (only possible if it also
     // happens to solve the system some other way), keep the
     // already-chosen target rather than switching unnecessarily.
@@ -508,8 +614,14 @@ VM.PracticeSimultaneous = (function(){
     if(ok){
       var cA_t = targetVar === 'x' ? current.aX : current.aY;
       var cB_t = targetVar === 'x' ? current.p : current.q;
+      // Derived from the ACTUAL post-multiplication signs (a*cA_t,
+      // b*cB_t), not the original coefficients' signs — a negative
+      // multiplier flips the sign of every term in that equation, so
+      // it can flip add into subtract (or vice versa) from what the
+      // unmultiplied coefficients alone would suggest.
+      var multipliedA = a * cA_t, multipliedB = b * cB_t;
       current.targetVar = targetVar;
-      current.operation = ((cA_t > 0) === (cB_t > 0)) ? 'subtract' : 'add';
+      current.operation = ((multipliedA > 0) === (multipliedB > 0)) ? 'subtract' : 'add';
       current.eliminatedOtherVar = targetVar === 'x' ? 'y' : 'x';
       current.eliminatedOtherVal = targetVar === 'x' ? current.y0 : current.x0;
       current.targetVal = targetVar === 'x' ? current.x0 : current.y0;
@@ -536,8 +648,8 @@ VM.PracticeSimultaneous = (function(){
   function checkMultiplyEquations(){
     var eq1 = parseLinearEquation(els.multipliedEq1.value);
     var eq2 = parseLinearEquation(els.multipliedEq2.value);
-    var eq1Ok = !!eq1 && close(eq1.a, current.multEq1.a) && close(eq1.b, current.multEq1.b) && close(eq1.c, current.multEq1.c);
-    var eq2Ok = !!eq2 && close(eq2.a, current.multEq2.a) && close(eq2.b, current.multEq2.b) && close(eq2.c, current.multEq2.c);
+    var eq1Ok = !!eq1 && close(eq1.a, current.multEq1.a) && close(eq1.b, current.multEq1.b) && close(eq1.c, fracNum(current.multEq1.c));
+    var eq2Ok = !!eq2 && close(eq2.a, current.multEq2.a) && close(eq2.b, current.multEq2.b) && close(eq2.c, fracNum(current.multEq2.c));
     els.multipliedEq1.classList.toggle('right', eq1Ok); els.multipliedEq1.classList.toggle('wrong', !eq1Ok);
     els.multipliedEq2.classList.toggle('right', eq2Ok); els.multipliedEq2.classList.toggle('wrong', !eq2Ok);
     var ok = eq1Ok && eq2Ok;
@@ -557,9 +669,10 @@ VM.PracticeSimultaneous = (function(){
   // steps stay consistent with it.
   function checkEliminate(){
     var parsed = parseSingleVarEquation(els.eliminateInput.value, current.eliminatedOtherVar);
+    var elimRhsNum = fracNum(current.elimRhs);
     var ok = !!parsed &&
-      ((close(parsed.coeff, current.elimCoeff) && close(parsed.rhs, current.elimRhs)) ||
-       (close(parsed.coeff, -current.elimCoeff) && close(parsed.rhs, -current.elimRhs)));
+      ((close(parsed.coeff, current.elimCoeff) && close(parsed.rhs, elimRhsNum)) ||
+       (close(parsed.coeff, -current.elimCoeff) && close(parsed.rhs, -elimRhsNum)));
     els.eliminateInput.classList.toggle('right', ok); els.eliminateInput.classList.toggle('wrong', !ok);
     var correctStr = formatSingleVarEquation(current.elimCoeff, current.eliminatedOtherVar, current.elimRhs);
     els.feedback.textContent = ok ? ('Correct — ' + correctStr + '.') : ('Not quite. It should be ' + correctStr + '.');
@@ -568,15 +681,19 @@ VM.PracticeSimultaneous = (function(){
     return ok;
   }
 
+  // expected is a { num, den } fraction (otherVarVal/eliminatedOtherVal
+  // — themselves just x0 or y0, which are fractions now — see the
+  // "Exact rational arithmetic" note).
   function checkSolveFirst(){
     var val = parseFraction(els.solveFirstInput.value);
     var expected = current.method === 'substitution' ? current.otherVarVal : current.eliminatedOtherVal;
     var label = current.method === 'substitution' ? current.otherVar : current.eliminatedOtherVar;
-    var ok = !isNaN(val) && Math.abs(val - expected) < 0.01;
+    var expectedStr = formatRational(expected.num, expected.den);
+    var ok = !isNaN(val) && Math.abs(val - fracNum(expected)) < 0.01;
     els.solveFirstInput.classList.toggle('right', ok); els.solveFirstInput.classList.toggle('wrong', !ok);
-    els.feedback.textContent = ok ? ('Correct — ' + label + ' = ' + expected + '.') : ('Not quite. ' + label + ' = ' + expected + '.');
+    els.feedback.textContent = ok ? ('Correct — ' + label + ' = ' + expectedStr + '.') : ('Not quite. ' + label + ' = ' + expectedStr + '.');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
-    if(ok) working.push(label + ' = ' + expected);
+    if(ok) working.push(label + ' = ' + expectedStr);
     return ok;
   }
 
@@ -584,11 +701,12 @@ VM.PracticeSimultaneous = (function(){
     var val = parseFraction(els.solveSecondInput.value);
     var expected = current.method === 'substitution' ? current.subVarVal : current.targetVal;
     var label = current.method === 'substitution' ? current.subVar : current.targetVar;
-    var ok = !isNaN(val) && Math.abs(val - expected) < 0.01;
+    var expectedStr = formatRational(expected.num, expected.den);
+    var ok = !isNaN(val) && Math.abs(val - fracNum(expected)) < 0.01;
     els.solveSecondInput.classList.toggle('right', ok); els.solveSecondInput.classList.toggle('wrong', !ok);
-    els.feedback.textContent = ok ? ('Correct — ' + label + ' = ' + expected + '.') : ('Not quite. ' + label + ' = ' + expected + '.');
+    els.feedback.textContent = ok ? ('Correct — ' + label + ' = ' + expectedStr + '.') : ('Not quite. ' + label + ' = ' + expectedStr + '.');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
-    if(ok) working.push(label + ' = ' + expected);
+    if(ok) working.push(label + ' = ' + expectedStr);
     return ok;
   }
 
@@ -608,23 +726,25 @@ VM.PracticeSimultaneous = (function(){
     if(!current) return false;
     var xVal = parseFraction(els.eqX.value);
     var yVal = parseFraction(els.eqY.value);
-    var xOk = !isNaN(xVal) && Math.abs(xVal - current.x0) < 0.01;
-    var yOk = !isNaN(yVal) && Math.abs(yVal - current.y0) < 0.01;
+    var xOk = !isNaN(xVal) && Math.abs(xVal - fracNum(current.x0)) < 0.01;
+    var yOk = !isNaN(yVal) && Math.abs(yVal - fracNum(current.y0)) < 0.01;
     els.eqX.classList.toggle('right', xOk); els.eqX.classList.toggle('wrong', !xOk);
     els.eqY.classList.toggle('right', yOk); els.eqY.classList.toggle('wrong', !yOk);
     var ok = xOk && yOk;
+    var xStr = formatRational(current.x0.num, current.x0.den);
+    var yStr = formatRational(current.y0.num, current.y0.den);
 
     score.attempted++;
     if(ok){
       score.correct++;
-      els.feedback.textContent = 'Correct — x = ' + current.x0 + ', y = ' + current.y0 + '.';
+      els.feedback.textContent = 'Correct — x = ' + xStr + ', y = ' + yStr + '.';
       els.feedback.className = 'feedback correct';
     } else {
-      els.feedback.textContent = 'Not quite. The solution is x = ' + current.x0 + ', y = ' + current.y0 + '.';
+      els.feedback.textContent = 'Not quite. The solution is x = ' + xStr + ', y = ' + yStr + '.';
       els.feedback.className = 'feedback incorrect';
     }
     els.score.textContent = score.correct + ' / ' + score.attempted;
-    if(ok) working.push('(x, y) = (' + current.x0 + ', ' + current.y0 + ')');
+    if(ok) working.push('(x, y) = (' + xStr + ', ' + yStr + ')');
     return true;
   }
 
