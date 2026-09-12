@@ -158,16 +158,19 @@ VM.PracticeFactorMonic = (function(){
   // ---- Checking: the ungraded scaffold step --------------------------
 
   function checkFindPair(){
-    var a = parseFloat((els.pairA.value || '').trim());
-    var b = parseFloat((els.pairB.value || '').trim());
+    var rawA = (els.pairA.value || '').trim(), rawB = (els.pairB.value || '').trim();
+    var a = parseFloat(rawA), b = parseFloat(rawB);
     var ok = !isNaN(a) && !isNaN(b) && pairMatch([a, b], current.p, current.q);
     els.pairA.classList.toggle('right', ok); els.pairA.classList.toggle('wrong', !ok);
     els.pairB.classList.toggle('right', ok); els.pairB.classList.toggle('wrong', !ok);
+    // On success, echo what was actually typed (may be in either
+    // order) rather than the generator's own p/q order — see GitHub
+    // issue #17.
     els.feedback.textContent = ok ?
-      ('Correct — ' + current.p + ' and ' + current.q + '.') :
+      ('Correct — ' + rawA + ' and ' + rawB + '.') :
       ('Not quite. The numbers are ' + current.p + ' and ' + current.q + '.');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
-    if(ok) working.push(current.p + ', ' + current.q);
+    if(ok) working.push(rawA + ', ' + rawB);
     return ok;
   }
 
@@ -180,7 +183,8 @@ VM.PracticeFactorMonic = (function(){
 
   function checkFactored(){
     if(!current) return false;
-    var parsed = parseFactored(els.factoredInput.value);
+    var raw = (els.factoredInput.value || '').trim();
+    var parsed = parseFactored(raw);
     if(!parsed){
       els.feedback.textContent = 'Write the expression as two brackets, e.g. (x + 2)(x + 3).';
       els.feedback.className = 'feedback incorrect';
@@ -194,9 +198,11 @@ VM.PracticeFactorMonic = (function(){
     var correctStr = bracketsString(current.p, current.q);
     if(ok){
       score.correct++;
-      els.feedback.textContent = 'Correct — ' + correctStr + '.';
+      // Echo what was actually typed (the two brackets may be in
+      // either order) — see GitHub issue #17.
+      els.feedback.textContent = 'Correct — ' + raw + '.';
       els.feedback.className = 'feedback correct';
-      working.push(correctStr);
+      working.push(raw);
     } else {
       els.feedback.textContent = 'Not quite. It should be ' + correctStr + '.';
       els.feedback.className = 'feedback incorrect';

@@ -252,8 +252,9 @@ VM.PracticeExpFromTable = (function(){
   }
 
   function checkSubstitutePoints(){
-    var eq1 = parseLinearKC(els.subEq1Input.value);
-    var eq2 = parseLinearKC(els.subEq2Input.value);
+    var raw1 = (els.subEq1Input.value || '').trim(), raw2 = (els.subEq2Input.value || '').trim();
+    var eq1 = parseLinearKC(raw1);
+    var eq2 = parseLinearKC(raw2);
     var eq1Ok = !!eq1 && close(eq1.kCoeff, 1) && close(eq1.rhs, current.ys[0]);
     var eq2Ok = !!eq2 && close(eq2.kCoeff, current.a) && close(eq2.rhs, current.ys[1]);
     els.subEq1Input.classList.toggle('right', eq1Ok); els.subEq1Input.classList.toggle('wrong', !eq1Ok);
@@ -261,9 +262,12 @@ VM.PracticeExpFromTable = (function(){
     var ok = eq1Ok && eq2Ok;
     var correct1 = 'k + c = ' + current.ys[0];
     var correct2 = current.a + 'k + c = ' + current.ys[1];
-    els.feedback.textContent = ok ? ('Correct — ' + correct1 + ' and ' + correct2 + '.') : ('Not quite. It should be ' + correct1 + ' and ' + correct2 + '.');
+    // On success, echo what was actually typed (the equation's sides
+    // may be swapped) rather than the canonical side order — see
+    // GitHub issue #17.
+    els.feedback.textContent = ok ? ('Correct — ' + raw1 + ' and ' + raw2 + '.') : ('Not quite. It should be ' + correct1 + ' and ' + correct2 + '.');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
-    if(ok){ working.push(correct1); working.push(correct2); }
+    if(ok){ working.push(raw1); working.push(raw2); }
     return ok;
   }
 

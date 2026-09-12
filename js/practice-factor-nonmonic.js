@@ -320,32 +320,37 @@ VM.PracticeFactorNonmonic = (function(){
   }
 
   function checkFindPair(){
-    var x = parseFloat((els.pairInput1.value || '').trim());
-    var y = parseFloat((els.pairInput2.value || '').trim());
+    var raw1 = (els.pairInput1.value || '').trim(), raw2 = (els.pairInput2.value || '').trim();
+    var x = parseFloat(raw1), y = parseFloat(raw2);
     var want1 = current.m * current.q, want2 = current.n * current.p;
     var ok = !isNaN(x) && !isNaN(y) && pairMatch(x, y, want1, want2);
     els.pairInput1.classList.toggle('right', ok); els.pairInput1.classList.toggle('wrong', !ok);
     els.pairInput2.classList.toggle('right', ok); els.pairInput2.classList.toggle('wrong', !ok);
+    // On success, echo what was actually typed (may be in either
+    // order) rather than the generator's own want1/want2 order — see
+    // GitHub issue #17.
     els.feedback.textContent = ok ?
-      ('Correct — ' + want1 + ' and ' + want2 + '.') :
+      ('Correct — ' + raw1 + ' and ' + raw2 + '.') :
       ('Not quite. The two numbers are ' + want1 + ' and ' + want2 + '.');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
-    if(ok) working.push(want1 + ', ' + want2);
+    if(ok) working.push(raw1 + ', ' + raw2);
     return ok;
   }
 
   function checkExpanded(){
     var mq = current.m * current.q, np = current.n * current.p;
-    var parsed = parseExpanded(els.expandedInput.value);
+    var raw = (els.expandedInput.value || '').trim();
+    var parsed = parseExpanded(raw);
     var split = parsed && parsed.a === current.a && parsed.c === current.c ? expandedSplit(parsed, mq, np) : null;
     var ok = !!split;
     els.expandedInput.classList.toggle('right', ok);
     els.expandedInput.classList.toggle('wrong', !ok);
     if(ok){
-      var str = formatExpanded(current.a, split.n1, split.n2, current.c);
-      els.feedback.textContent = 'Correct — ' + str;
+      // Echo exactly what was typed (e.g. "6x^2+15x-4x-10") instead of
+      // a reformatted "6x² - 3x + x - 1" — see GitHub issue #12.
+      els.feedback.textContent = 'Correct — ' + raw;
       els.feedback.className = 'feedback correct';
-      working.push(str);
+      working.push(raw);
     } else {
       els.feedback.textContent = 'Not quite. It should look like ' +
         formatExpanded(current.a, mq, np, current.c) + ' (or ' + formatExpanded(current.a, np, mq, current.c) + ').';
@@ -356,16 +361,18 @@ VM.PracticeFactorNonmonic = (function(){
 
   function checkGrouped(){
     var m = current.m, n = current.n, p = current.p, q = current.q;
-    var parsed = parseGrouped(els.groupedInput.value);
+    var raw = (els.groupedInput.value || '').trim();
+    var parsed = parseGrouped(raw);
     var split = parsed ? groupedSplit(parsed, m, n, p, q) : null;
     var ok = !!split;
     els.groupedInput.classList.toggle('right', ok);
     els.groupedInput.classList.toggle('wrong', !ok);
     if(ok){
-      var str = groupedString(split.leadCoeff, split.innerCoeff, split.innerConst, split.outerCoeff);
-      els.feedback.textContent = 'Correct — ' + str;
+      // Echo what was actually typed rather than a re-derived
+      // canonical split — see GitHub issue #17.
+      els.feedback.textContent = 'Correct — ' + raw;
       els.feedback.className = 'feedback correct';
-      working.push(str);
+      working.push(raw);
     } else {
       els.feedback.textContent = 'Not quite. It should look like ' +
         groupedString(m, n, q, p) + ' (or ' + groupedString(n, m, p, q) + ').';
@@ -386,7 +393,8 @@ VM.PracticeFactorNonmonic = (function(){
 
   function checkFactored(){
     if(!current) return false;
-    var parsed = parseFactored(els.factoredInput.value);
+    var raw = (els.factoredInput.value || '').trim();
+    var parsed = parseFactored(raw);
     if(!parsed){
       els.feedback.textContent = 'Write the factored expression like (2x + 3)(x - 1).';
       els.feedback.className = 'feedback incorrect';
@@ -402,9 +410,12 @@ VM.PracticeFactorNonmonic = (function(){
     var correctStr = factoredString(current.m, current.p, current.n, current.q);
     if(ok){
       score.correct++;
-      els.feedback.textContent = 'Correct — ' + correctStr;
+      // Echo what was actually typed (the two factors may be in
+      // either order) rather than the generator's own order — see
+      // GitHub issue #17.
+      els.feedback.textContent = 'Correct — ' + raw;
       els.feedback.className = 'feedback correct';
-      working.push(correctStr);
+      working.push(raw);
     } else {
       els.feedback.textContent = 'Not quite. It should be ' + correctStr + '.';
       els.feedback.className = 'feedback incorrect';

@@ -207,14 +207,18 @@ VM.PracticeLineFromPoint = (function(){
   }
 
   function checkSubstitute(){
-    var parsed = parseSubstituted(els.substituteInput.value);
+    var raw = (els.substituteInput.value || '').trim();
+    var parsed = parseSubstituted(raw);
     var rhsVal = current.m * current.x1;
     var ok = !!parsed && close(parsed.lhs, current.y1) && close(parsed.rhsVal, rhsVal);
     els.substituteInput.classList.toggle('right', ok); els.substituteInput.classList.toggle('wrong', !ok);
     var correctStr = formatSubstituted(current.y1, rhsVal);
-    els.feedback.textContent = ok ? ('Correct — ' + correctStr + '.') : ('Not quite. It should be ' + correctStr + '.');
+    // On success, echo what was actually typed (the sides may be
+    // swapped) rather than the canonical side order — see GitHub
+    // issue #17.
+    els.feedback.textContent = ok ? ('Correct — ' + raw + '.') : ('Not quite. It should be ' + correctStr + '.');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
-    if(ok) working.push(correctStr);
+    if(ok) working.push(raw);
     return ok;
   }
 

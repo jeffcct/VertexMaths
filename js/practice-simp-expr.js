@@ -201,9 +201,10 @@ VM.PracticeSimpExpr = (function(){
   function checkAnswer(){
     if(!current) return false;
     var ok, correctStr;
+    var raw = (els.answerInput.value || '').trim();
 
     if(current.kind === 'combine'){
-      var parsed = parseCombineAnswer(els.answerInput.value);
+      var parsed = parseCombineAnswer(raw);
       if(!parsed){
         els.feedback.textContent = 'Write it in the form Ax + B, e.g. 3x + 5.';
         els.feedback.className = 'feedback incorrect';
@@ -213,7 +214,7 @@ VM.PracticeSimpExpr = (function(){
       ok = parsed.a === current.A && parsed.b === current.B;
       correctStr = formatCombineAnswer(current.A, current.B);
     } else {
-      var coeff = parseProductAnswer(els.answerInput.value, current.v1, current.v2);
+      var coeff = parseProductAnswer(raw, current.v1, current.v2);
       if(coeff === null){
         els.feedback.textContent = 'Write it as a number followed by the two letters, e.g. 12ab.';
         els.feedback.className = 'feedback incorrect';
@@ -230,9 +231,12 @@ VM.PracticeSimpExpr = (function(){
     score.attempted++;
     if(ok){
       score.correct++;
-      els.feedback.textContent = 'Correct — ' + correctStr + '.';
+      // Echo what was actually typed (the product's letters may be in
+      // either order) rather than the generator's own canonical
+      // string — see GitHub issue #17.
+      els.feedback.textContent = 'Correct — ' + raw + '.';
       els.feedback.className = 'feedback correct';
-      working.push(renderGiven(current) + ' = ' + correctStr);
+      working.push(renderGiven(current) + ' = ' + raw);
     } else {
       els.feedback.textContent = 'Not quite. It should be ' + correctStr + '.';
       els.feedback.className = 'feedback incorrect';

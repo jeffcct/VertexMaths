@@ -303,54 +303,66 @@ VM.PracticeParabolaIntercepts = (function(){
   // ---- Checking: the four ungraded scaffold steps ------------------
 
   function checkIntercepts(){
-    var r1 = parseFloat((els.intP1.value || '').trim());
-    var r2 = parseFloat((els.intP2.value || '').trim());
+    var raw1 = (els.intP1.value || '').trim(), raw2 = (els.intP2.value || '').trim();
+    var r1 = parseFloat(raw1), r2 = parseFloat(raw2);
     var ok = !isNaN(r1) && !isNaN(r2) && rootsMatch([r1, r2], current.p, current.q);
     els.intP1.classList.toggle('right', ok); els.intP1.classList.toggle('wrong', !ok);
     els.intP2.classList.toggle('right', ok); els.intP2.classList.toggle('wrong', !ok);
+    // On success, echo back what was actually typed (which may be in
+    // either order) rather than the generator's own p/q order — see
+    // GitHub issue #17. The wrong-answer message still needs to state
+    // the actual intercepts, so that branch is unaffected.
     els.feedback.textContent = ok ?
-      ('Correct — the x-intercepts are ' + current.p + ' and ' + current.q + '.') :
+      ('Correct — the x-intercepts are ' + raw1 + ' and ' + raw2 + '.') :
       ('Not quite. The x-intercepts are ' + current.p + ' and ' + current.q + '.');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
-    if(ok) working.push('x-intercepts: ' + current.p + ', ' + current.q);
+    if(ok) working.push('x-intercepts: ' + raw1 + ', ' + raw2);
     return ok;
   }
 
   function checkBrackets(){
-    var parsed = parseBrackets(els.bracketsInput.value);
+    var raw = (els.bracketsInput.value || '').trim();
+    var parsed = parseBrackets(raw);
     var ok = !!parsed && rootsMatch(parsed.roots, current.p, current.q);
     els.bracketsInput.classList.toggle('right', ok); els.bracketsInput.classList.toggle('wrong', !ok);
     var correctStr = bracketsString(current.p, current.q);
-    els.feedback.textContent = ok ? ('Correct — ' + correctStr) : ('Not quite. It should be ' + correctStr + '.');
+    // On success, show what was actually typed (see GitHub issue #17)
+    // — it may use the factors in either order — rather than always
+    // re-deriving the canonical p/q order.
+    els.feedback.textContent = ok ? ('Correct — ' + raw) : ('Not quite. It should be ' + correctStr + '.');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
-    if(ok) working.push(correctStr);
+    if(ok) working.push(raw);
     return ok;
   }
 
   function checkPoint(){
-    var xVal = parseFloat((els.pointX.value || '').trim());
-    var yVal = parseFloat((els.pointY.value || '').trim());
+    var rawX = (els.pointX.value || '').trim(), rawY = (els.pointY.value || '').trim();
+    var xVal = parseFloat(rawX), yVal = parseFloat(rawY);
     var xOk = !isNaN(xVal) && Math.abs(xVal - 0) < 0.01;
     var yOk = !isNaN(yVal) && Math.abs(yVal - current.yInt) < 0.01;
     els.pointX.classList.toggle('right', xOk); els.pointX.classList.toggle('wrong', !xOk);
     els.pointY.classList.toggle('right', yOk); els.pointY.classList.toggle('wrong', !yOk);
     var ok = xOk && yOk;
     els.feedback.textContent = ok ?
-      ('Correct — the point is (0, ' + current.yInt + ').') :
+      ('Correct — the point is (' + rawX + ', ' + rawY + ').') :
       ('Not quite. The marked point is (0, ' + current.yInt + ').');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
-    if(ok) working.push('(0, ' + current.yInt + ')');
+    if(ok) working.push('(' + rawX + ', ' + rawY + ')');
     return ok;
   }
 
   function checkSolveA(){
-    var aVal = parseGradient(els.solveAInput.value);
+    var raw = (els.solveAInput.value || '').trim();
+    var aVal = parseGradient(raw);
     var ok = !isNaN(aVal) && Math.abs(aVal - current.a) < 0.01;
     els.solveAInput.classList.toggle('right', ok); els.solveAInput.classList.toggle('wrong', !ok);
     var aStr = aPlainLabel(current.aNum, current.aDen);
-    els.feedback.textContent = ok ? ('Correct — a = ' + aStr + '.') : ('Not quite. a = ' + aStr + '.');
+    // On success, echo what was typed (e.g. an equivalent but
+    // differently-written fraction) — see GitHub issue #17.
+    var shownA = raw === '' ? aStr : (raw === '-' ? '-1' : raw);
+    els.feedback.textContent = ok ? ('Correct — a = ' + shownA + '.') : ('Not quite. a = ' + aStr + '.');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
-    if(ok) working.push('a = ' + aStr);
+    if(ok) working.push('a = ' + shownA);
     return ok;
   }
 
@@ -386,9 +398,15 @@ VM.PracticeParabolaIntercepts = (function(){
     var equation = formatEquation(current.aNum, current.aDen, current.p, current.q);
     if(ok){
       score.correct++;
-      els.feedback.textContent = 'Correct — ' + equation;
+      // Echo exactly what was typed (e.g. "y = a(x+1)(x-1)" instead
+      // of the generator's own "y = a(x-1)(x+1)") — see GitHub issue
+      // #17. Only the wrong-answer branch below needs the freshly
+      // derived canonical form, since there's no "their own" correct
+      // form to show in that case.
+      var typed = (els.eqInput.value || '').trim();
+      els.feedback.textContent = 'Correct — ' + typed;
       els.feedback.className = 'feedback correct';
-      working.push(equation);
+      working.push(typed);
     } else {
       els.feedback.textContent = 'Not quite. ' + equation +
         ' (a = ' + aPlainLabel(current.aNum, current.aDen) + ', x-intercepts ' + current.p + ' and ' + current.q + ').';

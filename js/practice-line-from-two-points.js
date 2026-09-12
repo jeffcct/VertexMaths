@@ -231,7 +231,8 @@ VM.PracticeLineFromTwoPoints = (function(){
   // against either one, the same "accept either" treatment given to
   // simultaneous equations' choice of equation to rearrange.
   function checkSubstitute(){
-    var parsed = parseSubstituted(els.substituteInput.value);
+    var raw = (els.substituteInput.value || '').trim();
+    var parsed = parseSubstituted(raw);
     var rhs1 = current.m * current.x1, rhs2 = current.m * current.x2;
     var matches1 = !!parsed && close(parsed.lhs, current.y1) && close(parsed.rhsVal, rhs1);
     var matches2 = !!parsed && close(parsed.lhs, current.y2) && close(parsed.rhsVal, rhs2);
@@ -239,13 +240,16 @@ VM.PracticeLineFromTwoPoints = (function(){
     els.substituteInput.classList.toggle('right', ok); els.substituteInput.classList.toggle('wrong', !ok);
     var correct1 = formatSubstituted(current.y1, rhs1), correct2 = formatSubstituted(current.y2, rhs2);
     if(ok){
-      els.feedback.textContent = 'Correct — ' + (matches1 ? correct1 : correct2) + '.';
+      // Echo what was actually typed (either point is valid to
+      // substitute) rather than always re-deriving one of the two
+      // canonical forms — see GitHub issue #17.
+      els.feedback.textContent = 'Correct — ' + raw + '.';
     } else {
       els.feedback.textContent = 'Not quite. From (' + current.x1 + ', ' + current.y1 + ') that’s ' + correct1 +
         '; from (' + current.x2 + ', ' + current.y2 + '), ' + correct2 + '.';
     }
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
-    if(ok) working.push(matches1 ? correct1 : correct2);
+    if(ok) working.push(raw);
     return ok;
   }
 

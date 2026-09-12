@@ -567,8 +567,9 @@ VM.PracticeSimultaneous = (function(){
   // equally valid, so this accepts a match against either one (see
   // computeRearrangement/selectVariable) rather than only equation 1.
   function checkRearrange(){
-    var coeff = parseGradient(els.rearrangeCoeff.value);
-    var cst = parseFraction(els.rearrangeConst.value);
+    var rawCoeff = (els.rearrangeCoeff.value || '').trim(), rawConst = (els.rearrangeConst.value || '').trim();
+    var coeff = parseGradient(rawCoeff);
+    var cst = parseFraction(rawConst);
     var r1 = current.rearrangeEq1, r2 = current.rearrangeEq2;
     function matches(r){
       return !isNaN(coeff) && !isNaN(cst) &&
@@ -579,13 +580,19 @@ VM.PracticeSimultaneous = (function(){
     els.rearrangeCoeff.classList.toggle('right', ok); els.rearrangeCoeff.classList.toggle('wrong', !ok);
     els.rearrangeConst.classList.toggle('right', ok); els.rearrangeConst.classList.toggle('wrong', !ok);
     var correctStr1 = rearrangedString(r1), correctStr2 = rearrangedString(r2);
+    // On success, echo what was actually typed (either original
+    // equation is a valid source, so the two coefficient/constant
+    // boxes may reflect either one) rather than always re-deriving a
+    // canonical string — see GitHub issue #17.
+    var typedStr = current.subVar + ' = ' + (rawCoeff === '' ? '' : (rawCoeff === '-' ? '-' : rawCoeff)) + current.otherVar +
+      (cst !== 0 ? (cst > 0 ? ' + ' : ' - ') + rawConst.replace(/^[+-]\s*/, '') : '');
     if(ok){
-      els.feedback.textContent = 'Correct — ' + (matches1 ? correctStr1 : correctStr2) + '.';
+      els.feedback.textContent = 'Correct — ' + typedStr + '.';
     } else {
       els.feedback.textContent = 'Not quite. From equation 1 that’s ' + correctStr1 + '; from equation 2, ' + correctStr2 + '.';
     }
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
-    if(ok) working.push(matches1 ? correctStr1 : correctStr2);
+    if(ok) working.push(typedStr);
     return ok;
   }
 
@@ -646,8 +653,9 @@ VM.PracticeSimultaneous = (function(){
   // multiplied form (matching the multipliers just confirmed), not
   // any other equivalent equation.
   function checkMultiplyEquations(){
-    var eq1 = parseLinearEquation(els.multipliedEq1.value);
-    var eq2 = parseLinearEquation(els.multipliedEq2.value);
+    var raw1 = (els.multipliedEq1.value || '').trim(), raw2 = (els.multipliedEq2.value || '').trim();
+    var eq1 = parseLinearEquation(raw1);
+    var eq2 = parseLinearEquation(raw2);
     var eq1Ok = !!eq1 && close(eq1.a, current.multEq1.a) && close(eq1.b, current.multEq1.b) && close(eq1.c, fracNum(current.multEq1.c));
     var eq2Ok = !!eq2 && close(eq2.a, current.multEq2.a) && close(eq2.b, current.multEq2.b) && close(eq2.c, fracNum(current.multEq2.c));
     els.multipliedEq1.classList.toggle('right', eq1Ok); els.multipliedEq1.classList.toggle('wrong', !eq1Ok);
@@ -655,29 +663,36 @@ VM.PracticeSimultaneous = (function(){
     var ok = eq1Ok && eq2Ok;
     var correct1 = formatEquation(current.multEq1.a, current.multEq1.b, current.multEq1.c);
     var correct2 = formatEquation(current.multEq2.a, current.multEq2.b, current.multEq2.c);
+    // On success, echo what was actually typed (parseLinearEquation
+    // accepts the constant written first too) rather than the
+    // canonical side order — see GitHub issue #17.
     els.feedback.textContent = ok ?
-      ('Correct — ' + correct1 + ' and ' + correct2 + '.') :
+      ('Correct — ' + raw1 + ' and ' + raw2 + '.') :
       ('Not quite. It should be ' + correct1 + ' and ' + correct2 + '.');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
-    if(ok){ working.push(correct1); working.push(correct2); }
+    if(ok){ working.push(raw1); working.push(raw2); }
     return ok;
   }
 
   // The resulting one-variable equation — accepts either sign
-  // convention (eq1 - eq2 or eq2 - eq1 read the same relationship),
-  // but the working box always shows the canonical form so later
-  // steps stay consistent with it.
+  // convention (eq1 - eq2 or eq2 - eq1 read the same relationship).
+  // On success the feedback/working echo what was actually typed
+  // (whichever sign convention that was) rather than always the
+  // canonical form — see GitHub issue #17. Internal state
+  // (current.elimCoeff/elimRhs) is untouched either way, so later
+  // steps are unaffected regardless of which convention was typed.
   function checkEliminate(){
-    var parsed = parseSingleVarEquation(els.eliminateInput.value, current.eliminatedOtherVar);
+    var raw = (els.eliminateInput.value || '').trim();
+    var parsed = parseSingleVarEquation(raw, current.eliminatedOtherVar);
     var elimRhsNum = fracNum(current.elimRhs);
     var ok = !!parsed &&
       ((close(parsed.coeff, current.elimCoeff) && close(parsed.rhs, elimRhsNum)) ||
        (close(parsed.coeff, -current.elimCoeff) && close(parsed.rhs, -elimRhsNum)));
     els.eliminateInput.classList.toggle('right', ok); els.eliminateInput.classList.toggle('wrong', !ok);
     var correctStr = formatSingleVarEquation(current.elimCoeff, current.eliminatedOtherVar, current.elimRhs);
-    els.feedback.textContent = ok ? ('Correct — ' + correctStr + '.') : ('Not quite. It should be ' + correctStr + '.');
+    els.feedback.textContent = ok ? ('Correct — ' + raw + '.') : ('Not quite. It should be ' + correctStr + '.');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
-    if(ok) working.push(correctStr);
+    if(ok) working.push(raw);
     return ok;
   }
 

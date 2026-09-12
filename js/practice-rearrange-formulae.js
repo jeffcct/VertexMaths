@@ -643,12 +643,23 @@ VM.PracticeRearrangeFormulae = (function(){
   // moving on — same convention as every other generator's final step.
   function checkWriteStep(idx, isFinal){
     var step = current.stepData[idx];
-    var ok = equationsMatch(els.writeInput.value, step.result);
+    var raw = (els.writeInput.value || '').trim();
+    var ok = equationsMatch(raw, step.result);
     els.writeInput.classList.toggle('right', ok); els.writeInput.classList.toggle('wrong', !ok);
-    setFeedback(ok ? ('Correct — ' + step.result + '.') : ('Not quite. It should be ' + step.result + '.'), ok);
     if(ok){
+      // Echo exactly what was typed (equationsMatch tolerates side
+      // order and sqrt/pi/rho/lambda/^2 notation, so the canonical
+      // step.result may differ from it) — plain text, not run through
+      // toDisplayHtml, so it's shown with no reformatting at all, per
+      // GitHub issue #12/#17. current.currentEq still advances to the
+      // canonical step.result, since later steps' distractors/parsing
+      // depend on it being that exact authored string.
+      els.feedback.textContent = 'Correct — ' + raw + '.';
+      els.feedback.className = 'feedback correct';
       current.currentEq = step.result;
-      working.push(actionLabel(step.action) + ' → ' + step.result);
+      working.push(actionLabel(step.action) + ' → ' + raw);
+    } else {
+      setFeedback('Not quite. It should be ' + step.result + '.', false);
     }
     if(isFinal){
       score.attempted++;
@@ -662,14 +673,18 @@ VM.PracticeRearrangeFormulae = (function(){
 
   function checkFinalAnswer(){
     var expected = current.stepData[lastStepIdx()].result;
-    var ok = equationsMatch(els.finalInput.value, expected);
+    var raw = (els.finalInput.value || '').trim();
+    var ok = equationsMatch(raw, expected);
     els.finalInput.classList.toggle('right', ok); els.finalInput.classList.toggle('wrong', !ok);
 
     score.attempted++;
     if(ok){
       score.correct++;
-      setFeedback('Correct — ' + expected + '.', true);
-      working.push(expected);
+      // Echo exactly what was typed, plain (no reformatting) — see
+      // GitHub issue #12/#17.
+      els.feedback.textContent = 'Correct — ' + raw + '.';
+      els.feedback.className = 'feedback correct';
+      working.push(raw);
     } else {
       setFeedback('Not quite. It should be ' + expected + '.', false);
     }

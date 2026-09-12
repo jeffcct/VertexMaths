@@ -259,8 +259,8 @@ VM.PracticeGraphQuadratic = (function(){
 
   function checkInterceptsStep(){
     if(!current) return false;
-    var r1 = parseFloat((els.intX1.value || '').trim());
-    var r2 = parseFloat((els.intX2.value || '').trim());
+    var raw1 = (els.intX1.value || '').trim(), raw2 = (els.intX2.value || '').trim();
+    var r1 = parseFloat(raw1), r2 = parseFloat(raw2);
     var ok = !isNaN(r1) && !isNaN(r2) && rootsMatch([r1, r2], current.p, current.q);
     els.intX1.classList.toggle('right', ok); els.intX1.classList.toggle('wrong', !ok);
     els.intX2.classList.toggle('right', ok); els.intX2.classList.toggle('wrong', !ok);
@@ -268,9 +268,11 @@ VM.PracticeGraphQuadratic = (function(){
     score.attempted++;
     if(ok){
       score.correct++;
-      els.feedback.textContent = 'Correct — the x-intercepts are ' + current.p + ' and ' + current.q + '.';
+      // Echo what was actually typed (may be in either order) rather
+      // than the generator's own p/q order — see GitHub issue #17.
+      els.feedback.textContent = 'Correct — the x-intercepts are ' + raw1 + ' and ' + raw2 + '.';
       els.feedback.className = 'feedback correct';
-      working.push('x-intercepts: ' + current.p + ', ' + current.q);
+      working.push('x-intercepts: ' + raw1 + ', ' + raw2);
     } else {
       els.feedback.textContent = 'Not quite. The x-intercepts are ' + current.p + ' and ' + current.q + '.';
       els.feedback.className = 'feedback incorrect';

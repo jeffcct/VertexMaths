@@ -163,13 +163,16 @@ VM.PracticeSolvingPolys = (function(){
   // ---- Checking: the ungraded scaffold step --------------------------
 
   function checkFactor(){
-    var parsed = parseBrackets(els.factorInput.value);
+    var raw = (els.factorInput.value || '').trim();
+    var parsed = parseBrackets(raw);
     var ok = !!parsed && rootsMatch(parsed, current.p, current.q);
     els.factorInput.classList.toggle('right', ok); els.factorInput.classList.toggle('wrong', !ok);
     var correctStr = bracketsString(current.p, current.q);
-    els.feedback.textContent = ok ? ('Correct — ' + correctStr + ' = 0.') : ('Not quite. It should be ' + correctStr + ' = 0.');
+    // On success, echo what was actually typed (the two factors may
+    // be in either order) — see GitHub issue #17.
+    els.feedback.textContent = ok ? ('Correct — ' + raw + ' = 0.') : ('Not quite. It should be ' + correctStr + ' = 0.');
     els.feedback.className = 'feedback ' + (ok ? 'correct' : 'incorrect');
-    if(ok) working.push(correctStr + ' = 0');
+    if(ok) working.push(raw + ' = 0');
     return ok;
   }
 
@@ -182,8 +185,8 @@ VM.PracticeSolvingPolys = (function(){
 
   function checkSolve(){
     if(!current) return false;
-    var x1 = parseFloat((els.solveX1.value || '').trim());
-    var x2 = parseFloat((els.solveX2.value || '').trim());
+    var raw1 = (els.solveX1.value || '').trim(), raw2 = (els.solveX2.value || '').trim();
+    var x1 = parseFloat(raw1), x2 = parseFloat(raw2);
     var validNums = !isNaN(x1) && !isNaN(x2);
     var ok = validNums && rootsMatch([x1, x2], current.p, current.q);
     els.solveX1.classList.toggle('right', ok); els.solveX1.classList.toggle('wrong', !ok);
@@ -193,9 +196,12 @@ VM.PracticeSolvingPolys = (function(){
     var solutionStr = 'x = ' + current.p + ' or x = ' + current.q;
     if(ok){
       score.correct++;
-      els.feedback.textContent = 'Correct — ' + solutionStr + '.';
+      // Echo the typed values (may be in either order) rather than
+      // the generator's own p/q order — see GitHub issue #17.
+      var typedStr = 'x = ' + raw1 + ' or x = ' + raw2;
+      els.feedback.textContent = 'Correct — ' + typedStr + '.';
       els.feedback.className = 'feedback correct';
-      working.push(solutionStr);
+      working.push(typedStr);
     } else {
       els.feedback.textContent = 'Not quite. It should be ' + solutionStr + '.';
       els.feedback.className = 'feedback incorrect';
