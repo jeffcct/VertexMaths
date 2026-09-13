@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Practice: Rearranging Formulae with Factoring — Vertex Maths</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/practice.css">
+</head>
+<body>
+<div class="wrap wrap-wide" id="page-wrap">
+
+  <div class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">V</span>
+      <div>
+        <div class="brand-name">Vertex Maths</div>
+        <div class="brand-sub">Year 11 &middot; Mathematics</div>
+      </div>
+    </a>
+    <div class="greeting">Kia ora, <b>Amelia</b> &mdash; Room 14</div>
+  </div>
+
+  <!-- ============ PracticeRearrangeFactor component ============ -->
+  <section class="view" id="view-practice-rearrange-factor">
+
+    <div class="breadcrumb">
+      <button id="rearrangefactor-back-btn">← Algebra &amp; Graphing</button>
+      <span class="sep">/</span>
+      <span class="current">Practice: rearranging formulae with factoring</span>
+    </div>
+
+    <div class="practice-layout">
+      <div class="equations-card">
+        <div class="equation-label" id="rearrangefactor-equation-label">Formula</div>
+        <div class="equation-line" id="rearrangefactor-given"></div>
+      </div>
+
+      <div class="practice-panel-group">
+      <div class="practice-panel">
+        <div>
+          <div class="practice-title">Rearrange the formula</div>
+          <div class="practice-sub" id="rearrangefactor-question-line"></div>
+        </div>
+
+        <div class="practice-mode-note" id="rearrangefactor-mode-note"></div>
+        <div class="step-prompt" id="rearrangefactor-step-prompt"></div>
+
+        <div id="rearrangefactor-current-eq-wrap" hidden>
+          <div class="equation-label">Current equation</div>
+          <div class="equation-line" id="rearrangefactor-current-eq"></div>
+        </div>
+
+        <div class="answer-row" id="rearrangefactor-step-choice" hidden>
+          <div class="choice-row" id="rearrangefactor-choice-row"></div>
+        </div>
+
+        <div class="answer-row" id="rearrangefactor-step-write" hidden>
+          <input type="text" id="rearrangefactor-write-input" class="answer-input answer-input-wide formula-input" inputmode="text" autocomplete="off" aria-label="Equation after doing that action" placeholder="e.g. P = T/(1 + R)">
+        </div>
+
+        <div class="answer-row" id="rearrangefactor-step-final" hidden>
+          <input type="text" id="rearrangefactor-final-input" class="answer-input answer-input-wide formula-input" inputmode="text" autocomplete="off" aria-label="Rearranged formula" placeholder="e.g. P = T/(1 + R)">
+        </div>
+
+        <div class="answer-hint-row">
+          <div class="answer-hint" id="rearrangefactor-hint"></div>
+          <span id="rearrangefactor-keybind-help"></span>
+        </div>
+
+        <div class="practice-actions">
+          <button class="practice-check-btn" id="rearrangefactor-check-btn">Check answer</button>
+          <button class="practice-next-btn" id="rearrangefactor-next-btn">New question</button>
+        </div>
+
+        <div class="feedback" id="rearrangefactor-feedback"></div>
+        <div class="practice-score-row">Score: <span class="mono" id="rearrangefactor-score">0 / 0</span></div>
+      </div>
+
+      <div class="working-sidebar">
+        <div class="working-card" id="rearrangefactor-working-card" hidden>
+          <div class="equation-label">Working</div>
+          <div class="working-lines" id="rearrangefactor-working-lines"></div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <footer>A real formula each time &middot; the subject appears twice, so factor it out first &middot; only the fully rearranged formula is scored</footer>
+  </section>
+
+</div>
+
+<script src="js/equation-parse.js"></script>
+<script src="js/working-trail.js"></script>
+<script src="js/keybind-help.js"></script>
+<script src="js/practice-rearrange-factor.js"></script>
+<script src="js/page-practice-rearrange-factor.js"></script>
+</body>
+</html>
