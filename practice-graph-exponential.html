@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Practice: Graphing Exponentials — Vertex Maths</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/practice.css">
+</head>
+<body>
+<div class="wrap wrap-wide" id="page-wrap">
+
+  <div class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">V</span>
+      <div>
+        <div class="brand-name">Vertex Maths</div>
+        <div class="brand-sub">Year 11 &middot; Mathematics</div>
+      </div>
+    </a>
+    <div class="greeting">Kia ora, <b>Amelia</b> &mdash; Room 14</div>
+  </div>
+
+  <!-- ============ PracticeGraphExponential component ============ -->
+  <section class="view" id="view-practice-graph-exponential">
+
+    <div class="breadcrumb">
+      <button id="graphexp-back-btn">← Algebra &amp; Graphing</button>
+      <span class="sep">/</span>
+      <span class="current">Practice: graphing exponentials</span>
+    </div>
+
+    <div class="practice-layout">
+      <div class="practice-graph">
+        <table class="value-table" id="graphexp-table">
+          <tr>
+            <th>x</th>
+            <td>0</td><td>1</td><td>2</td><td>3</td><td>4</td>
+          </tr>
+          <tr>
+            <th>y</th>
+            <td><input type="text" id="graphexp-y-1" class="answer-input" inputmode="text" autocomplete="off" aria-label="y when x = 0"></td>
+            <td><input type="text" id="graphexp-y-2" class="answer-input" inputmode="text" autocomplete="off" aria-label="y when x = 1"></td>
+            <td><input type="text" id="graphexp-y-3" class="answer-input" inputmode="text" autocomplete="off" aria-label="y when x = 2"></td>
+            <td><input type="text" id="graphexp-y-4" class="answer-input" inputmode="text" autocomplete="off" aria-label="y when x = 3"></td>
+            <td><input type="text" id="graphexp-y-5" class="answer-input" inputmode="text" autocomplete="off" aria-label="y when x = 4"></td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="practice-panel-group">
+      <div class="practice-panel">
+        <div>
+          <div class="practice-title">Graph the exponential</div>
+          <div class="practice-sub">Substitute each x-value into the equation to complete the table.</div>
+        </div>
+
+        <div class="equation-line mono" id="graphexp-equation"></div>
+
+        <div class="form-template mono">y = a(b)^x</div>
+
+        <div class="step-prompt" id="graphexp-step-prompt"></div>
+
+        <div class="answer-hint" id="graphexp-hint"></div>
+
+        <div class="practice-actions">
+          <button class="practice-check-btn" id="graphexp-check-btn">Check answer</button>
+          <button class="practice-next-btn" id="graphexp-next-btn">New question</button>
+        </div>
+
+        <div class="feedback" id="graphexp-feedback"></div>
+        <div class="practice-score-row" id="graphexp-score-row">Score: <span class="mono" id="graphexp-score">0 / 0</span></div>
+      </div>
+
+      <div class="working-sidebar">
+        <div class="working-card" id="graphexp-working-card" hidden>
+          <div class="equation-label">Working</div>
+          <div class="working-lines" id="graphexp-working-lines"></div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <footer>A freshly generated exponential each time &middot; the base is always a positive whole number, so every y-value works out exact</footer>
+  </section>
+
+</div>
+
+<script src="js/working-trail.js"></script>
+<script src="js/practice-graph-exponential.js"></script>
+<script src="js/page-practice-graph-exponential.js"></script>
+</body>
+</html>
