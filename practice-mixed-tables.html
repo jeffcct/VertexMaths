@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Practice: Mixed Tables — Vertex Maths</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/practice.css">
+</head>
+<body>
+<div class="wrap wrap-wide" id="page-wrap">
+
+  <div class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">V</span>
+      <div>
+        <div class="brand-name">Vertex Maths</div>
+        <div class="brand-sub">Year 11 &middot; Mathematics</div>
+      </div>
+    </a>
+    <div class="greeting">Kia ora, <b>Amelia</b> &mdash; Room 14</div>
+  </div>
+
+  <!-- ============ PracticeMixedTables component ============ -->
+  <section class="view" id="view-practice-mixed-tables">
+
+    <div class="breadcrumb">
+      <button id="mixedtables-back-btn">← Algebra &amp; Graphing</button>
+      <span class="sep">/</span>
+      <span class="current">Practice: mixed tables</span>
+    </div>
+
+    <div class="practice-layout">
+      <div class="practice-graph">
+        <table class="value-table" id="mixedtables-table"></table>
+      </div>
+
+      <div class="practice-panel-group">
+      <div class="practice-panel">
+        <div>
+          <div class="practice-title">Find the equation from the table</div>
+          <div class="practice-sub">Work out whether the table is linear, quadratic, or exponential, then write its full equation.</div>
+        </div>
+
+        <div class="step-prompt" id="mixedtables-step-prompt"></div>
+
+        <div class="answer-row">
+          <input type="text" id="mixedtables-eq-input" class="answer-input answer-input-wide power-input" inputmode="text" autocomplete="off" aria-label="Full equation" placeholder="e.g. y = 3x - 6">
+        </div>
+
+        <div class="answer-hint-row">
+          <div class="answer-hint" id="mixedtables-hint"></div>
+          <span id="mixedtables-keybind-help"></span>
+        </div>
+
+        <div class="practice-actions">
+          <button class="practice-check-btn" id="mixedtables-check-btn">Check answer</button>
+          <button class="practice-next-btn" id="mixedtables-next-btn">New question</button>
+        </div>
+
+        <div class="feedback" id="mixedtables-feedback"></div>
+        <div class="practice-score-row">Score: <span class="mono" id="mixedtables-score">0 / 0</span></div>
+      </div>
+
+      <div class="working-sidebar">
+        <div class="working-card" id="mixedtables-working-card" hidden>
+          <div class="equation-label">Working</div>
+          <div class="working-lines" id="mixedtables-working-lines"></div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <footer>A freshly generated table each time &middot; could be linear, quadratic, or exponential — work out which before writing the equation</footer>
+  </section>
+
+</div>
+
+<script src="js/equation-parse.js"></script>
+<script src="js/working-trail.js"></script>
+<script src="js/power-preview.js"></script>
+<script src="js/keybind-help.js"></script>
+<script src="js/practice-mixed-tables.js"></script>
+<script src="js/page-practice-mixed-tables.js"></script>
+</body>
+</html>
