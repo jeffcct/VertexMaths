@@ -20,6 +20,15 @@
 .plot-curve{ stroke:var(--algebra); stroke-width:2.5; stroke-linecap:round; fill:none; }
 .plot-point{ fill:var(--algebra); stroke:var(--paper-raised); stroke-width:1.5; }
 
+/* A short caption under a practice-graph card for a value that's
+   given directly rather than read off the plot (e.g. the base of an
+   exponential — two marked points alone can't pin down three
+   unknowns, see PracticeExpWithShift). */
+.practice-graph-given{
+  margin-top:.9rem; font-family:'IBM Plex Mono', monospace;
+  font-size:.85rem; color:var(--ink-soft); text-align:center;
+}
+
 .practice-panel{ flex:1; min-width:240px; display:flex; flex-direction:column; gap:1.1rem; }
 
 /* Pairs the panel with its working-sidebar (see below) so the two
