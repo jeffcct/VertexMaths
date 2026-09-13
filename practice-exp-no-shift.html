@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Practice: Exponential from Graph (No Shift) — Vertex Maths</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/practice.css">
+</head>
+<body>
+<div class="wrap wrap-wide" id="page-wrap">
+
+  <div class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">V</span>
+      <div>
+        <div class="brand-name">Vertex Maths</div>
+        <div class="brand-sub">Year 11 &middot; Mathematics</div>
+      </div>
+    </a>
+    <div class="greeting">Kia ora, <b>Amelia</b> &mdash; Room 14</div>
+  </div>
+
+  <!-- ============ PracticeExpNoShift component ============ -->
+  <section class="view" id="view-practice-exp-no-shift">
+
+    <div class="breadcrumb">
+      <button id="expnoshift-back-btn">← Algebra &amp; Graphing</button>
+      <span class="sep">/</span>
+      <span class="current">Practice: exponential from graph (no shift)</span>
+    </div>
+
+    <div class="practice-layout">
+      <div class="practice-graph">
+        <svg id="expnoshift-graph-svg" viewBox="0 0 100 292" role="img" aria-label="An exponential curve plotted on a coordinate grid"></svg>
+      </div>
+
+      <div class="practice-panel-group">
+      <div class="practice-panel">
+        <div>
+          <div class="practice-title">Find the equation of the exponential</div>
+          <div class="practice-sub">Read the marked points off the graph to build up the equation — no vertical shift here, so it's just a and b.</div>
+        </div>
+
+        <div class="form-template mono">y = a(b)^x</div>
+
+        <div class="practice-mode-note" id="expnoshift-mode-note"></div>
+        <div class="step-prompt" id="expnoshift-step-prompt"></div>
+
+        <div class="answer-row" id="expnoshift-step-find-a">
+          <span class="mono">a =</span>
+          <input type="text" id="expnoshift-a-input" class="answer-input" inputmode="text" autocomplete="off" aria-label="Value of a">
+        </div>
+
+        <div class="answer-row" id="expnoshift-step-find-b" hidden>
+          <span class="mono">b =</span>
+          <input type="text" id="expnoshift-b-input" class="answer-input" inputmode="text" autocomplete="off" aria-label="Value of b">
+        </div>
+
+        <div class="answer-row" id="expnoshift-answer-row-typed" hidden>
+          <input type="text" id="expnoshift-eq-input" class="answer-input answer-input-wide power-input" inputmode="text" autocomplete="off" aria-label="Full equation" placeholder="e.g. y = -2(3)^x">
+        </div>
+
+        <div class="answer-hint-row">
+          <div class="answer-hint" id="expnoshift-hint"></div>
+          <span id="expnoshift-keybind-help"></span>
+        </div>
+
+        <div class="practice-actions">
+          <button class="practice-check-btn" id="expnoshift-check-btn">Check answer</button>
+          <button class="practice-next-btn" id="expnoshift-next-btn">New question</button>
+        </div>
+
+        <div class="feedback" id="expnoshift-feedback"></div>
+        <div class="practice-score-row">Score: <span class="mono" id="expnoshift-score">0 / 0</span></div>
+      </div>
+
+      <div class="working-sidebar">
+        <div class="working-card" id="expnoshift-working-card" hidden>
+          <div class="equation-label">Working</div>
+          <div class="working-lines" id="expnoshift-working-lines"></div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <footer>A freshly generated exponential each time &middot; the curve is never vertically shifted, and the walkthrough shortens as accuracy improves</footer>
+  </section>
+
+</div>
+
+<script src="js/equation-parse.js"></script>
+<script src="js/graph-utils.js"></script>
+<script src="js/working-trail.js"></script>
+<script src="js/power-preview.js"></script>
+<script src="js/keybind-help.js"></script>
+<script src="js/practice-exp-no-shift.js"></script>
+<script src="js/page-practice-exp-no-shift.js"></script>
+</body>
+</html>
