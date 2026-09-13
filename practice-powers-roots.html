@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Practice: Solving Equations with Powers and Roots — Vertex Maths</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/practice.css">
+</head>
+<body>
+<div class="wrap wrap-wide" id="page-wrap">
+
+  <div class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">V</span>
+      <div>
+        <div class="brand-name">Vertex Maths</div>
+        <div class="brand-sub">Year 11 &middot; Mathematics</div>
+      </div>
+    </a>
+    <div class="greeting">Kia ora, <b>Amelia</b> &mdash; Room 14</div>
+  </div>
+
+  <!-- ============ PracticePowersRoots component ============ -->
+  <section class="view" id="view-practice-powers-roots">
+
+    <div class="breadcrumb">
+      <button id="powersroots-back-btn">← Algebra &amp; Graphing</button>
+      <span class="sep">/</span>
+      <span class="current">Practice: solving equations with powers and roots</span>
+    </div>
+
+    <div class="practice-layout">
+      <div class="equations-card">
+        <div class="equation-label">Solve</div>
+        <div class="equation-line" id="powersroots-equation"></div>
+      </div>
+
+      <div class="practice-panel-group">
+      <div class="practice-panel">
+        <div>
+          <div class="practice-title">Solve the equation</div>
+          <div class="practice-sub">Undo the power or root to find x — some equations have two solutions.</div>
+        </div>
+
+        <div class="form-template mono">x² = k &middot; x³ = k &middot; √x = n</div>
+
+        <div class="answer-row" id="powersroots-row-single">
+          <span class="mono">x =</span>
+          <input type="text" id="powersroots-solve-single" class="answer-input" inputmode="text" autocomplete="off" aria-label="Value of x">
+        </div>
+
+        <div class="answer-row" id="powersroots-row-square" hidden>
+          <span class="mono">x =</span>
+          <input type="text" id="powersroots-solve-x1" class="answer-input" inputmode="text" autocomplete="off" aria-label="First solution">
+          <span class="mono">or x =</span>
+          <input type="text" id="powersroots-solve-x2" class="answer-input" inputmode="text" autocomplete="off" aria-label="Second solution">
+        </div>
+
+        <div class="answer-hint" id="powersroots-hint"></div>
+
+        <div class="practice-actions">
+          <button class="practice-check-btn" id="powersroots-check-btn">Check answer</button>
+          <button class="practice-next-btn" id="powersroots-next-btn">New question</button>
+        </div>
+
+        <div class="feedback" id="powersroots-feedback"></div>
+        <div class="practice-score-row">Score: <span class="mono" id="powersroots-score">0 / 0</span></div>
+      </div>
+
+      <div class="working-sidebar">
+        <div class="working-card" id="powersroots-working-card" hidden>
+          <div class="equation-label">Working</div>
+          <div class="working-lines" id="powersroots-working-lines"></div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <footer>A freshly generated equation each time &middot; squares accept either order for the two solutions</footer>
+  </section>
+
+</div>
+
+<script src="js/equation-parse.js"></script>
+<script src="js/working-trail.js"></script>
+<script src="js/practice-powers-roots.js"></script>
+<script src="js/page-practice-powers-roots.js"></script>
+</body>
+</html>
