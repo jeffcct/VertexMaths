@@ -10,7 +10,7 @@
    Neither is built out for most skills yet, so their Learn/Practice
    buttons render disabled (greyed out) by default in DagView. Add
    `ready:true` to a topic once its Learn and/or Practice content
-   actually exists, to turn its buttons on. Twenty-three topics are
+   actually exists, to turn its buttons on. Thirty-two topics are
    ready so far: "line-from-graph" (js/practice-line-graph.js),
    "parabola-from-intercepts" (js/practice-parabola-intercepts.js),
    "parabola-from-vertex" (js/practice-parabola-vertex.js),
@@ -32,8 +32,17 @@
    "one-step" (js/practice-one-step.js),
    "substitution" (js/practice-substitution.js),
    "simp-exp" (js/practice-simp-exp.js),
-   "expand-single" (js/practice-expand-single.js) and
-   "multi-step" (js/practice-multi-step.js).
+   "expand-single" (js/practice-expand-single.js),
+   "multi-step" (js/practice-multi-step.js),
+   "expand-double" (js/practice-expand-double.js),
+   "x-both-sides" (js/practice-x-both-sides.js),
+   "powers-roots" (js/practice-powers-roots.js),
+   "graph-exponential" (js/practice-graph-exponential.js),
+   "rearrange-factor" (js/practice-rearrange-factor.js),
+   "exp-no-shift" (js/practice-exp-no-shift.js),
+   "exp-with-shift" (js/practice-exp-with-shift.js),
+   "mixed-tables" (js/practice-mixed-tables.js) and
+   "mixed-graphs" (js/practice-mixed-graphs.js).
    Learn isn't built for any of them yet, so its button still just
    toasts.
    ============================================================ */
@@ -65,24 +74,24 @@ VM.data = (function(){
     { id:"multi-step", name:"Solving multi-step equations", status:"mastered", lane:0, prereqs:["one-step","simp-expr"], ready:true },
 
     { id:"factor-single", name:"Factoring single brackets", status:"mastered", lane:3, prereqs:["expand-single"], ready:true },
-    { id:"expand-double", name:"Expanding double brackets", status:"mastered", lane:3, prereqs:["expand-single"] },
-    { id:"x-both-sides", name:"Solving equations with x on both sides", status:"in-progress", lane:0, prereqs:["multi-step"] },
+    { id:"expand-double", name:"Expanding double brackets", status:"mastered", lane:3, prereqs:["expand-single"], ready:true },
+    { id:"x-both-sides", name:"Solving equations with x on both sides", status:"in-progress", lane:0, prereqs:["multi-step"], ready:true },
     { id:"rearrange", name:"Rearranging formulae", status:"in-progress", lane:4, prereqs:["multi-step"], ready:true },
-    { id:"powers-roots", name:"Solving equations with powers and roots", status:"not-started", lane:0, prereqs:["multi-step"] },
+    { id:"powers-roots", name:"Solving equations with powers and roots", status:"not-started", lane:0, prereqs:["multi-step"], ready:true },
     { id:"eqs-exponents", name:"Solving equations with exponents", status:"not-started", lane:0, prereqs:["multi-step","simp-exp"], ready:true },
-    { id:"graph-exponential", name:"Graphing exponentials", status:"in-progress", lane:7, prereqs:["substitution"] },
+    { id:"graph-exponential", name:"Graphing exponentials", status:"in-progress", lane:7, prereqs:["substitution"], ready:true },
 
     { id:"factor-monic", name:"Factoring monic polynomials", status:"in-progress", lane:3, prereqs:["factor-single","expand-double"], ready:true },
-    { id:"rearrange-factor", name:"Rearranging formulae with factoring", status:"not-started", lane:4, prereqs:["rearrange","factor-single"] },
+    { id:"rearrange-factor", name:"Rearranging formulae with factoring", status:"not-started", lane:4, prereqs:["rearrange","factor-single"], ready:true },
     { id:"simultaneous", name:"Solving simultaneous equations", status:"not-started", lane:0, prereqs:["x-both-sides"], ready:true },
     { id:"graph-linear", name:"Graphing linear equations (by substitution and by gradient / intercept)", status:"not-started", lane:5, prereqs:["substitution","rearrange"], ready:true },
-    { id:"exp-no-shift", name:"Finding the equation of an exponential (from a graph, with no vertical shift)", status:"not-started", lane:7, prereqs:["graph-exponential"] },
+    { id:"exp-no-shift", name:"Finding the equation of an exponential (from a graph, with no vertical shift)", status:"not-started", lane:7, prereqs:["graph-exponential"], ready:true },
 
     { id:"factor-nonmonic", name:"Factoring non-monic polynomials", status:"not-started", lane:3, prereqs:["factor-monic"], ready:true },
     { id:"graph-quadratic", name:"Graphing quadratics (by substitution, using the vertex and using the intercepts)", status:"not-started", lane:6, prereqs:["substitution","factor-monic"], ready:true },
     { id:"line-from-graph", name:"Finding the equation of a line (from a graph)", status:"not-started", lane:5, prereqs:["graph-linear"], ready:true },
     { id:"line-from-grad-point", name:"Finding the equation of a line (from a gradient and a point)", status:"not-started", lane:5, prereqs:["graph-linear"], ready:true },
-    { id:"exp-with-shift", name:"Finding the equation of an exponential (from a graph, with a vertical shift)", status:"not-started", lane:7, prereqs:["exp-no-shift","simultaneous"] },
+    { id:"exp-with-shift", name:"Finding the equation of an exponential (from a graph, with a vertical shift)", status:"not-started", lane:7, prereqs:["exp-no-shift","simultaneous"], ready:true },
 
     { id:"solving-polys", name:"Solving with polynomials", status:"not-started", lane:0, prereqs:["factor-nonmonic","multi-step"], ready:true },
     { id:"parabola-from-vertex", name:"Finding the equation of a parabola (from a graph using vertex)", status:"not-started", lane:6, prereqs:["graph-quadratic"], ready:true },
@@ -93,8 +102,8 @@ VM.data = (function(){
 
     { id:"parabola-from-table", name:"Finding the equation of a parabola (from a table)", status:"not-started", lane:6, prereqs:["simultaneous"], ready:true },
 
-    { id:"mixed-tables", name:"Mixed: finding equations from a table", status:"not-started", lane:8, prereqs:["line-from-table","parabola-from-table","exp-from-table"] },
-    { id:"mixed-graphs", name:"Mixed: finding equations from a graph", status:"not-started", lane:8, prereqs:["line-from-graph","parabola-from-vertex","parabola-from-intercepts","exp-with-shift"] }
+    { id:"mixed-tables", name:"Mixed: finding equations from a table", status:"not-started", lane:8, prereqs:["line-from-table","parabola-from-table","exp-from-table"], ready:true },
+    { id:"mixed-graphs", name:"Mixed: finding equations from a graph", status:"not-started", lane:8, prereqs:["line-from-graph","parabola-from-vertex","parabola-from-intercepts","exp-with-shift"], ready:true }
   ];
 
   var RESUME_TOPIC_ID = "factor-monic";

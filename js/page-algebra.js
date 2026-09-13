@@ -30,7 +30,16 @@
     'substitution': 'practice-substitution.html',
     'simp-exp': 'practice-simp-exp.html',
     'expand-single': 'practice-expand-single.html',
-    'multi-step': 'practice-multi-step.html'
+    'multi-step': 'practice-multi-step.html',
+    'expand-double': 'practice-expand-double.html',
+    'x-both-sides': 'practice-x-both-sides.html',
+    'powers-roots': 'practice-powers-roots.html',
+    'graph-exponential': 'practice-graph-exponential.html',
+    'rearrange-factor': 'practice-rearrange-factor.html',
+    'exp-no-shift': 'practice-exp-no-shift.html',
+    'exp-with-shift': 'practice-exp-with-shift.html',
+    'mixed-tables': 'practice-mixed-tables.html',
+    'mixed-graphs': 'practice-mixed-graphs.html'
   };
 
   document.addEventListener('DOMContentLoaded', function(){
