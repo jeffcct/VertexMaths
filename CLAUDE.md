@@ -81,6 +81,15 @@ introducing a new pattern:
   factors in either order, either point substituted first), the
   check function accepts any valid form — it doesn't require the
   student to match one arbitrary canonical order.
+- When a step is marked correct, the feedback message and the
+  Working-panel line echo what the student actually typed (trimmed,
+  otherwise verbatim) — never a freshly re-derived "canonical" string.
+  This matters most exactly where the point above applies (either
+  order, either equation, tolerant notation like `sqrt`/`^2`/`pi`):
+  the computer's own preferred phrasing must not overwrite the
+  student's own valid working. The wrong-answer "it should be X"
+  message is the one place a derived canonical form belongs, since
+  there's no "their own" correct answer to show in that case.
 - Hints describe the method, or use a small fixed example distinct
   from the current question — a hint must never be constructible
   into the current question's own expected-answer string.
