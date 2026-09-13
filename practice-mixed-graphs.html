@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Practice: Mixed Graphs — Vertex Maths</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/practice.css">
+</head>
+<body>
+<div class="wrap wrap-wide" id="page-wrap">
+
+  <div class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">V</span>
+      <div>
+        <div class="brand-name">Vertex Maths</div>
+        <div class="brand-sub">Year 11 &middot; Mathematics</div>
+      </div>
+    </a>
+    <div class="greeting">Kia ora, <b>Amelia</b> &mdash; Room 14</div>
+  </div>
+
+  <!-- ============ PracticeMixedGraphs component ============ -->
+  <section class="view" id="view-practice-mixed-graphs">
+
+    <div class="breadcrumb">
+      <button id="mixedgraphs-back-btn">← Algebra &amp; Graphing</button>
+      <span class="sep">/</span>
+      <span class="current">Practice: mixed graphs</span>
+    </div>
+
+    <div class="practice-layout">
+      <div class="practice-graph">
+        <svg id="mixedgraphs-graph-svg" viewBox="0 0 320 320" role="img" aria-label="A relationship plotted on a coordinate grid"></svg>
+        <div class="practice-graph-given" id="mixedgraphs-given-row" hidden>Base: b = <span id="mixedgraphs-given-b"></span></div>
+      </div>
+
+      <div class="practice-panel-group">
+      <div class="practice-panel">
+        <div>
+          <div class="practice-title">Find the equation from the graph</div>
+          <div class="practice-sub">Work out whether the graph is a line, a parabola, or an exponential, then write its full equation.</div>
+        </div>
+
+        <div class="step-prompt" id="mixedgraphs-step-prompt"></div>
+
+        <div class="answer-row">
+          <input type="text" id="mixedgraphs-eq-input" class="answer-input answer-input-wide power-input" inputmode="text" autocomplete="off" aria-label="Full equation" placeholder="e.g. y = 3x - 6">
+        </div>
+
+        <div class="answer-hint-row">
+          <div class="answer-hint" id="mixedgraphs-hint"></div>
+          <span id="mixedgraphs-keybind-help"></span>
+        </div>
+
+        <div class="practice-actions">
+          <button class="practice-check-btn" id="mixedgraphs-check-btn">Check answer</button>
+          <button class="practice-next-btn" id="mixedgraphs-next-btn">New question</button>
+        </div>
+
+        <div class="feedback" id="mixedgraphs-feedback"></div>
+        <div class="practice-score-row">Score: <span class="mono" id="mixedgraphs-score">0 / 0</span></div>
+      </div>
+
+      <div class="working-sidebar">
+        <div class="working-card" id="mixedgraphs-working-card" hidden>
+          <div class="equation-label">Working</div>
+          <div class="working-lines" id="mixedgraphs-working-lines"></div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <footer>A freshly generated graph each time &middot; could be a line, a parabola (vertex or intercepts form), or an exponential — work out which before writing the equation</footer>
+  </section>
+
+</div>
+
+<script src="js/equation-parse.js"></script>
+<script src="js/graph-utils.js"></script>
+<script src="js/working-trail.js"></script>
+<script src="js/power-preview.js"></script>
+<script src="js/keybind-help.js"></script>
+<script src="js/practice-mixed-graphs.js"></script>
+<script src="js/page-practice-mixed-graphs.js"></script>
+</body>
+</html>
