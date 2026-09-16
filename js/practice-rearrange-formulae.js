@@ -46,10 +46,10 @@
    (see normalizeEqStr/equationsMatch) rather than per-formula regex:
    whitespace is ignored, either side may come first (via
    VM.EquationParse.parseEitherSide), "sqrt(...)" is accepted for
-   "√(...)", "pi"/"rho"/"lambda" for "π"/"ρ"/"λ", and "^2" for "²".
-   This is enough because every expected string is fixed, authored
-   content — there's no need to parse out arbitrary numeric
-   coefficients the way the line/parabola generators do.
+   "√(...)", "pi" for "π", and "^2" for "²". This is enough because
+   every expected string is fixed, authored content — there's no need
+   to parse out arbitrary numeric coefficients the way the
+   line/parabola generators do.
 
    Every (formula, subject) pair also carries a difficulty ('easy' —
    one step, no root/square; 'medium' — two steps, still no
@@ -69,12 +69,14 @@
    external JS dependencies) — just a lightweight HTML fragment
    builder, safe to pour in via innerHTML because every string it's
    given comes from this file's own fixed FORMULA_BANK content, never
-   from what a student types. What a student DOES type is separately
-   mirrored, live, into a read-only preview underneath the input
-   (see formula-preview.js / VM.FormulaRender.toPreviewHtml) that
-   additionally renders "^2" as a superscript, "pi"/"rho"/"lambda" as
-   their glyphs, and "/" as a stacked fraction — cosmetic only, the
-   input's own value and the tolerant parser above are untouched.
+   from what a student types. What a student DOES type is converted
+   live, in place, inside the input itself (see
+   formula-live-input.js): typing "sqrt(", "pi" or "^2" instantly
+   becomes "√(", "π" or "²" the moment the shortcut is complete — no
+   separate preview element, since the box now shows the real symbol
+   directly. The tolerant parser above already accepted both forms
+   before this existed, so live-converting the shortcut changes
+   nothing about what counts as correct.
 
    Public API: VM.PracticeRearrangeFormulae.init({ onBack }), .start()
    ============================================================ */
@@ -90,13 +92,12 @@ VM.PracticeRearrangeFormulae = (function(){
   // passed to the shared VM.KeybindHelp.attach (see keybind-help.js)
   // in place of its default single "^" entry, since this practice's
   // tolerant parser (normalizeEqStr) accepts more shorthand than that.
+  // Each of these also converts live, in place, as it's typed — see
+  // formula-live-input.js.
   var FORMULA_TYPING_HELP = [
-    { keys: 'sqrt(...)', result: '√(...)', desc: 'Square root, e.g. sqrt(A/pi)' },
-    { keys: '^2', result: '²', desc: 'Power / square, e.g. r^2' },
-    { keys: 'pi', result: 'π', desc: 'The constant pi' },
-    { keys: 'rho', result: 'ρ', desc: 'Density symbol rho' },
-    { keys: 'lambda', result: 'λ', desc: 'Wavelength symbol lambda' },
-    { keys: '1/3', result: 'stacked fraction', desc: 'A fraction — shown stacked in the live preview below the box' }
+    { keys: 'sqrt(...)', result: '√(...)', desc: 'Square root, e.g. sqrt(A/pi) — converts as you type' },
+    { keys: '^2', result: '²', desc: 'Power / square, e.g. r^2 — converts as you type' },
+    { keys: 'pi', result: 'π', desc: 'The constant pi — converts as you type' }
   ];
 
   // ---- The formula bank ---------------------------------------------
@@ -141,14 +142,14 @@ VM.PracticeRearrangeFormulae = (function(){
     },
     {
       name: 'Density',
-      given: 'ρ = m/V',
+      given: 'p = m/V',
       subjects: {
         m: { difficulty: 'easy', steps: [
-          { action: { type: 'multiply', operand: 'V' }, symbols: ['ρ', 'm', 'V'], result: 'm = ρV' }
+          { action: { type: 'multiply', operand: 'V' }, symbols: ['p', 'm', 'V'], result: 'm = pV' }
         ] },
         V: { difficulty: 'medium', steps: [
-          { action: { type: 'multiply', operand: 'V' }, symbols: ['ρ', 'm', 'V'], result: 'ρV = m' },
-          { action: { type: 'divide', operand: 'ρ' }, symbols: ['ρ', 'm', 'V'], result: 'V = m/ρ' }
+          { action: { type: 'multiply', operand: 'V' }, symbols: ['p', 'm', 'V'], result: 'pV = m' },
+          { action: { type: 'divide', operand: 'p' }, symbols: ['p', 'm', 'V'], result: 'V = m/p' }
         ] }
       }
     },
@@ -271,13 +272,13 @@ VM.PracticeRearrangeFormulae = (function(){
     },
     {
       name: 'Wave equation',
-      given: 'v = fλ',
+      given: 'v = fl',
       subjects: {
         f: { difficulty: 'easy', steps: [
-          { action: { type: 'divide', operand: 'λ' }, symbols: ['v', 'f', 'λ'], result: 'f = v/λ' }
+          { action: { type: 'divide', operand: 'l' }, symbols: ['v', 'f', 'l'], result: 'f = v/l' }
         ] },
-        λ: { difficulty: 'easy', steps: [
-          { action: { type: 'divide', operand: 'f' }, symbols: ['v', 'f', 'λ'], result: 'λ = v/f' }
+        l: { difficulty: 'easy', steps: [
+          { action: { type: 'divide', operand: 'f' }, symbols: ['v', 'f', 'l'], result: 'l = v/f' }
         ] }
       }
     },
@@ -395,16 +396,18 @@ VM.PracticeRearrangeFormulae = (function(){
   // ---- Tolerant equation comparison -----------------------------------
   // Every expected string is fixed, authored content, so this doesn't
   // need to be a real parser — just forgiving enough to not fail a
-  // student over formatting: whitespace, "sqrt"/"pi"/"rho"/"lambda"
-  // instead of √/π/ρ/λ, "^2" instead of ², and stray "*"/"×" for
-  // multiplication.
+  // student over formatting: whitespace, "sqrt"/"pi" instead of √/π,
+  // "^2" instead of ², and stray "*"/"×" for multiplication. (These
+  // shortcuts also convert live, in the input itself, as they're
+  // typed — see formula-live-input.js — but this still has to accept
+  // the spelled-out form too, since a student can always just type
+  // the raw ASCII and never trigger the live conversion, e.g. pasting
+  // an answer in.)
   function normalizeEqStr(raw){
     var s = (raw || '').toLowerCase();
     s = s.replace(/\s+/g, '');
     s = s.replace(/[*×]/g, '');
     s = s.replace(/sqrt/g, '√');
-    s = s.replace(/rho/g, 'ρ');
-    s = s.replace(/lambda/g, 'λ');
     s = s.replace(/pi/g, 'π');
     s = s.replace(/\^2/g, '²');
     return s;
@@ -648,7 +651,7 @@ VM.PracticeRearrangeFormulae = (function(){
     els.writeInput.classList.toggle('right', ok); els.writeInput.classList.toggle('wrong', !ok);
     if(ok){
       // Echo exactly what was typed (equationsMatch tolerates side
-      // order and sqrt/pi/rho/lambda/^2 notation, so the canonical
+      // order and sqrt/pi/^2 notation, so the canonical
       // step.result may differ from it) — plain text, not run through
       // toDisplayHtml, so it's shown with no reformatting at all, per
       // GitHub issue #12/#17. current.currentEq still advances to the
@@ -758,7 +761,7 @@ VM.PracticeRearrangeFormulae = (function(){
 
     if(opts.onBack){ els.backBtn.addEventListener('click', opts.onBack); }
 
-    VM.FormulaPreview.init();
+    VM.FormulaLiveInput.init();
     VM.KeybindHelp.attach(document.getElementById('formula-keybind-help'), FORMULA_TYPING_HELP);
   }
 

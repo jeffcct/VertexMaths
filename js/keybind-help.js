@@ -8,8 +8,8 @@
    button and its popover into mountEl. entries is optional: a list
    of { keys, result, desc } rows to show instead of the default
    single "^" entry, for a component whose input accepts more
-   shorthand than just powers (e.g. rearranging formulae's "sqrt(...)",
-   "pi", "rho", "/" — see practice-rearrange-formulae.js).
+   shorthand than just powers (e.g. rearranging formulae's "sqrt(...)"
+   and "pi" — see practice-rearrange-formulae.js).
    ============================================================ */
 window.VM = window.VM || {};
 

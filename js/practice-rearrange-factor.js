@@ -27,18 +27,19 @@
    steps this one doesn't need).
 
    No formula here needs a square root or a rendered radical, so
-   unlike the base component this one skips VM.FormulaRender /
-   VM.FormulaPreview / VM.KeybindHelp entirely — equations are shown
-   and typed as plain text (e.g. "P = T/(1 + R)"), and the "Working"
-   trail (VM.WorkingTrail) already falls back to plain textContent
-   when VM.FormulaRender isn't loaded, so no changes were needed there.
+   unlike the base component this one skips VM.FormulaRender entirely
+   — equations are shown as plain text (e.g. "P = T/(1 + R)"), and the
+   "Working" trail (VM.WorkingTrail) already falls back to plain
+   textContent when VM.FormulaRender isn't loaded, so no changes were
+   needed there. It DOES use VM.KeybindHelp (one entry, "pi", for the
+   one bank formula that needs it — see FORMULA_TYPING_HELP) and
+   VM.FormulaLiveInput, which converts a typed "pi" into "π" live, in
+   place, in the input itself, the instant it's typed.
 
    Equations are checked with the same tolerant string comparison as
    the base component (normalizeEqStr/equationsMatch): whitespace is
    ignored, either side may come first (via
-   VM.EquationParse.parseEitherSide), and "pi" is accepted for "π" —
-   kept even though none of this bank's formulae currently use it,
-   so a formula added later that does won't need this touched.
+   VM.EquationParse.parseEitherSide), and "pi" is accepted for "π".
 
    On a correct final answer, feedback echoes exactly what the
    student typed (never a freshly re-derived canonical string) — see
@@ -56,9 +57,10 @@ VM.PracticeRearrangeFactor = (function(){
 
   // The only bank formula needing typing help is the semicircle one
   // (uses π) — one entry, rather than the base component's full list,
-  // since nothing here needs sqrt/rho/lambda.
+  // since nothing here needs sqrt/^2. Converts live, in place, as
+  // it's typed — see formula-live-input.js.
   var FORMULA_TYPING_HELP = [
-    { keys: 'pi', result: 'π', desc: 'The constant pi, e.g. P/(pi + 2)' }
+    { keys: 'pi', result: 'π', desc: 'The constant pi, e.g. P/(pi + 2) — converts as you type' }
   ];
 
   // ---- The formula bank ---------------------------------------------
@@ -528,6 +530,7 @@ VM.PracticeRearrangeFactor = (function(){
     if(opts.onBack){ els.backBtn.addEventListener('click', opts.onBack); }
 
     if(VM.KeybindHelp) VM.KeybindHelp.attach(document.getElementById('rearrangefactor-keybind-help'), FORMULA_TYPING_HELP);
+    if(VM.FormulaLiveInput) VM.FormulaLiveInput.init();
   }
 
   function start(){
