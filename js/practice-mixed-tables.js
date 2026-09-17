@@ -24,10 +24,8 @@
 
    The prompt and hint never name the type — that would hand the
    answer straight to the student — so both stay the same regardless
-   of which type was actually generated. The hint instead restates the
-   three tests (constant differences / constant second differences /
-   constant ratio) so the student can work out which applies from the
-   table itself, plus the three equation shapes to choose between.
+   of which type was actually generated. The hint just lists the
+   three equation shapes to choose between.
 
    Score is one running total shared across all three types — this is
    a single topic's practice, not three separate ones.
@@ -65,9 +63,7 @@ VM.PracticeMixedTables = (function(){
   var TYPES = ['linear', 'quadratic', 'exponential'];
 
   var PROMPT_TEXT = 'This looks like it could be linear, quadratic, or exponential — write its full equation.';
-  var HINT_TEXT = 'For a linear table, differences are constant — for a quadratic, second differences are ' +
-    'constant — for an exponential, ratios are constant. Write whichever fits: y = mx + c, ' +
-    'y = ax^2 + bx + c, or y = a(b)^x + c.';
+  var HINT_TEXT = 'Write whichever form fits: y = mx + c, y = ax^2 + bx + c, or y = a(b)^x + c.';
 
   var els = {};
   var current = null;    // { type, ...params, xs, ys }

@@ -165,12 +165,10 @@ VM.PracticeExpNoShift = (function(){
 
   function stepHint(name){
     switch(name){
-      case 'find-a':
-        return 'a is the y-intercept — read it straight off where the curve crosses the y-axis.';
-      case 'find-b':
-        return 'The other marked point is at x = 1, where y = a × b — so b = y ÷ a. For example, if a = 2 and the point at x = 1 had y = 6, b would be 6 ÷ 2 = 3.';
       case 'equation':
         return 'Write the full equation, starting with y =, e.g. y = -2(3)^x. Use ^x for the exponent, leave out the coefficient for 1, and use a bare - for -1.';
+      default:
+        return '';
     }
   }
 

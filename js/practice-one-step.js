@@ -4,7 +4,7 @@
    zero-prerequisite review skill. Unlike the more elaborate
    multi-step generators elsewhere in this codebase, there is no
    adaptive scaffold here: every question is a single directly-scored
-   step, with a hint always available.
+   step.
 
    Each question is one of three one-step equation kinds, picked at
    random, always with an integer solution:
@@ -77,7 +77,6 @@ VM.PracticeOneStep = (function(){
     answered = false;
     working.reset();
 
-    els.hint.textContent = questionHint(current.kind);
     els.feedback.textContent = '';
     els.feedback.className = 'feedback';
     els.checkBtn.textContent = 'Check answer';
@@ -108,22 +107,6 @@ VM.PracticeOneStep = (function(){
 
   function renderGiven(){
     els.equation.textContent = formatEquation(current);
-  }
-
-  // ---- Hints -------------------------------------------------------
-  //
-  // Each hint describes the general inverse-operation method and
-  // illustrates it with a small fixed worked example distinct from
-  // the current question — the example's numbers never depend on the
-  // current question, so it can never be reconstructed into this
-  // question's own expected answer.
-
-  function questionHint(kind){
-    switch(kind){
-      case 'linear': return 'Do the opposite operation to both sides to get x on its own — e.g. x + 3 = 8 → x = 8 - 3 = 5, or x - 4 = 6 → x = 6 + 4 = 10.';
-      case 'mul': return 'Divide both sides by the coefficient of x — e.g. 3x = 12 → x = 12 ÷ 3 = 4.';
-      case 'div': return 'Multiply both sides by the number x is divided by — e.g. x/2 = 5 → x = 5 × 2 = 10.';
-    }
   }
 
   // ---- Checking ------------------------------------------------------
@@ -162,7 +145,6 @@ VM.PracticeOneStep = (function(){
   function init(opts){
     opts = opts || {};
     els.equation = document.getElementById('onestep-equation');
-    els.hint = document.getElementById('onestep-hint');
     els.feedback = document.getElementById('onestep-feedback');
     els.score = document.getElementById('onestep-score');
     els.checkBtn = document.getElementById('onestep-check-btn');

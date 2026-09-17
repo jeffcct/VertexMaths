@@ -36,12 +36,6 @@ VM.PracticeExpandSingle = (function(){
   var A_MIN = 2, A_MAX = 9;
   var BC_MIN = -9, BC_MAX = 9;
 
-  // The hint below always uses this exact worked example — keep the
-  // generated question from ever landing on the same (A, B, C), so
-  // the hint's example can never be read as this question's own
-  // answer (see the hint-safety rule in CLAUDE.md).
-  var HINT_EXAMPLE = { A: 3, B: 2, C: 5 };
-
   var els = {};
   var current = null;    // { A, B, C, AB, AC }
   var score = { correct: 0, attempted: 0 };
@@ -62,12 +56,9 @@ VM.PracticeExpandSingle = (function(){
   // ---- Question generation -----------------------------------------
 
   function nextQuestion(){
-    var A, B, C;
-    do {
-      A = randSignedMagnitude(A_MIN, A_MAX);
-      B = randNonZero(BC_MIN, BC_MAX);
-      C = randNonZero(BC_MIN, BC_MAX);
-    } while(A === HINT_EXAMPLE.A && B === HINT_EXAMPLE.B && C === HINT_EXAMPLE.C);
+    var A = randSignedMagnitude(A_MIN, A_MAX);
+    var B = randNonZero(BC_MIN, BC_MAX);
+    var C = randNonZero(BC_MIN, BC_MAX);
 
     current = { A: A, B: B, C: C, AB: A * B, AC: A * C };
 
@@ -75,9 +66,6 @@ VM.PracticeExpandSingle = (function(){
     working.reset();
 
     els.expression.textContent = bracketString(A, B, C);
-    els.hint.textContent = 'Multiply the term outside the bracket by each term inside — e.g. ' +
-      bracketString(HINT_EXAMPLE.A, HINT_EXAMPLE.B, HINT_EXAMPLE.C) + ' = ' +
-      formatExpanded(HINT_EXAMPLE.A * HINT_EXAMPLE.B, HINT_EXAMPLE.A * HINT_EXAMPLE.C) + '.';
     els.answerInput.value = '';
     els.answerInput.classList.remove('right', 'wrong');
     els.feedback.textContent = '';
@@ -170,7 +158,6 @@ VM.PracticeExpandSingle = (function(){
   function init(opts){
     opts = opts || {};
     els.expression = document.getElementById('expandsingle-expression');
-    els.hint = document.getElementById('expandsingle-hint');
     els.answerInput = document.getElementById('expandsingle-answer-input');
     els.feedback = document.getElementById('expandsingle-feedback');
     els.score = document.getElementById('expandsingle-score');

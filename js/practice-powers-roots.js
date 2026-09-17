@@ -3,8 +3,8 @@
    question generator for "Solving equations with powers and roots".
    Unlike most other Practice components in this codebase, there's no
    adaptive scaffold here — every question is a single directly-scored
-   step with a helpful hint alongside it, the same convention used by
-   practice-multi-step.js for this topic's foundational-review sibling.
+   step, the same convention used by practice-multi-step.js for this
+   topic's foundational-review sibling.
 
    Each question is one of three kinds, picked at random:
      - 'square': x² = k        where k = n² for integer n = 2..12.
@@ -80,19 +80,8 @@ VM.PracticePowersRoots = (function(){
     return '√x = ' + q.n;
   }
 
-  function hintFor(kind){
-    if(kind === 'square'){
-      return 'Taking the square root of both sides gives two answers, positive and negative — e.g. x² = 16 gives x = 4 or x = -4.';
-    }
-    if(kind === 'cube'){
-      return 'Taking the cube root of both sides gives one answer — e.g. x³ = 8 gives x = 2, and x³ = -8 gives x = -2.';
-    }
-    return 'Square both sides to undo the square root — e.g. √x = 3 gives x = 9.';
-  }
-
   function renderGiven(){
     els.equation.textContent = formatEquation(current);
-    els.hint.textContent = hintFor(current.kind);
   }
 
   function clearInputs(list){ list.forEach(function(el){ el.value = ''; el.classList.remove('right', 'wrong'); }); }
@@ -185,7 +174,6 @@ VM.PracticePowersRoots = (function(){
   function init(opts){
     opts = opts || {};
     els.equation = document.getElementById('powersroots-equation');
-    els.hint = document.getElementById('powersroots-hint');
     els.feedback = document.getElementById('powersroots-feedback');
     els.score = document.getElementById('powersroots-score');
     els.checkBtn = document.getElementById('powersroots-check-btn');

@@ -442,14 +442,6 @@ VM.PracticeGraphLinear = (function(){
     return n + 'Give the coordinates of two points on the line.';
   }
 
-  function stepHint(name){
-    if(name === 'table') return 'Substitute each x-value into y = mx + c.';
-    if(name === 'gradient-method') return 'The y-intercept is the constant term in y = mx + c. From that point, ' +
-      'the gradient\'s denominator tells you how far to move right (or move right 1, for a whole-number ' +
-      'gradient), and its numerator tells you how far to move up or down from there.';
-    return 'Any two points that satisfy the equation work — try x = 0 for one of them.';
-  }
-
   function clearStepInputs(name){
     if(name === 'table'){
       els.tableInputs.forEach(function(el){ el.value = ''; el.classList.remove('right', 'wrong'); });
@@ -486,7 +478,6 @@ VM.PracticeGraphLinear = (function(){
     els.rowPoints.hidden = (name !== 'points');
     clearStepInputs(name);
     els.stepPrompt.textContent = stepPrompt(name);
-    els.hint.textContent = stepHint(name);
     els.feedback.textContent = '';
     els.feedback.className = 'feedback';
     els.checkBtn.textContent = 'Check answer';
@@ -546,7 +537,6 @@ VM.PracticeGraphLinear = (function(){
     els.pointReadout1 = document.getElementById('graphline-point-readout-1');
     els.pointReadout2 = document.getElementById('graphline-point-readout-2');
 
-    els.hint = document.getElementById('graphline-hint');
     els.feedback = document.getElementById('graphline-feedback');
     els.score = document.getElementById('graphline-score');
     els.scoreRow = document.getElementById('graphline-score-row');

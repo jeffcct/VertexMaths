@@ -165,13 +165,6 @@ VM.PracticeFactorSingle = (function(){
     }
   }
 
-  function stepHint(name){
-    switch(name){
-      case 'find-gcf': return 'List the factors of each number and find the largest one they share. If the coefficient of x is negative, the greatest common factor is negative too — e.g. for -8x - 12, it’s -4, not 4.';
-      case 'factored': return 'Write it as a(bx + c), e.g. 3(2x + 5) — pull the greatest common factor outside a single bracket. If the x-coefficient is negative, factor out a negative number so the bracket’s x-term is positive — e.g. -8x - 12 factors as -4(2x + 3), not 4(-2x - 3). Flipping every sign (like 4(-2x - 3) above) gives the same value but isn’t the fully-factored form, so it won’t count as correct.';
-    }
-  }
-
   function clearInputs(list){ list.forEach(function(el){ el.value = ''; el.classList.remove('right', 'wrong', 'close'); }); }
 
   function renderStep(){
@@ -184,7 +177,6 @@ VM.PracticeFactorSingle = (function(){
     if(name === 'factored') clearInputs([els.factoredInput]);
 
     els.stepPrompt.textContent = stepPrompt(name);
-    els.hint.textContent = stepHint(name);
     els.feedback.textContent = '';
     els.feedback.className = 'feedback';
     els.checkBtn.textContent = 'Check answer';
@@ -289,7 +281,6 @@ VM.PracticeFactorSingle = (function(){
     els.expression = document.getElementById('singlefac-expression');
     els.modeNote = document.getElementById('singlefac-mode-note');
     els.stepPrompt = document.getElementById('singlefac-step-prompt');
-    els.hint = document.getElementById('singlefac-hint');
     els.feedback = document.getElementById('singlefac-feedback');
     els.score = document.getElementById('singlefac-score');
     els.checkBtn = document.getElementById('singlefac-check-btn');

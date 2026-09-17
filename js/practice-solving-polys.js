@@ -126,13 +126,6 @@ VM.PracticeSolvingPolys = (function(){
     }
   }
 
-  function stepHint(name){
-    switch(name){
-      case 'factor': return 'Find two numbers that multiply to the constant term and add to the middle coefficient, the same way you would for any trinomial.';
-      case 'solve': return 'If two things multiply to give zero, at least one of them must be zero — set each bracket equal to zero and solve.';
-    }
-  }
-
   function clearInputs(list){ list.forEach(function(el){ el.value = ''; el.classList.remove('right', 'wrong'); }); }
 
   function renderStep(){
@@ -145,7 +138,6 @@ VM.PracticeSolvingPolys = (function(){
     if(name === 'solve') clearInputs([els.solveX1, els.solveX2]);
 
     els.stepPrompt.textContent = stepPrompt(name);
-    els.hint.textContent = stepHint(name);
     els.feedback.textContent = '';
     els.feedback.className = 'feedback';
     els.checkBtn.textContent = 'Check answer';
@@ -236,7 +228,6 @@ VM.PracticeSolvingPolys = (function(){
     els.equation = document.getElementById('solvepoly-equation');
     els.modeNote = document.getElementById('solvepoly-mode-note');
     els.stepPrompt = document.getElementById('solvepoly-step-prompt');
-    els.hint = document.getElementById('solvepoly-hint');
     els.feedback = document.getElementById('solvepoly-feedback');
     els.score = document.getElementById('solvepoly-score');
     els.checkBtn = document.getElementById('solvepoly-check-btn');

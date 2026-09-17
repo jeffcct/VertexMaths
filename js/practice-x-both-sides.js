@@ -4,8 +4,7 @@
    the direct sequel to practice-multi-step.js, now with the variable
    appearing on both sides. As with multi-step, there's no adaptive
    scaffold here: this is a foundational review skill, so every
-   question is a single directly-scored step with a helpful hint
-   alongside it.
+   question is a single directly-scored step.
 
    Each question is:
      ax + b = cx + d   (a ≠ c, so a unique solution always exists)
@@ -79,13 +78,8 @@ VM.PracticeXBothSides = (function(){
     return coeffLabel(q.a) + 'x' + signedTerm(q.b) + ' = ' + coeffLabel(q.c) + 'x' + signedTerm(q.d);
   }
 
-  function hintFor(){
-    return 'Move all the x-terms to one side and the numbers to the other — e.g. 3x + 2 = x + 8 → 2x = 6 → x = 3.';
-  }
-
   function renderGiven(){
     els.equation.textContent = formatEquation(current);
-    els.hint.textContent = hintFor();
   }
 
   function resetInputs(){
@@ -137,7 +131,6 @@ VM.PracticeXBothSides = (function(){
   function init(opts){
     opts = opts || {};
     els.equation = document.getElementById('xbothsides-equation');
-    els.hint = document.getElementById('xbothsides-hint');
     els.feedback = document.getElementById('xbothsides-feedback');
     els.score = document.getElementById('xbothsides-score');
     els.checkBtn = document.getElementById('xbothsides-check-btn');

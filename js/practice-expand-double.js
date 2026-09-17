@@ -64,12 +64,6 @@ VM.PracticeExpandDouble = (function(){
   var SCAFFOLD_MIN_ATTEMPTS = 3;
   var SCAFFOLD_MIN_ACCURACY = 0.90;
 
-  // The hints below always use this exact worked example — keep the
-  // generated question from ever landing on the same (m, n, p, q), so
-  // the hint's example can never be read as this question's own
-  // answer (see the hint-safety rule in CLAUDE.md).
-  var HINT_EXAMPLE = { m: 1, n: 1, p: 2, q: 3 }; // (x + 2)(x + 3) = x² + 3x + 2x + 6 = x² + 5x + 6
-
   var els = {};
   var current = null;    // { m, n, p, q, a, b, c, mq, np }
   var score = { correct: 0, attempted: 0 };
@@ -97,13 +91,10 @@ VM.PracticeExpandDouble = (function(){
   // ---- Question generation -----------------------------------------
 
   function nextQuestion(){
-    var m, n, p, q;
-    do {
-      m = randChoice(M_VALUES);
-      n = randChoice(N_VALUES);
-      p = randNonZero(PQ_MIN, PQ_MAX);
-      q = randNonZero(PQ_MIN, PQ_MAX);
-    } while(m === HINT_EXAMPLE.m && n === HINT_EXAMPLE.n && p === HINT_EXAMPLE.p && q === HINT_EXAMPLE.q);
+    var m = randChoice(M_VALUES);
+    var n = randChoice(N_VALUES);
+    var p = randNonZero(PQ_MIN, PQ_MAX);
+    var q = randNonZero(PQ_MIN, PQ_MAX);
 
     var a = m * n;
     var mq = m * q, np = n * p;
@@ -242,18 +233,6 @@ VM.PracticeExpandDouble = (function(){
     }
   }
 
-  function stepHint(name){
-    var ex = HINT_EXAMPLE;
-    switch(name){
-      case 'expanded': return 'Multiply each term in the first bracket by each term in the second (FOIL) — e.g. ' +
-        bracketsString(ex.m, ex.p, ex.n, ex.q) + ' = ' +
-        formatExpanded(ex.m * ex.n, ex.m * ex.q, ex.n * ex.p, ex.p * ex.q) + '.';
-      case 'collected': return 'Add the two x-terms together to collect them into one — e.g. ' +
-        formatExpanded(ex.m * ex.n, ex.m * ex.q, ex.n * ex.p, ex.p * ex.q) + ' = ' +
-        formatCollected(ex.m * ex.n, ex.m * ex.q + ex.n * ex.p, ex.p * ex.q) + '.';
-    }
-  }
-
   var STEP_NAMES = ['expanded', 'collected'];
 
   function clearInputs(list){ list.forEach(function(el){ el.value = ''; el.classList.remove('right', 'wrong'); }); }
@@ -268,7 +247,6 @@ VM.PracticeExpandDouble = (function(){
     if(name === 'collected') clearInputs([els.collectedInput]);
 
     els.stepPrompt.textContent = stepPrompt(name);
-    els.hint.textContent = stepHint(name);
     els.feedback.textContent = '';
     els.feedback.className = 'feedback';
     els.checkBtn.textContent = 'Check answer';
@@ -376,7 +354,6 @@ VM.PracticeExpandDouble = (function(){
     els.givenExpr = document.getElementById('expanddouble-given-expr');
     els.modeNote = document.getElementById('expanddouble-mode-note');
     els.stepPrompt = document.getElementById('expanddouble-step-prompt');
-    els.hint = document.getElementById('expanddouble-hint');
     els.feedback = document.getElementById('expanddouble-feedback');
     els.score = document.getElementById('expanddouble-score');
     els.checkBtn = document.getElementById('expanddouble-check-btn');

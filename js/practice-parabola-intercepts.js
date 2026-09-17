@@ -191,18 +191,16 @@ VM.PracticeParabolaIntercepts = (function(){
 
   function stepHint(name){
     switch(name){
-      case 'intercepts':
-        return 'These are where the curve crosses the x-axis.';
       case 'brackets':
         return 'Write it as y = a(x - p)(x - q), e.g. y = a(x - 3)(x + 1) — the coefficient a is still unknown at this point, so it\'s written as a literal "a", not a number yet. The order of the two factors doesn\'t matter.';
-      case 'point':
-        return 'It\'s the marked point that isn\'t sitting on the x-axis.';
       case 'solvea':
-        return 'Substitute the point into y = a(' + factorLabel(current.p) + ')(' + factorLabel(current.q) + ') and solve for a. Leave the box blank for 1, or type just - for -1.' +
+        return 'Leave the box blank for 1, or type just - for -1.' +
           (current.aDen > 1 ? ' Fractions like 3/2 are fine.' : '');
       case 'equation':
         return 'Write the full equation, starting with y =, e.g. y = -2(x - 3)(x + 1). Leave out the coefficient for 1 and use a bare - for -1.' +
           (current.aDen > 1 ? ' Fractions like 3/2 are fine for a.' : '');
+      default:
+        return '';
     }
   }
 

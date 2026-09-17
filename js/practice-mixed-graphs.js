@@ -104,9 +104,7 @@ VM.PracticeMixedGraphs = (function(){
   var TYPES = ['line', 'vertex', 'intercepts', 'exp'];
 
   var PROMPT_TEXT = "Write the full equation for what's plotted on this graph.";
-  var HINT_TEXT = 'Look at the shape first — a straight line, an upward- or downward-opening ' +
-    'parabola, or an exponential curve — then use the marked points (and the base, if one is ' +
-    'given) to write it in the matching form: y = mx + c, y = a(x - h)^2 + k, ' +
+  var HINT_TEXT = 'Write whichever form fits: y = mx + c, y = a(x - h)^2 + k, ' +
     'y = a(x - p)(x - q), or y = a(b)^x + c.';
 
   var els = {};

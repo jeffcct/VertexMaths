@@ -7,7 +7,7 @@
    components in this codebase, there's no adaptive scaffold here:
    "multi-step" describes the equation's solving process (more than
    one arithmetic step), not this component's UI, so every question
-   is a single directly-scored step with a helpful hint alongside it.
+   is a single directly-scored step.
 
    Each question is one of two kinds, picked at random:
      - 'twostep':      ax + b = c        (undo +/- b, then divide by a)
@@ -96,16 +96,8 @@ VM.PracticeMultiStep = (function(){
     return q.a + '(' + inner + ') = ' + q.c;
   }
 
-  function hintFor(kind){
-    if(kind === 'twostep'){
-      return 'Undo addition/subtraction first, then undo multiplication/division — e.g. 2x + 3 = 11 → 2x = 8 → x = 4.';
-    }
-    return 'You can expand the bracket first, or divide both sides by the outside number first — e.g. 3(x + 2) = 15 → x + 2 = 5 → x = 3.';
-  }
-
   function renderGiven(){
     els.equation.textContent = formatEquation(current);
-    els.hint.textContent = hintFor(current.kind);
   }
 
   function resetInputs(){
@@ -157,7 +149,6 @@ VM.PracticeMultiStep = (function(){
   function init(opts){
     opts = opts || {};
     els.equation = document.getElementById('multistep-equation');
-    els.hint = document.getElementById('multistep-hint');
     els.feedback = document.getElementById('multistep-feedback');
     els.score = document.getElementById('multistep-score');
     els.checkBtn = document.getElementById('multistep-check-btn');

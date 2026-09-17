@@ -123,8 +123,8 @@ VM.PracticeFactorMonic = (function(){
 
   function stepHint(name){
     switch(name){
-      case 'find-pair': return 'Think of two numbers with that product and that sum.';
       case 'factored': return 'Write it as (x + p)(x + q), e.g. (x + 2)(x + 3). The order of the two factors doesn\'t matter.';
+      default: return '';
     }
   }
 

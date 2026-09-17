@@ -541,19 +541,6 @@ VM.PracticeRearrangeFormulae = (function(){
       (isLast ? ' This is the fully rearranged formula, with ' + current.subject + ' alone on one side.' : '');
   }
 
-  function stepHint(name){
-    if(name === 'final'){
-      return 'Keep undoing one operation at a time, on both sides, until the subject is alone on one side. ' +
-        'For example, rearranging y = mx + c for x eventually gives x = (y - c)/m.';
-    }
-    if(isChoiceStep(name)){
-      return 'Look at what operation currently connects ' + current.subject + ' to the rest of the equation — ' +
-        'multiplied, divided, added, subtracted, squared, or under a square root — and undo it by doing the ' +
-        'same thing to both sides.';
-    }
-    return 'Carry out the action you just chose on both sides of the current equation, then simplify.';
-  }
-
   function clearInputs(list){ list.forEach(function(el){ el.value = ''; el.classList.remove('right', 'wrong'); }); }
 
   // Feedback strings often quote a formula/equation that can contain
@@ -602,7 +589,6 @@ VM.PracticeRearrangeFormulae = (function(){
     if(name === 'final') clearInputs([els.finalInput]);
 
     els.stepPrompt.textContent = stepPrompt(name);
-    els.hint.textContent = stepHint(name);
     setFeedback('', null);
     els.checkBtn.textContent = 'Check answer';
     els.checkBtn.disabled = isChoiceStep(name);
@@ -733,7 +719,6 @@ VM.PracticeRearrangeFormulae = (function(){
     els.stepPrompt = document.getElementById('formula-step-prompt');
     els.currentEqWrap = document.getElementById('formula-current-eq-wrap');
     els.currentEq = document.getElementById('formula-current-eq');
-    els.hint = document.getElementById('formula-hint');
     els.feedback = document.getElementById('formula-feedback');
     els.score = document.getElementById('formula-score');
     els.checkBtn = document.getElementById('formula-check-btn');

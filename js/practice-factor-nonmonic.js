@@ -258,16 +258,6 @@ VM.PracticeFactorNonmonic = (function(){
     }
   }
 
-  function stepHint(name){
-    switch(name){
-      case 'find-ac': return 'Multiplying a and c together gives you the number the two numbers in the next step need to multiply to.';
-      case 'find-pair': return 'This is the "AC method" — multiply a and c together first: a × c = ' + (current.a * current.c) + '.';
-      case 'expanded': return 'Replace the middle term with the two terms you just found, in either order, keeping a and c the same — e.g. for x² + 5x + 6, splitting 5 into 2 and 3 gives x² + 2x + 3x + 6.';
-      case 'grouped': return 'Group the first two terms and the last two terms, then pull out the common factor from each group — you should end up with the same bracket twice, e.g. x² + 2x + 3x + 6 becomes x(x + 2) + 3(x + 2).';
-      case 'factored': return 'Split the middle term using the pair you just found, then factor by grouping. It should look like (mx + p)(nx + q) with whole-number coefficients.';
-    }
-  }
-
   var STEP_NAMES = ['find-ac', 'find-pair', 'expanded', 'grouped', 'factored'];
 
   function clearInputs(list){ list.forEach(function(el){ el.value = ''; el.classList.remove('right', 'wrong'); }); }
@@ -285,7 +275,6 @@ VM.PracticeFactorNonmonic = (function(){
     if(name === 'factored') clearInputs([els.factoredInput]);
 
     els.stepPrompt.textContent = stepPrompt(name);
-    els.hint.textContent = stepHint(name);
     els.feedback.textContent = '';
     els.feedback.className = 'feedback';
     els.checkBtn.textContent = 'Check answer';
@@ -450,7 +439,6 @@ VM.PracticeFactorNonmonic = (function(){
     els.givenExpr = document.getElementById('nonmonic-given-expr');
     els.modeNote = document.getElementById('nonmonic-mode-note');
     els.stepPrompt = document.getElementById('nonmonic-step-prompt');
-    els.hint = document.getElementById('nonmonic-hint');
     els.feedback = document.getElementById('nonmonic-feedback');
     els.score = document.getElementById('nonmonic-score');
     els.checkBtn = document.getElementById('nonmonic-check-btn');

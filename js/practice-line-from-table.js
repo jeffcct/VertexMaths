@@ -157,7 +157,7 @@ VM.PracticeLineFromTable = (function(){
       els.rowBoxes.hidden = true;
       els.rowTyped.hidden = true;
       els.modeNote.textContent = '';
-      els.hint.textContent = 'Read each pair of neighbouring y-values straight off the table.';
+      els.hint.textContent = '';
     }
     clearStepInputs(name);
     els.stepPrompt.textContent = stepPrompt(name);

@@ -4,7 +4,7 @@
    multiplication" — a foundational, zero-prerequisite review skill.
    Unlike the adaptive multi-step generators elsewhere in this
    codebase, this one has no scaffold tiers: every question is a
-   single directly-scored step with a helpful hint.
+   single directly-scored step.
 
    Each question is one of two kinds, picked at random:
 
@@ -95,8 +95,6 @@ VM.PracticeSimpExpr = (function(){
 
     els.expression.textContent = renderGiven(current);
     els.prompt.textContent = questionPrompt(current.kind);
-    els.sub.textContent = questionSub(current.kind);
-    els.hint.textContent = questionHint(current.kind);
     els.answerInput.placeholder = current.kind === 'combine' ? 'e.g. 3x + 5' : 'e.g. 12ab';
     els.answerInput.value = '';
     els.answerInput.classList.remove('right', 'wrong');
@@ -149,18 +147,6 @@ VM.PracticeSimpExpr = (function(){
 
   function questionPrompt(kind){
     return kind === 'combine' ? 'Simplify the expression.' : 'Simplify the product.';
-  }
-
-  function questionSub(kind){
-    return kind === 'combine' ?
-      'Collect the like terms — add the x-terms together and the constants together.' :
-      'Multiply the coefficients together, then multiply the letters together.';
-  }
-
-  function questionHint(kind){
-    return kind === 'combine' ?
-      'Group the x-terms and the constant terms separately, then add each group. For example, 5x + 3 - 2x simplifies to 3x + 3.' :
-      'Multiply the numbers together, then write the two letters side by side. For example, 2a × 3b = 6ab.';
   }
 
   // ---- Parsing ------------------------------------------------------
@@ -260,8 +246,6 @@ VM.PracticeSimpExpr = (function(){
     opts = opts || {};
     els.expression = document.getElementById('simpexpr-expression');
     els.prompt = document.getElementById('simpexpr-prompt');
-    els.sub = document.getElementById('simpexpr-sub');
-    els.hint = document.getElementById('simpexpr-hint');
     els.answerInput = document.getElementById('simpexpr-answer-input');
     els.feedback = document.getElementById('simpexpr-feedback');
     els.score = document.getElementById('simpexpr-score');

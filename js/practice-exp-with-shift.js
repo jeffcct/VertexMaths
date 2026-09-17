@@ -185,11 +185,8 @@ VM.PracticeExpWithShift = (function(){
   function stepHint(name){
     switch(name){
       case 'basic-equation': return 'Leave a and c as letters, e.g. y = a(5)^x + c.';
-      case 'substitute-points':
-        return 'At x = 0, b^0 = 1, so the a-term has no coefficient — e.g. if y were 20 there, you\'d write a + c = 20. ' +
-          'At x = 1, b^1 is just the base itself, so multiply a by it — e.g. with base 5 and y = 30 there, you\'d write 5a + c = 30.';
-      case 'solve-ac': return 'Subtract one equation from the other to eliminate c first.';
       case 'final-equation': return 'Write it as y = a(b)^x + c with all three substituted, e.g. y = -4(5)^x + 6.';
+      default: return '';
     }
   }
 

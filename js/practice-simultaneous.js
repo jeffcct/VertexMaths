@@ -429,29 +429,27 @@ VM.PracticeSimultaneous = (function(){
     }
   }
 
+  // Only notation/format guidance lives here now — how to type a
+  // blank/"-" coefficient, a fraction, or a two-part answer — not the
+  // solving method itself, which the step prompt and Working panel
+  // already cover.
   function stepHint(name){
     switch(name){
-      case 'choose-method':
-        return 'Both methods work on any system — pick whichever you’d like to practice.';
-      case 'pick-variable':
-        return 'Either variable works. One of them has a coefficient of 1 in equation 1 and rearranges cleanly there; the other will need a fraction from either equation.';
       case 'rearrange':
-        return 'Move the ' + current.otherVar + ' term to the other side of whichever equation you pick. Leave the coefficient box blank for 1, or type just - for -1.' +
+        return 'Leave the coefficient box blank for 1, or type just - for -1.' +
           (Math.abs(current.rearrangeEq1.coeffDen) > 1 || Math.abs(current.rearrangeEq2.coeffDen) > 1 ||
            Math.abs(current.rearrangeEq1.constDen) > 1 || Math.abs(current.rearrangeEq2.constDen) > 1
             ? ' Fractions like 1/2 are fine here.' : '');
-      case 'multipliers':
-        return 'Multiply so both equations end up with the same-size coefficient for whichever variable you’d like to eliminate — either one works.';
-      case 'multiply-equations':
-        return 'Multiply every term, including the constant, by that equation’s multiplier — e.g. 3x + 2y = 4 by 3.';
       case 'eliminate':
-        return 'If the matching coefficients have the same sign, subtract; if opposite signs, add. Write it as ' +
-          current.eliminatedOtherVar + ' = ..., or e.g. 4' + current.eliminatedOtherVar + ' = ... if the coefficient isn’t 1.';
+        return 'Write it as ' + current.eliminatedOtherVar + ' = ..., or e.g. 4' +
+          current.eliminatedOtherVar + ' = ... if the coefficient isn’t 1.';
       case 'solve-first':
       case 'solve-second':
         return 'Fractions like 3/2 are fine if you need one.';
       case 'equation':
         return 'Enter both x and y.';
+      default:
+        return '';
     }
   }
 

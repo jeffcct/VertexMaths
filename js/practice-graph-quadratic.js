@@ -166,14 +166,6 @@ VM.PracticeGraphQuadratic = (function(){
     }
   }
 
-  function stepHint(name){
-    switch(name){
-      case 'table': return 'Substitute each x-value into y = x² + bx + c.';
-      case 'vertex': return 'h = -b / 2, then substitute back in to find k.';
-      case 'intercepts': return 'Factor x² + bx + c to find where y = 0.';
-    }
-  }
-
   function clearStepInputs(name){
     var map = {
       table: els.yInputs,
@@ -193,7 +185,6 @@ VM.PracticeGraphQuadratic = (function(){
     STEP_NAMES.forEach(function(n){ els.rows[n].hidden = (n !== name); });
     clearStepInputs(name);
     els.stepPrompt.textContent = stepPrompt(name);
-    els.hint.textContent = stepHint(name);
     els.feedback.textContent = '';
     els.feedback.className = 'feedback';
     els.checkBtn.textContent = 'Check answer';
@@ -314,7 +305,6 @@ VM.PracticeGraphQuadratic = (function(){
     els.equation = document.getElementById('graphquad-equation');
     els.modeNote = document.getElementById('graphquad-mode-note');
     els.stepPrompt = document.getElementById('graphquad-step-prompt');
-    els.hint = document.getElementById('graphquad-hint');
     els.feedback = document.getElementById('graphquad-feedback');
     els.score = document.getElementById('graphquad-score');
     els.checkBtn = document.getElementById('graphquad-check-btn');

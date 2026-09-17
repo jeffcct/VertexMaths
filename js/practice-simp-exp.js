@@ -37,14 +37,11 @@ window.VM = window.VM || {};
 VM.PracticeSimpExp = (function(){
   var SUP_DIGITS = ['⁰','¹','²','³','⁴','⁵','⁶','⁷','⁸','⁹'];
 
-  // Fixed example pools for hints — several distinct outcomes per
-  // kind so a hint's own worked example can always avoid landing on
-  // the current question's actual numbers (see the hint-safety rule
-  // in CLAUDE.md: a hint must never be constructible into the
-  // current question's own expected-answer string).
-  var PRODUCT_EXAMPLES = [[2,3],[2,4],[3,4],[3,5],[4,5]];      // sums 5,6,7,8,9
-  var QUOTIENT_EXAMPLES = [[3,2],[4,2],[5,2],[6,2],[7,2],[8,2],[9,2]]; // diffs 1..7
-  var POWER_EXAMPLES = [[2,2],[2,3],[3,2],[2,4],[3,3]];        // products 4,6,6,8,9
+  // The prompt is displayed with real superscript digits, but there's
+  // no ordinary way to type one on a standard keyboard — this is the
+  // one thing worth telling the student, since it's notation, not
+  // method (see the hint-safety rule in CLAUDE.md).
+  var HINT_TEXT = 'You can type ^ followed by the exponent, e.g. x^7 for x⁷.';
 
   var els = {};
   var current = null;    // { kind, a, b, resultExp, prompt, hint }
@@ -95,35 +92,6 @@ VM.PracticeSimpExp = (function(){
     }
   }
 
-  // Picks a hint example from `pool` whose outcome (as computed by
-  // `outcomeOf`) differs from the current question's actual result —
-  // so the hint's worked example can never be read as this
-  // question's own answer.
-  function pickHintExample(pool, outcomeOf, avoidOutcome){
-    var candidates = pool.filter(function(ex){ return outcomeOf(ex) !== avoidOutcome; });
-    return pick(candidates.length ? candidates : pool);
-  }
-
-  function questionHint(kind, resultExp){
-    switch(kind){
-      case 'product': {
-        var pe = pickHintExample(PRODUCT_EXAMPLES, function(ex){ return ex[0] + ex[1]; }, resultExp);
-        return 'When multiplying powers of the same base, add the exponents — e.g. ' +
-          powerString('x', pe[0]) + ' × ' + powerString('x', pe[1]) + ' = ' + powerString('x', pe[0] + pe[1]) + '.';
-      }
-      case 'quotient': {
-        var qe = pickHintExample(QUOTIENT_EXAMPLES, function(ex){ return ex[0] - ex[1]; }, resultExp);
-        return 'When dividing powers of the same base, subtract the exponents — e.g. ' +
-          powerString('x', qe[0]) + ' ÷ ' + powerString('x', qe[1]) + ' = ' + powerString('x', qe[0] - qe[1]) + '.';
-      }
-      case 'power': {
-        var we = pickHintExample(POWER_EXAMPLES, function(ex){ return ex[0] * ex[1]; }, resultExp);
-        return 'When raising a power to a power, multiply the exponents — e.g. (' +
-          powerString('x', we[0]) + ')' + superscript(we[1]) + ' = ' + powerString('x', we[0] * we[1]) + '.';
-      }
-    }
-  }
-
   function nextQuestion(){
     var kind = pick(['product', 'quotient', 'power']);
     var gen = kind === 'product' ? genProduct() : (kind === 'quotient' ? genQuotient() : genPower());
@@ -140,7 +108,7 @@ VM.PracticeSimpExp = (function(){
     working.reset();
 
     els.expression.textContent = current.prompt;
-    els.hint.textContent = questionHint(kind, current.resultExp);
+    els.hint.textContent = HINT_TEXT;
     els.answerInput.value = '';
     els.answerInput.classList.remove('right', 'wrong');
     els.feedback.textContent = '';

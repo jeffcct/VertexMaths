@@ -314,21 +314,6 @@ VM.PracticeRearrangeFactor = (function(){
       (isLast ? ' This is the fully rearranged formula, with ' + current.subject + ' alone on one side.' : '');
   }
 
-  function stepHint(name){
-    if(name === 'final'){
-      return 'Factor ' + current.subject + ' out of both terms it appears in, then divide both sides by ' +
-        "what's left in the bracket. For example, ax + bx = c becomes x(a + b) = c, then x = c/(a + b).";
-    }
-    if(isChoiceStep(name)){
-      var idx = parseInt(name.slice('choice-'.length), 10);
-      return idx === 0
-        ? ('Both terms on one side share a factor of ' + current.subject + ' — pull it out ' +
-           'front as a common factor, the same way 3x + 5x factors to x(3 + 5).')
-        : ('The bracket is now just multiplying ' + current.subject + ' — undo that by doing the ' +
-           'same thing to both sides.');
-    }
-    return 'Carry out the action you just chose on both sides of the current equation, then simplify.';
-  }
 
   function clearInputs(list){ list.forEach(function(el){ el.value = ''; el.classList.remove('right', 'wrong'); }); }
 
@@ -372,7 +357,6 @@ VM.PracticeRearrangeFactor = (function(){
     if(name === 'final') clearInputs([els.finalInput]);
 
     els.stepPrompt.textContent = stepPrompt(name);
-    els.hint.textContent = stepHint(name);
     setFeedback('', null);
     els.checkBtn.textContent = 'Check answer';
     els.checkBtn.disabled = isChoiceStep(name);
@@ -501,7 +485,6 @@ VM.PracticeRearrangeFactor = (function(){
     els.stepPrompt = document.getElementById('rearrangefactor-step-prompt');
     els.currentEqWrap = document.getElementById('rearrangefactor-current-eq-wrap');
     els.currentEq = document.getElementById('rearrangefactor-current-eq');
-    els.hint = document.getElementById('rearrangefactor-hint');
     els.feedback = document.getElementById('rearrangefactor-feedback');
     els.score = document.getElementById('rearrangefactor-score');
     els.checkBtn = document.getElementById('rearrangefactor-check-btn');

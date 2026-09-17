@@ -129,9 +129,6 @@ VM.PracticeSubstitution = (function(){
   function renderQuestion(){
     els.answerInput.value = '';
     els.answerInput.classList.remove('right', 'wrong');
-    els.hint.textContent = current.kind === 'single' ?
-      'Replace x with its given value, then work out the result — e.g. for 2x - 1 when x = 3, that’s 2(3) - 1 = 5.' :
-      'Replace each letter with its given value, then work out the result — e.g. for 2x + 3y when x = 3 and y = -1, that’s 2(3) + 3(-1) = 3.';
     els.feedback.textContent = '';
     els.feedback.className = 'feedback';
     els.checkBtn.textContent = 'Check answer';
@@ -177,7 +174,6 @@ VM.PracticeSubstitution = (function(){
     opts = opts || {};
     els.expression = document.getElementById('subst-expression');
     els.given = document.getElementById('subst-given');
-    els.hint = document.getElementById('subst-hint');
     els.feedback = document.getElementById('subst-feedback');
     els.score = document.getElementById('subst-score');
     els.checkBtn = document.getElementById('subst-check-btn');

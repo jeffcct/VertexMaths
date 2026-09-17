@@ -94,7 +94,6 @@ VM.PracticeGraphExponential = (function(){
     els.tableInputs = [1, 2, 3, 4, 5].map(function(i){ return document.getElementById('graphexp-y-' + i); });
 
     els.stepPrompt = document.getElementById('graphexp-step-prompt');
-    els.hint = document.getElementById('graphexp-hint');
     els.feedback = document.getElementById('graphexp-feedback');
     els.score = document.getElementById('graphexp-score');
     els.checkBtn = document.getElementById('graphexp-check-btn');
@@ -105,11 +104,6 @@ VM.PracticeGraphExponential = (function(){
     working = VM.WorkingTrail(els.workingCard, els.workingLines);
 
     els.stepPrompt.textContent = 'Substitute each x-value to complete the table.';
-    // Fixed example uses a base (5) outside B_VALUES ([2, 3]), so it
-    // can never coincide with the current question's own numbers —
-    // see the hint-safety rule in CLAUDE.md.
-    els.hint.textContent = 'Substitute each x-value into y = a(b)^x — e.g. for y = 2(5)^x, at x = 2 you\'d ' +
-      'work out y = 2 × 5² = 50.';
 
     els.checkBtn.addEventListener('click', handleCheckOrAdvance);
     els.nextBtn.addEventListener('click', nextQuestion);

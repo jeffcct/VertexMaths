@@ -176,18 +176,16 @@ VM.PracticeParabolaVertex = (function(){
 
   function stepHint(name){
     switch(name){
-      case 'vertex':
-        return "It's the turning point of the curve.";
       case 'squared':
-        return 'Substitute h and k, but leave a as a letter — e.g. y = a(x + 3)^2 + 4.';
-      case 'point':
-        return "It's the marked point one unit to the right of the vertex.";
+        return 'Leave a as a letter — e.g. y = a(x + 3)^2 + 4.';
       case 'solvea':
-        return 'Substitute the point into ' + squaredTemplateString(current.h, current.k) + ' and solve for a. Leave the box blank for 1, or type just - for -1.' +
+        return 'Leave the box blank for 1, or type just - for -1.' +
           (current.aDen > 1 ? ' Fractions like 3/2 are fine.' : '');
       case 'equation':
         return 'Write the full equation, starting with y =, e.g. y = -2(x + 3)^2 + 4. Use ^2 for squared, leave out the coefficient for 1, and use a bare - for -1.' +
           (current.aDen > 1 ? ' Fractions like 3/2 are fine for a.' : '');
+      default:
+        return '';
     }
   }
 
@@ -266,8 +264,7 @@ VM.PracticeParabolaVertex = (function(){
 
   // "y = a(x - h)^2 + k" with h and k substituted, a left as a
   // literal letter — the equation as far as it can be built before a
-  // is solved for. Shared by the "squared" step's expected answer and
-  // the "solvea" step's hint, which substitutes into this same form.
+  // is solved for. This is the "squared" step's own expected answer.
   function squaredTemplateString(h, k){
     var kStr = k === 0 ? '' : (k > 0 ? (' + ' + k) : (' - ' + Math.abs(k)));
     return 'y = a' + squaredString(h) + kStr;

@@ -155,9 +155,8 @@ VM.PracticeLineFromPoint = (function(){
   function stepHint(name){
     switch(name){
       case 'form': return 'Leave c as the letter c — you haven’t found it yet, e.g. y = 3x + c.';
-      case 'substitute': return 'Substitute x = ' + current.x1 + ' and y = ' + current.y1 + ' into ' + formatFormEquation(current.m) + '.';
-      case 'solve': return 'Rearrange to get c by itself.';
       case 'final-equation': return 'Write the full equation, starting with y =, e.g. y = 3x - 6. Leave out the coefficient for 1 and use a bare - for -1.';
+      default: return '';
     }
   }
 

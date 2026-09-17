@@ -93,13 +93,6 @@ VM.PracticeEqsExponents = (function(){
     }
   }
 
-  function stepHint(name){
-    switch(name){
-      case 'rewrite': return 'Try small powers of the base one at a time: a¹, a², a³, and so on, until you match the number.';
-      case 'solve-x': return 'Since the bases now match, the exponents must be equal — set up and solve that equation.';
-    }
-  }
-
   function clearInputs(list){ list.forEach(function(el){ el.value = ''; el.classList.remove('right', 'wrong'); }); }
 
   function renderStep(){
@@ -112,7 +105,6 @@ VM.PracticeEqsExponents = (function(){
     if(name === 'solve-x') clearInputs([els.solveInput]);
 
     els.stepPrompt.textContent = stepPrompt(name);
-    els.hint.textContent = stepHint(name);
     els.feedback.textContent = '';
     els.feedback.className = 'feedback';
     els.checkBtn.textContent = 'Check answer';
@@ -194,7 +186,6 @@ VM.PracticeEqsExponents = (function(){
     els.equation = document.getElementById('eqexp-equation');
     els.modeNote = document.getElementById('eqexp-mode-note');
     els.stepPrompt = document.getElementById('eqexp-step-prompt');
-    els.hint = document.getElementById('eqexp-hint');
     els.feedback = document.getElementById('eqexp-feedback');
     els.score = document.getElementById('eqexp-score');
     els.checkBtn = document.getElementById('eqexp-check-btn');

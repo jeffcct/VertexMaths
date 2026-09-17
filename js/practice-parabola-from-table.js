@@ -15,7 +15,7 @@
      3. use that to find a.
      4. work backwards from x = 1 to find y at x = 0 — that's c
         (c = y at x=1, minus the first difference into x=1, plus the
-        second difference — see the hint on that step for why).
+        second difference).
      5. write the equation so far, with a and c substituted but b
         left as the literal letter b (nothing's solved it yet).
      6. substitute the table's first point to solve for b.
@@ -157,14 +157,9 @@ VM.PracticeParabolaFromTable = (function(){
 
   function stepHint(name){
     switch(name){
-      case 'first-diff': return 'Subtract each y-value from the one after it.';
-      case 'second-diff': return 'Subtract each first difference from the one after it — for a parabola these come out all the same.';
-      case 'find-a': return 'The second difference is always 2a.';
-      case 'find-c':
-        return 'y at x = 0 is one step left of x = 1: take y at x = 1, subtract the first difference into it, then add the second difference back on.';
       case 'current-equation': return 'Leave b as the letter b — you haven’t found it yet, e.g. y = 2x^2 + bx - 3.';
-      case 'find-b': return 'Substitute x = 1 and y = ' + current.ys[0] + ' into y = a(1)^2 + b(1) + c and solve for b.';
       case 'final-equation': return 'Use ^2 for squared, e.g. y = -2x^2 + 3x - 1.';
+      default: return '';
     }
   }
 
