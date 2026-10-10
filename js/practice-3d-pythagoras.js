@@ -175,9 +175,15 @@ VM.Practice3DPythagoras = (function(){
      [BBL,BBR],[BTL,BTR],[BBL,BTL],[BBR,BTR],
      [FBL,BBL],[FBR,BBR],[FTL,BTL],[FTR,BTR]].forEach(function(pair){ svg += edge(pair[0], pair[1]); });
 
+    // The length and height labels sit outside the box, next to an
+    // uncrowded edge, via the generic outward-normal placement. The
+    // width (depth) dimension is trickier: every depth edge runs
+    // through the middle of the drawing, so it's placed by hand on
+    // the bottom-right depth edge (FBR-BBR) — clear of the diagonal,
+    // the other two labels, and the corner where three lines meet.
     svg += label(labelPos(FBL, FBR, centroid, 16), current.l);
     svg += label(labelPos(FBL, FTL, centroid, 16), current.h);
-    svg += label(labelPos(FBL, BBL, centroid, 14), current.w);
+    svg += label({ x: (FBR.x + BBR.x) / 2 + 16, y: (FBR.y + BBR.y) / 2 }, current.w);
     svg += dashedEdge(FBL, BTR);
 
     els.svg.innerHTML = svg;
@@ -195,9 +201,14 @@ VM.Practice3DPythagoras = (function(){
     [[baseFL,baseFR],[baseFR,baseBR],[baseBR,baseBL],[baseBL,baseFL]].forEach(function(pair){ svg += edge(pair[0], pair[1]); });
     [baseFL, baseFR, baseBR, baseBL].forEach(function(p){ svg += edge(apex, p); });
 
+    // l sits below the clear front edge. w and e are kept on
+    // opposite sides (w on the right depth edge, e on the left
+    // slant edge) rather than both crowding the base's left corner,
+    // where the depth edge and the left slant edge would otherwise
+    // run right past each other.
     svg += label(labelPos(baseFL, baseFR, center, 16), current.l);
-    svg += label(labelPos(baseFL, baseBL, center, 14), current.w);
-    svg += label(labelPos(apex, baseFR, center, 14), current.e);
+    svg += label({ x: (baseFR.x + baseBR.x) / 2 + 14, y: (baseFR.y + baseBR.y) / 2 }, current.w);
+    svg += label({ x: (apex.x + baseFL.x) / 2 - 14, y: (apex.y + baseFL.y) / 2 }, current.e);
     svg += dashedEdge(apex, center);
     svg += '<text x="' + (center.x + 12) + '" y="' + ((apex.y + center.y) / 2) + '" class="shape-vertex-label">h</text>';
 
@@ -217,9 +228,14 @@ VM.Practice3DPythagoras = (function(){
     var svg = '';
     [[P0,P1],[P0,P2],[P1,P2],[P3,P4],[P3,P5],[P4,P5],[P0,P3],[P1,P4],[P2,P5]].forEach(function(pair){ svg += edge(pair[0], pair[1]); });
 
+    // p and q sit outside the clear front-triangle legs. The length
+    // (depth) dimension is labelled on the P2-P5 connecting edge
+    // instead of P0-P3 — P0 is where both leg labels and the target
+    // diagonal already converge, so a third label there would be
+    // unreadable; P2-P5 runs through open space at the top instead.
     svg += label(labelPos(P0, P1, centroid, 16), current.p);
     svg += label(labelPos(P0, P2, centroid, 16), current.q);
-    svg += label(labelPos(P0, P3, centroid, 14), current.len);
+    svg += label({ x: (P2.x + P5.x) / 2, y: (P2.y + P5.y) / 2 - 14 }, current.len);
 
     var targetPoints = { 1: P1, 2: P2, 4: P4, 5: P5 };
     var idxA = v.indexOf(current.targetA), idxB = v.indexOf(current.targetB);
