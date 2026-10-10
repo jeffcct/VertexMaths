@@ -6,7 +6,8 @@
 (function(){
 
   var PRACTICE_PAGES = {
-    'algebraic-perimeter': 'practice-algebraic-perimeter.html'
+    'algebraic-perimeter': 'practice-algebraic-perimeter.html',
+    'word-interpreting': 'practice-word-interpreting.html'
   };
 
   document.addEventListener('DOMContentLoaded', function(){

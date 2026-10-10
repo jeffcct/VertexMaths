@@ -41,3 +41,10 @@
   paint-order:stroke fill; stroke:var(--paper-raised); stroke-width:6px; stroke-linejoin:round;
 }
 .shape-not-to-scale{ text-align:center; color:var(--ink-soft); font-size:.78rem; margin-top:.4rem; }
+
+/* A multi-line word-problem statement (practice-word-interpreting.html):
+   the given facts read as plain prose, with the actual instruction
+   (always the last line) picked out in bold. */
+.word-problem-statement{ font-size:.95rem; line-height:1.6; }
+.word-problem-statement div{ margin-bottom:.15rem; }
+.word-problem-statement div:last-child{ font-weight:600; margin-top:.5rem; }

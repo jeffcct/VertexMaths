@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Practice: Word Interpreting — Vertex Maths</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/practice.css">
+<link rel="stylesheet" href="css/exam.css">
+</head>
+<body>
+<div class="wrap wrap-wide" id="page-wrap">
+
+  <div class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">V</span>
+      <div>
+        <div class="brand-name">Vertex Maths</div>
+        <div class="brand-sub">Year 11 &middot; Mathematics</div>
+      </div>
+    </a>
+    <div class="greeting">Kia ora, <b>Amelia</b> &mdash; Room 14</div>
+  </div>
+
+  <!-- ============ PracticeWordInterpreting component ============ -->
+  <section class="view" id="view-practice-word-interpreting">
+
+    <div class="breadcrumb">
+      <button id="wordint-back-btn">← Exam Questions</button>
+      <span class="sep">/</span>
+      <span class="current">Word interpreting</span>
+    </div>
+
+    <div class="practice-layout">
+      <div class="shape-card">
+        <svg id="wordint-shape-svg" class="shape-diagram" viewBox="0 0 300 220" role="img" aria-label="A triangle with its vertices labelled"></svg>
+        <div class="shape-not-to-scale">Diagram not to scale</div>
+      </div>
+
+      <div class="practice-panel-group">
+      <div class="practice-panel">
+        <div>
+          <div class="practice-title">Interpret and solve</div>
+        </div>
+
+        <div class="word-problem-statement" id="wordint-statement"></div>
+
+        <div class="answer-row">
+          <span class="mono">Perimeter =</span>
+          <input type="text" id="wordint-answer-input" class="answer-input" inputmode="text" autocomplete="off" aria-label="Expression for the perimeter">
+        </div>
+
+        <div class="practice-actions">
+          <button class="practice-check-btn" id="wordint-check-btn">Check answer</button>
+          <button class="practice-next-btn" id="wordint-next-btn">New question</button>
+        </div>
+
+        <div class="feedback" id="wordint-feedback"></div>
+        <div class="practice-score-row">Score: <span class="mono" id="wordint-score">0 / 0</span></div>
+      </div>
+
+      <div class="working-sidebar">
+        <div class="working-card" id="wordint-working-card" hidden>
+          <div class="equation-label">Working</div>
+          <div class="working-lines" id="wordint-working-lines"></div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <footer>A freshly generated triangle each time &middot; translate the word relationships into algebra, then use the perimeter constraint to eliminate one variable</footer>
+  </section>
+
+</div>
+
+<script src="js/equation-parse.js"></script>
+<script src="js/working-trail.js"></script>
+<script src="js/practice-word-interpreting.js"></script>
+<script src="js/page-practice-word-interpreting.js"></script>
+</body>
+</html>
