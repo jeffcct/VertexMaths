@@ -7,7 +7,8 @@
 
   var PRACTICE_PAGES = {
     'algebraic-perimeter': 'practice-algebraic-perimeter.html',
-    'word-interpreting': 'practice-word-interpreting.html'
+    'word-interpreting': 'practice-word-interpreting.html',
+    '3d-pythagoras': 'practice-3d-pythagoras.html'
   };
 
   document.addEventListener('DOMContentLoaded', function(){

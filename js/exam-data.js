@@ -14,7 +14,8 @@ VM.examData = (function(){
 
   var topics = [
     { id:"algebraic-perimeter", name:"Algebraic perimeter", description:"A shape's sides are labelled in terms of x. Form and solve an equation from its perimeter to find x.", ready:true },
-    { id:"word-interpreting", name:"Word interpreting", description:"A shape's sides are described in words using two variables. Use a given constraint to eliminate one and find an expression for the perimeter in terms of the other.", ready:true }
+    { id:"word-interpreting", name:"Word interpreting", description:"A shape's sides are described in words using two variables. Use a given constraint to eliminate one and find an expression for the perimeter in terms of the other.", ready:true },
+    { id:"3d-pythagoras", name:"3D Pythagoras", description:"A box, pyramid or triangular prism with given lengths. Combine two Pythagorean steps to find a 3D distance or height.", ready:true }
   ];
 
   function findTopic(id){
