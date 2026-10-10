@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Exam Questions — Vertex Maths</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Karla:ital,wght@0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/exam.css">
+</head>
+<body>
+<div class="wrap" id="page-wrap">
+
+  <div class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">V</span>
+      <div>
+        <div class="brand-name">Vertex Maths</div>
+        <div class="brand-sub">Year 11 &middot; Mathematics</div>
+      </div>
+    </a>
+    <div class="greeting">Kia ora, <b>Amelia</b> &mdash; Room 14</div>
+  </div>
+
+  <!-- ============ ExamQuestionsView component ============ -->
+  <section class="view" id="view-exam-questions">
+
+    <div class="breadcrumb">
+      <button id="exam-back-btn">← Home</button>
+      <span class="sep">/</span>
+      <span class="current">Exam Questions</span>
+    </div>
+
+    <div class="tree-header">
+      <div>
+        <h1 class="tree-title">Exam Questions</h1>
+        <div class="tree-sub">Standalone exam-style questions, grouped by type</div>
+      </div>
+    </div>
+
+    <div class="exam-topic-grid" id="exam-topic-grid"></div>
+
+    <footer>Freshly generated questions each time</footer>
+  </section>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/exam-data.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/exam-questions-view.js"></script>
+<script src="js/page-exam-questions.js"></script>
+</body>
+</html>

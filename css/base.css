@@ -14,6 +14,7 @@
   --measurement:#B5772F; --measurement-soft:#F3E6D4;
   --trig:#1E8A82; --trig-soft:#DCEEEC;
   --algebra:#3D4FC4; --algebra-soft:#E1E4F7;
+  --exam:#8C3F8A; --exam-soft:#F1E1F0;
   --success:#2F8F5B; --success-soft:#DEF0E6;
   --warn:#C6862A; --warn-soft:#F6E7D3;
   --danger:#C0403F; --danger-soft:#F7E1E0;
@@ -31,6 +32,7 @@
     --measurement:#E0A05B; --measurement-soft:#3A2C1C;
     --trig:#4FC3B8; --trig-soft:#163330;
     --algebra:#8B9AF0; --algebra-soft:#232A52;
+    --exam:#D18ACE; --exam-soft:#3A2C3A;
     --success:#58C48A; --success-soft:#1C3226;
     --warn:#E3A855; --warn-soft:#3A2C15;
     --danger:#E27877; --danger-soft:#3A2323;
@@ -48,6 +50,7 @@
   --measurement:#E0A05B; --measurement-soft:#3A2C1C;
   --trig:#4FC3B8; --trig-soft:#163330;
   --algebra:#8B9AF0; --algebra-soft:#232A52;
+  --exam:#D18ACE; --exam-soft:#3A2C3A;
   --success:#58C48A; --success-soft:#1C3226;
   --warn:#E3A855; --warn-soft:#3A2C15;
   --danger:#E27877; --danger-soft:#3A2323;

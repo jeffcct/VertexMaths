@@ -12,6 +12,9 @@
       onOpenAlgebra: function(){
         window.location.href = 'algebra.html';
       },
+      onOpenExamQuestions: function(){
+        window.location.href = 'exam-questions.html';
+      },
       onResume: function(topicId){
         window.location.href = 'algebra.html?topic=' + encodeURIComponent(topicId);
       }

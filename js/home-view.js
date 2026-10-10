@@ -1,8 +1,8 @@
 /* ============================================================
    home-view.js — the HomeView component: the resume card and the
-   4-strand picker. Knows nothing about how the DAG is drawn; it
-   just reports "open algebra" or "resume" via the callbacks it's
-   given in init().
+   strand picker. Knows nothing about how a strand's own page is
+   drawn; it just reports "open algebra", "open exam questions" or
+   "resume" via the callbacks it's given in init().
    ============================================================ */
 window.VM = window.VM || {};
 
@@ -12,11 +12,17 @@ VM.HomeView = (function(){
     opts = opts || {};
 
     var algebraCard = document.getElementById('card-algebra');
+    var examCard = document.getElementById('card-exam');
     var resumeBtn = document.getElementById('resume-btn');
 
     if(algebraCard){
       algebraCard.addEventListener('click', function(){
         if(opts.onOpenAlgebra) opts.onOpenAlgebra();
+      });
+    }
+    if(examCard){
+      examCard.addEventListener('click', function(){
+        if(opts.onOpenExamQuestions) opts.onOpenExamQuestions();
       });
     }
     if(resumeBtn){

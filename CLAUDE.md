@@ -90,10 +90,20 @@ introducing a new pattern:
   student's own valid working. The wrong-answer "it should be X"
   message is the one place a derived canonical form belongs, since
   there's no "their own" correct answer to show in that case.
-- Hints describe the method, or use a small fixed example distinct
-  from the current question — a hint must never be constructible
-  into the current question's own expected-answer string.
-- `js/data.js` is the single source of truth for topic names,
-  statuses, and prerequisites; a topic's Learn/Practice buttons are
-  enabled by adding `ready:true` there and, for Practice, adding an
-  entry to `PRACTICE_PAGES` in `js/page-algebra.js`.
+- Hints, where a component has one at all, say how to *type* an
+  answer (notation/format — e.g. "leave the box blank for 1", "use
+  `^2` for squared") rather than how to *solve* the question. The
+  step prompt plus the Working panel are the only other assistance a
+  question gets; don't add a subtitle or hint line that restates the
+  solving method or walks through a worked example. Where a hint
+  still needs a fixed example (e.g. to demonstrate notation), the
+  same hint-safety rule applies: it must never be constructible into
+  the current question's own expected-answer string.
+- `js/data.js` is the single source of truth for the Algebra &
+  Graphing strand's topic names, statuses, and prerequisites; a
+  topic's Learn/Practice buttons are enabled by adding `ready:true`
+  there and, for Practice, adding an entry to `PRACTICE_PAGES` in
+  `js/page-algebra.js`. Other strands that don't have a skill
+  DAG — e.g. "Exam Questions" — use their own flat topic list instead
+  (see `js/exam-data.js` / `exam-questions.html`) rather than forcing
+  a prerequisite graph onto content that doesn't have prerequisites.

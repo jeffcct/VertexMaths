@@ -75,6 +75,10 @@
 }
 .strand-card.active .strand-progress span{ display:block; height:100%; background:var(--algebra); }
 
+.strand-card.active.exam{ border-color:var(--exam); }
+.strand-card.active.exam .strand-glyph{ color:var(--exam); }
+.strand-card.active.exam .strand-cta{ color:var(--exam); }
+
 .strand-card.dummy{ border-style:dashed; }
 .strand-card.dummy .strand-glyph,
 .strand-card.dummy .strand-name{ color:var(--ink-soft); }

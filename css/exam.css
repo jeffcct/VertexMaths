@@ -1,0 +1,43 @@
+/* ============================================================
+   exam.css — styles owned by the Exam Questions strand: the hub
+   page's topic grid (exam-questions.html) and the shape-diagram
+   practice page (practice-algebraic-perimeter.html).
+   ============================================================ */
+
+.tree-header{ display:flex; align-items:baseline; justify-content:space-between; gap:1rem; margin-bottom:1.4rem; flex-wrap:wrap; }
+.tree-title{ font-size:1.6rem; font-weight:700; }
+.tree-sub{ color:var(--ink-soft); font-size:.9rem; }
+
+/* ---- Exam Questions hub (exam-questions.html) ---- */
+.exam-topic-grid{
+  display:grid; grid-template-columns:1fr 1fr; gap:1rem;
+}
+@media (max-width:620px){ .exam-topic-grid{ grid-template-columns:1fr; } }
+
+.exam-topic-card{
+  border:1px solid var(--line); border-radius:14px; background:var(--paper-raised);
+  padding:1.3rem 1.3rem 1.1rem; box-shadow:0 1px 2px var(--shadow);
+}
+.exam-topic-name{ font-size:1.1rem; font-weight:700; margin-bottom:.4rem; }
+.exam-topic-desc{ color:var(--ink-soft); font-size:.88rem; line-height:1.4; margin-bottom:1rem; }
+.exam-topic-actions{ display:flex; justify-content:flex-end; }
+.exam-topic-actions .pill.practice{
+  background:var(--exam); color:#fff; border:none; border-radius:999px;
+  padding:.5rem 1rem; font-size:.82rem; font-weight:600;
+}
+.exam-topic-actions .pill.practice:disabled{ background:var(--line); color:var(--ink-soft); cursor:not-allowed; }
+
+/* ---- Shape diagram (practice-algebraic-perimeter.html) ---- */
+.shape-card{
+  flex:none; background:var(--paper-raised); border:1px solid var(--line);
+  border-radius:14px; padding:1rem; box-shadow:0 1px 2px var(--shadow);
+  width:320px;
+}
+.shape-diagram{ display:block; width:100%; height:auto; }
+.shape-outline{ fill:none; stroke:var(--exam); stroke-width:2.5; stroke-linejoin:round; }
+.shape-label{
+  font-family:'IBM Plex Mono', monospace; font-size:15px; font-weight:600;
+  fill:var(--ink); text-anchor:middle; dominant-baseline:middle;
+  paint-order:stroke fill; stroke:var(--paper-raised); stroke-width:6px; stroke-linejoin:round;
+}
+.shape-not-to-scale{ text-align:center; color:var(--ink-soft); font-size:.78rem; margin-top:.4rem; }
