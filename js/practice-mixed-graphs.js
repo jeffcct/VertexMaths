@@ -451,12 +451,13 @@ VM.PracticeMixedGraphs = (function(){
     return { a: a, roots: [-parseFloat(m[2]), -parseFloat(m[3])] };
   }
 
-  // practice-exp-with-shift.js's parseExpEquation: "y = -2(3)^x + 1".
+  // practice-exp-with-shift.js's parseExpEquation: "y = -2(3)^x + 1",
+  // also accepting the exponent inside the brackets, "y = -2(3^x) + 1".
   function parseExpEquation(raw){
     var s = (raw || '').toLowerCase().replace(/\s+/g, '');
     if(s.slice(0, 2) !== 'y=') return null;
     s = s.slice(2);
-    var m = s.match(/^([+-]?\d*)\((\d+)\)\^x([+-]\d+)?$/);
+    var m = s.match(/^([+-]?\d*)\((\d+)\)\^x([+-]\d+)?$/) || s.match(/^([+-]?\d*)\((\d+)\^x\)([+-]\d+)?$/);
     if(!m) return null;
     var a = parseGradient(m[1]);
     if(isNaN(a)) return null;

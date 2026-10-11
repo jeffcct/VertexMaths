@@ -136,12 +136,14 @@ VM.PracticeExpNoShift = (function(){
     return 'y = ' + coeffLabel(a) + '(' + b + ')^x';
   }
 
-  // "y = -2(3)^x" — the full equation.
+  // "y = -2(3)^x" — the full equation. Also accepts the exponent
+  // written inside the brackets, "y = -2(3^x)" — both notations mean
+  // the same thing, so both are valid ways to type it.
   function parseExpEquation(raw){
     var s = (raw || '').toLowerCase().replace(/\s+/g, '');
     if(s.slice(0, 2) !== 'y=') return null;
     s = s.slice(2);
-    var m = s.match(/^([+-]?\d*)\((\d+)\)\^x$/);
+    var m = s.match(/^([+-]?\d*)\((\d+)\)\^x$/) || s.match(/^([+-]?\d*)\((\d+)\^x\)$/);
     if(!m) return null;
     var aVal = parseGradient(m[1]);
     if(isNaN(aVal)) return null;

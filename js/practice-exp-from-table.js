@@ -104,9 +104,11 @@ VM.PracticeExpFromTable = (function(){
   }
 
   // "y = k(3)^x + c" — the base substituted, k and c left literal.
+  // Also accepts "y = k(3^x) + c", with the exponent inside the
+  // brackets instead of outside them — both are the same equation.
   function parseBasicEquation(raw){
     var s = (raw || '').toLowerCase().replace(/\s+/g, '');
-    var m = s.match(/^y=k\((\d+)\)\^x\+c$/);
+    var m = s.match(/^y=k\((\d+)\)\^x\+c$/) || s.match(/^y=k\((\d+)\^x\)\+c$/);
     if(!m) return null;
     return { a: parseInt(m[1], 10) };
   }
@@ -128,12 +130,14 @@ VM.PracticeExpFromTable = (function(){
     });
   }
 
-  // "y = -2(3)^x + 1" — the full equation.
+  // "y = -2(3)^x + 1" — the full equation. Also accepts the exponent
+  // written inside the brackets, "y = -2(3^x) + 1" — both notations
+  // mean the same thing, so both are valid ways to type it.
   function parseExpEquation(raw){
     var s = (raw || '').toLowerCase().replace(/\s+/g, '');
     if(s.slice(0, 2) !== 'y=') return null;
     s = s.slice(2);
-    var m = s.match(/^([+-]?\d*)\((\d+)\)\^x([+-]\d+)?$/);
+    var m = s.match(/^([+-]?\d*)\((\d+)\)\^x([+-]\d+)?$/) || s.match(/^([+-]?\d*)\((\d+)\^x\)([+-]\d+)?$/);
     if(!m) return null;
     var k = parseGradient(m[1]);
     if(isNaN(k)) return null;
