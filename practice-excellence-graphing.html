@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Practice: Excellence Graphing — Vertex Maths</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/practice.css">
+<link rel="stylesheet" href="css/exam.css">
+</head>
+<body>
+<div class="wrap wrap-wide" id="page-wrap">
+
+  <div class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">V</span>
+      <div>
+        <div class="brand-name">Vertex Maths</div>
+        <div class="brand-sub">Year 11 &middot; Mathematics</div>
+      </div>
+    </a>
+    <div class="greeting">Kia ora, <b>Amelia</b> &mdash; Room 14</div>
+  </div>
+
+  <!-- ============ PracticeExcellenceGraphing component ============ -->
+  <section class="view" id="view-practice-excellence-graphing">
+
+    <div class="breadcrumb">
+      <button id="excgraph-back-btn">← Exam Questions</button>
+      <span class="sep">/</span>
+      <span class="current">Excellence Graphing</span>
+    </div>
+
+    <div class="practice-layout">
+      <div class="shape-card">
+        <svg id="excgraph-shape-svg" class="shape-diagram" viewBox="0 0 300 220" role="img" aria-label="A parabolic arch sketched on a set of axes"></svg>
+        <div class="shape-not-to-scale">Diagram not to scale</div>
+      </div>
+
+      <div class="practice-panel-group">
+      <div class="practice-panel">
+        <div>
+          <div class="practice-title">Translate and rescale the arch</div>
+        </div>
+
+        <div class="word-problem-statement" id="excgraph-statement"></div>
+
+        <div class="answer-row">
+          <span class="mono">y =</span>
+          <input type="text" id="excgraph-eq-input" class="answer-input answer-input-wide power-input" inputmode="text" autocomplete="off" aria-label="Full equation" placeholder="e.g. y = -4/25x^2 + 24/25x - 3">
+        </div>
+
+        <div class="practice-actions">
+          <button class="practice-check-btn" id="excgraph-check-btn">Check answer</button>
+          <button class="practice-next-btn" id="excgraph-next-btn">New question</button>
+        </div>
+
+        <div class="feedback" id="excgraph-feedback"></div>
+        <div class="practice-score-row">Score: <span class="mono" id="excgraph-score">0 / 0</span></div>
+      </div>
+
+      <div class="working-sidebar">
+        <div class="working-card" id="excgraph-working-card" hidden>
+          <div class="equation-label">Working</div>
+          <div class="working-lines" id="excgraph-working-lines"></div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <footer>A freshly generated arch each time &middot; apply the translation and the scale-factor change together, then expand into standard form</footer>
+  </section>
+
+</div>
+
+<script src="js/equation-parse.js"></script>
+<script src="js/working-trail.js"></script>
+<script src="js/practice-excellence-graphing.js"></script>
+<script src="js/page-practice-excellence-graphing.js"></script>
+</body>
+</html>

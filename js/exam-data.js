@@ -17,7 +17,8 @@ VM.examData = (function(){
     { id:"word-interpreting", name:"Word interpreting", description:"A shape's sides are described in words using two variables. Use a given constraint to eliminate one and find an expression for the perimeter in terms of the other.", ready:true },
     { id:"3d-pythagoras", name:"3D Pythagoras", description:"A box, pyramid or triangular prism with given lengths. Combine two Pythagorean steps to find a 3D distance or height.", ready:true },
     { id:"exam-mixed-tables", name:"Mixed: finding equations from a table", description:"A table of values that could be linear, quadratic, or exponential. Work out which, then write its full equation — no steps shown.", ready:true },
-    { id:"exam-mixed-graphs", name:"Mixed: finding equations from a graph", description:"A graph that could be a line, a parabola, or an exponential. Work out which, then write its full equation — no steps shown.", ready:true }
+    { id:"exam-mixed-graphs", name:"Mixed: finding equations from a graph", description:"A graph that could be a line, a parabola, or an exponential. Work out which, then write its full equation — no steps shown.", ready:true },
+    { id:"excellence-graphing", name:"Excellence Graphing", description:"A parabolic arch is translated and its scale factor changed. Combine both transformations and expand the result into y = ax^2 + bx + c.", ready:true }
   ];
 
   function findTopic(id){
