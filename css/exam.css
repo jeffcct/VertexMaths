@@ -58,12 +58,15 @@
   fill:var(--ink-soft); text-anchor:middle; dominant-baseline:middle;
 }
 
-/* The given equation labelled on an illustrative sketch (practice-
-   excellence-graphing.html) — smaller than .shape-label since it's a
-   full equation string, not a single number, with the same text-halo
-   so it stays legible over the arch's curve. */
-.arch-equation-label{
-  font-family:'IBM Plex Mono', monospace; font-size:12.5px; font-weight:600;
-  fill:var(--ink); text-anchor:middle; dominant-baseline:middle;
-  paint-order:stroke fill; stroke:var(--paper-raised); stroke-width:5px; stroke-linejoin:round;
+/* A vertically-stacked fraction (numerator over denominator, with a
+   dividing bar) for displaying a non-integer coefficient as an actual
+   fraction rather than inline "p/q" text — used in
+   practice-excellence-graphing.html's statement and feedback, wherever
+   a generated (never user-typed) number needs this treatment. */
+.stacked-frac{
+  display:inline-flex; flex-direction:column; align-items:center;
+  vertical-align:middle; font-size:.85em; line-height:1.15;
+  margin:0 .12em; position:relative; top:.05em;
 }
+.stacked-frac .frac-num{ padding:0 .2em .05em; border-bottom:1.5px solid currentColor; }
+.stacked-frac .frac-den{ padding:.05em .2em 0; }
