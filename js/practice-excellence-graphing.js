@@ -233,17 +233,18 @@ VM.PracticeExcellenceGraphing = (function(){
   }
 
   // ---- Parsing -----------------------------------------------------
-  // "y = -4/25x^2 + 24/25x - 3" — same shape as every other quadratic
-  // parser on the site (VM.EquationParse.parseGradient's blank-means-1/
-  // "-"-means--1 shorthand for the leading coefficient; a required
-  // x-term; an optional constant), except each magnitude may also be
-  // written as a fraction "p/q" or a decimal ("-0.16") instead of a
-  // plain integer.
+  // "-4/25x^2 + 24/25x - 3" — the "y =" is already shown as a fixed
+  // label next to the input, so (same convention as e.g.
+  // practice-word-interpreting.js's "Perimeter =" prefix) the student
+  // only types the right-hand side, not "y=" again. Same shape as
+  // every other quadratic parser on the site otherwise
+  // (VM.EquationParse.parseGradient's blank-means-1/"-"-means--1
+  // shorthand for the leading coefficient; a required x-term; an
+  // optional constant), except each magnitude may also be written as
+  // a fraction "p/q" or a decimal ("-0.16") instead of a plain integer.
 
   function parseStandardEquation(raw){
     var s = (raw || '').toLowerCase().replace(/\s+/g, '');
-    if(s.slice(0, 2) !== 'y=') return null;
-    s = s.slice(2);
     var NUM = '\\d*(?:\\.\\d+)?(?:\\/\\d+)?';
     var re = new RegExp('^([+-]?' + NUM + ')x\\^2([+-])(' + NUM + ')x([+-]\\d+(?:\\.\\d+)?(?:\\/\\d+)?)?$');
     var m = s.match(re);
@@ -266,7 +267,7 @@ VM.PracticeExcellenceGraphing = (function(){
     var raw = els.eqInput.value.trim();
     var parsed = parseStandardEquation(raw);
     if(!parsed){
-      els.feedback.textContent = 'Write it as y = ax^2 + bx + c, using ^2 for squared. A coefficient that isn’t a whole number can be typed as a fraction or a decimal, e.g. -3/8 or -0.375.';
+      els.feedback.textContent = 'Write it as ax^2 + bx + c, using ^2 for squared. A coefficient that isn’t a whole number can be typed as a fraction or a decimal, e.g. -3/8 or -0.375.';
       els.feedback.className = 'feedback incorrect';
       els.eqInput.classList.add('wrong');
       return false;
