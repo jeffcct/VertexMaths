@@ -18,7 +18,8 @@ VM.examData = (function(){
     { id:"3d-pythagoras", name:"3D Pythagoras", description:"A box, pyramid or triangular prism with given lengths. Combine two Pythagorean steps to find a 3D distance or height.", ready:true },
     { id:"exam-mixed-tables", name:"Mixed: finding equations from a table", description:"A table of values that could be linear, quadratic, or exponential. Work out which, then write its full equation — no steps shown.", ready:true },
     { id:"exam-mixed-graphs", name:"Mixed: finding equations from a graph", description:"A graph that could be a line, a parabola, or an exponential. Work out which, then write its full equation — no steps shown.", ready:true },
-    { id:"excellence-graphing", name:"Excellence Graphing", description:"A parabolic arch is translated and its scale factor changed. Combine both transformations and expand the result into y = ax^2 + bx + c.", ready:true }
+    { id:"excellence-graphing", name:"Excellence Graphing", description:"A parabolic arch is translated and its scale factor changed. Combine both transformations and expand the result into y = ax^2 + bx + c.", ready:true },
+    { id:"exam-solving-polys", name:"Solving polynomial equations (rearranging required)", description:"A non-monic quadratic equation, never already set to 0. Rearrange it, factorise using integer methods (e.g. splitting the middle term), and solve for x.", ready:true }
   ];
 
   function findTopic(id){

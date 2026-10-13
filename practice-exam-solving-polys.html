@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Practice: Solving Polynomial Equations — Vertex Maths</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/practice.css">
+</head>
+<body>
+<div class="wrap wrap-wide" id="page-wrap">
+
+  <div class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">V</span>
+      <div>
+        <div class="brand-name">Vertex Maths</div>
+        <div class="brand-sub">Year 11 &middot; Mathematics</div>
+      </div>
+    </a>
+    <div class="greeting">Kia ora, <b>Amelia</b> &mdash; Room 14</div>
+  </div>
+
+  <!-- ============ PracticeExamSolvingPolys component ============ -->
+  <section class="view" id="view-practice-exam-solving-polys">
+
+    <div class="breadcrumb">
+      <button id="examsolvepoly-back-btn">← Exam Questions</button>
+      <span class="sep">/</span>
+      <span class="current">Solving polynomial equations</span>
+    </div>
+
+    <div class="practice-layout">
+      <div class="equations-card">
+        <div class="equation-label">Solve</div>
+        <div class="equation-line" id="examsolvepoly-equation"></div>
+      </div>
+
+      <div class="practice-panel-group">
+      <div class="practice-panel">
+        <div>
+          <div class="practice-title">Rearrange, factorise, and solve</div>
+        </div>
+
+        <div class="form-template mono">ax² + bx + c = 0</div>
+
+        <div class="step-prompt">Rearrange the equation so it equals 0, factorise using integer methods, then solve for x — there are two solutions.</div>
+
+        <div class="answer-row">
+          <span class="mono">x =</span>
+          <input type="text" id="examsolvepoly-solve-x1" class="answer-input" inputmode="text" autocomplete="off" aria-label="First solution">
+          <span class="mono">or x =</span>
+          <input type="text" id="examsolvepoly-solve-x2" class="answer-input" inputmode="text" autocomplete="off" aria-label="Second solution">
+        </div>
+
+        <div class="answer-hint-row">
+          <div class="answer-hint">A solution that isn&rsquo;t a whole number can be typed as a fraction, e.g. -3/2.</div>
+        </div>
+
+        <div class="practice-actions">
+          <button class="practice-check-btn" id="examsolvepoly-check-btn">Check answer</button>
+          <button class="practice-next-btn" id="examsolvepoly-next-btn">New question</button>
+        </div>
+
+        <div class="feedback" id="examsolvepoly-feedback"></div>
+        <div class="practice-score-row">Score: <span class="mono" id="examsolvepoly-score">0 / 0</span></div>
+      </div>
+
+      <div class="working-sidebar">
+        <div class="working-card" id="examsolvepoly-working-card" hidden>
+          <div class="equation-label">Working</div>
+          <div class="working-lines" id="examsolvepoly-working-lines"></div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <footer>A freshly generated equation each time &middot; it's never already set to 0 and never monic — rearrange and factorise using the AC method, and either order is accepted for the two solutions</footer>
+  </section>
+
+</div>
+
+<script src="js/equation-parse.js"></script>
+<script src="js/working-trail.js"></script>
+<script src="js/practice-exam-solving-polys.js"></script>
+<script src="js/page-practice-exam-solving-polys.js"></script>
+</body>
+</html>

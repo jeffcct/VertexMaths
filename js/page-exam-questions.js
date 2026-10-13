@@ -11,7 +11,8 @@
     '3d-pythagoras': 'practice-3d-pythagoras.html',
     'exam-mixed-tables': 'practice-exam-mixed-tables.html',
     'exam-mixed-graphs': 'practice-exam-mixed-graphs.html',
-    'excellence-graphing': 'practice-excellence-graphing.html'
+    'excellence-graphing': 'practice-excellence-graphing.html',
+    'exam-solving-polys': 'practice-exam-solving-polys.html'
   };
 
   document.addEventListener('DOMContentLoaded', function(){
