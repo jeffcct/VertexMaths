@@ -110,11 +110,11 @@ VM.Practice3DTrigPole = (function(){
   function renderShape(){
     var V = { x: 160, y: 28 }, O = { x: 160, y: 190 };
     var A = { x: 55, y: 222 }, B = { x: 265, y: 222 };
-    // C sits almost directly behind the pole from this viewing angle
-    // (barely offset from O's own x), so its wire runs behind V-O for
-    // almost its whole length, only stepping clear right at the end —
-    // same read as the reference photo this diagram is modelled on.
-    var C = { x: 150, y: 278 };
+    // C is on the far side of the ground plane from the viewer — in
+    // this oblique projection that puts it above the A-B line (behind
+    // O, toward V) rather than below it, and barely offset from O's
+    // own x so its wire reads as passing behind the pole.
+    var C = { x: 152, y: 148 };
 
     function line(p1, p2, cls){ return '<line x1="' + p1.x + '" y1="' + p1.y + '" x2="' + p2.x + '" y2="' + p2.y + '" class="' + cls + '"></line>'; }
     function label(p, text, dx, dy){ return '<text x="' + (p.x + dx) + '" y="' + (p.y + dy) + '" class="shape-vertex-label">' + text + '</text>'; }
@@ -130,7 +130,7 @@ VM.Practice3DTrigPole = (function(){
     svg += label(V, 'V', 0, -12);
     svg += label(A, 'A', -14, 4);
     svg += label(B, 'B', 14, 4);
-    svg += label(C, 'C', 0, 18);
+    svg += label(C, 'C', -16, 4);
     svg += label(O, 'O', 14, 12);
 
     els.svg.innerHTML = svg;
@@ -141,13 +141,28 @@ VM.Practice3DTrigPole = (function(){
   // The given angles are whole-number degrees but the answer
   // generally isn't — correctness is "rounds to the same 2dp value
   // as the true answer", same convention as practice-3d-pythagoras.js.
+  // The student types the "h" themselves as part of the answer (it's
+  // not a fixed label the page supplies), so it's stripped off before
+  // parsing the numeric part.
+
+  function parseAnswer(raw){
+    var s = (raw || '').toLowerCase().replace(/\s+/g, '');
+    if(s.slice(-1) !== 'h') return NaN;
+    return parseFloat(s.slice(0, -1));
+  }
 
   function checkAnswer(){
     if(!current) return false;
     var raw = (els.answerInput.value || '').trim();
-    var got = parseFloat(raw);
+    var got = parseAnswer(raw);
     var trueRounded = round2(current.k);
-    var ok = !isNaN(got) && Math.abs(got - current.k) < 0.005;
+    if(isNaN(got)){
+      els.feedback.textContent = 'Write it as a multiple of h, e.g. 1.83h.';
+      els.feedback.className = 'feedback incorrect';
+      els.answerInput.classList.add('wrong');
+      return false;
+    }
+    var ok = Math.abs(got - current.k) < 0.005;
     els.answerInput.classList.toggle('right', ok);
     els.answerInput.classList.toggle('wrong', !ok);
 
@@ -156,9 +171,9 @@ VM.Practice3DTrigPole = (function(){
       score.correct++;
       // Echo exactly what was typed — see the echo-the-student's-
       // answer convention in CLAUDE.md.
-      els.feedback.textContent = 'Correct — AB = ' + raw + 'h.';
+      els.feedback.textContent = 'Correct — AB = ' + raw + '.';
       els.feedback.className = 'feedback correct';
-      working.push('AB = ' + raw + 'h');
+      working.push('AB = ' + raw);
     } else {
       els.feedback.textContent = 'Not quite. It should be AB = ' + trueRounded.toFixed(2) + 'h.';
       els.feedback.className = 'feedback incorrect';
