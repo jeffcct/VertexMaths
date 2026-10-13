@@ -70,3 +70,12 @@
 }
 .stacked-frac .frac-num{ padding:0 .2em .05em; border-bottom:1.5px solid currentColor; }
 .stacked-frac .frac-den{ padding:.05em .2em 0; }
+
+/* A vertical pole and its wires (practice-3d-trig-pole.html): a thick
+   "pole-line" for the pole itself, thinner "wire-line"s for the wires
+   running from its top to each ground point, and faint "ground-line"s
+   for the (otherwise unlabelled) ground segments the angle problem
+   actually turns on. */
+.pole-line{ stroke:var(--exam); stroke-width:6; stroke-linecap:round; }
+.wire-line{ stroke:var(--ink); stroke-width:1.5; }
+.ground-line{ stroke:var(--ink-soft); stroke-width:1; }

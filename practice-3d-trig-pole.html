@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Practice: 3D Trigonometry — Vertex Maths</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/practice.css">
+<link rel="stylesheet" href="css/exam.css">
+</head>
+<body>
+<div class="wrap wrap-wide" id="page-wrap">
+
+  <div class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">V</span>
+      <div>
+        <div class="brand-name">Vertex Maths</div>
+        <div class="brand-sub">Year 11 &middot; Mathematics</div>
+      </div>
+    </a>
+    <div class="greeting">Kia ora, <b>Amelia</b> &mdash; Room 14</div>
+  </div>
+
+  <!-- ============ Practice3DTrigPole component ============ -->
+  <section class="view" id="view-practice-3d-trig-pole">
+
+    <div class="breadcrumb">
+      <button id="trigpole-back-btn">← Exam Questions</button>
+      <span class="sep">/</span>
+      <span class="current">3D Trigonometry</span>
+    </div>
+
+    <div class="practice-layout">
+      <div class="shape-card">
+        <svg id="trigpole-shape-svg" class="shape-diagram" viewBox="0 0 320 320" role="img" aria-label="A vertical pole with wires to three ground points"></svg>
+        <div class="shape-not-to-scale">Diagram not to scale</div>
+      </div>
+
+      <div class="practice-panel-group">
+      <div class="practice-panel">
+        <div>
+          <div class="practice-title">Pole and wires</div>
+        </div>
+
+        <div class="word-problem-statement" id="trigpole-statement"></div>
+
+        <div class="answer-row">
+          <span class="mono">AB =</span>
+          <input type="text" id="trigpole-answer-input" class="answer-input" inputmode="decimal" autocomplete="off" aria-label="Distance AB, as a multiple of h">
+          <span class="mono">h</span>
+        </div>
+
+        <div class="answer-hint-row">
+          <div class="answer-hint">Round to two decimal places.</div>
+        </div>
+
+        <div class="practice-actions">
+          <button class="practice-check-btn" id="trigpole-check-btn">Check answer</button>
+          <button class="practice-next-btn" id="trigpole-next-btn">New question</button>
+        </div>
+
+        <div class="feedback" id="trigpole-feedback"></div>
+        <div class="practice-score-row">Score: <span class="mono" id="trigpole-score">0 / 0</span></div>
+      </div>
+
+      <div class="working-sidebar">
+        <div class="working-card" id="trigpole-working-card" hidden>
+          <div class="equation-label">Working</div>
+          <div class="working-lines" id="trigpole-working-lines"></div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <footer>A freshly generated pole each time &middot; each wire's angle can be given at the ground point or at the top — work out OA and OB first, then combine them with Pythagoras</footer>
+  </section>
+
+</div>
+
+<script src="js/equation-parse.js"></script>
+<script src="js/working-trail.js"></script>
+<script src="js/practice-3d-trig-pole.js"></script>
+<script src="js/page-practice-3d-trig-pole.js"></script>
+</body>
+</html>

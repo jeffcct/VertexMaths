@@ -19,7 +19,8 @@ VM.examData = (function(){
     { id:"exam-mixed-tables", name:"Mixed: finding equations from a table", description:"A table of values that could be linear, quadratic, or exponential. Work out which, then write its full equation — no steps shown.", ready:true },
     { id:"exam-mixed-graphs", name:"Mixed: finding equations from a graph", description:"A graph that could be a line, a parabola, or an exponential. Work out which, then write its full equation — no steps shown.", ready:true },
     { id:"excellence-graphing", name:"Excellence Graphing", description:"A parabolic arch is translated and its scale factor changed. Combine both transformations and expand the result into y = ax^2 + bx + c.", ready:true },
-    { id:"exam-solving-polys", name:"Solving polynomial equations (rearranging required)", description:"A non-monic quadratic equation, never already set to 0. Rearrange it, factorise using integer methods (e.g. splitting the middle term), and solve for x.", ready:true }
+    { id:"exam-solving-polys", name:"Solving polynomial equations (rearranging required)", description:"A non-monic quadratic equation, never already set to 0. Rearrange it, factorise using integer methods (e.g. splitting the middle term), and solve for x.", ready:true },
+    { id:"3d-trig-pole", name:"3D Trigonometry: pole and wires", description:"A vertical pole's height and two wire angles (given at the ground or at the top) are known. OA and OB are perpendicular. Combine trigonometry with Pythagoras to find AB in terms of h.", ready:true }
   ];
 
   function findTopic(id){
