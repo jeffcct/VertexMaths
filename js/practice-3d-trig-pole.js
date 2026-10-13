@@ -109,7 +109,12 @@ VM.Practice3DTrigPole = (function(){
 
   function renderShape(){
     var V = { x: 160, y: 28 }, O = { x: 160, y: 190 };
-    var A = { x: 55, y: 222 }, B = { x: 265, y: 222 }, C = { x: 128, y: 292 };
+    var A = { x: 55, y: 222 }, B = { x: 265, y: 222 };
+    // C sits almost directly behind the pole from this viewing angle
+    // (barely offset from O's own x), so its wire runs behind V-O for
+    // almost its whole length, only stepping clear right at the end —
+    // same read as the reference photo this diagram is modelled on.
+    var C = { x: 150, y: 278 };
 
     function line(p1, p2, cls){ return '<line x1="' + p1.x + '" y1="' + p1.y + '" x2="' + p2.x + '" y2="' + p2.y + '" class="' + cls + '"></line>'; }
     function label(p, text, dx, dy){ return '<text x="' + (p.x + dx) + '" y="' + (p.y + dy) + '" class="shape-vertex-label">' + text + '</text>'; }
