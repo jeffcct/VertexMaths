@@ -1,0 +1,36 @@
+/* ============================================================
+   auth.css — styles for login.html, the single page students and
+   the teacher use to sign up / sign in. Reuses the site's existing
+   button classes (.practice-check-btn/.practice-next-btn from
+   practice.css) for consistency; only the card/field layout here is
+   new.
+   ============================================================ */
+
+.auth-card{
+  max-width:380px; margin:3rem auto 0; background:var(--paper-raised);
+  border:1px solid var(--line); border-radius:14px; padding:1.8rem;
+  box-shadow:0 1px 2px var(--shadow);
+}
+.auth-title{ font-size:1.3rem; font-weight:700; margin-bottom:.3rem; }
+.auth-sub{ color:var(--ink-soft); font-size:.88rem; margin-bottom:1.4rem; }
+
+.auth-field{ display:flex; flex-direction:column; gap:.3rem; margin-bottom:1rem; }
+.auth-field label{ font-size:.82rem; font-weight:600; color:var(--ink-soft); }
+.auth-field input{
+  padding:.65rem .7rem; border:1.5px solid var(--line); border-radius:8px;
+  background:var(--paper); color:var(--ink); font-family:'Karla', sans-serif;
+  font-size:.95rem; width:100%;
+}
+.auth-field input:focus-visible{ border-color:var(--algebra); outline:none; }
+
+.auth-actions{ display:flex; flex-direction:column; gap:.6rem; margin-top:1.3rem; }
+.auth-actions .practice-check-btn,
+.auth-actions .practice-next-btn{ width:100%; text-align:center; }
+
+.auth-switch{ margin-top:1.1rem; font-size:.85rem; text-align:center; color:var(--ink-soft); }
+.auth-switch button{ color:var(--algebra); font-weight:600; background:none; border:none; padding:0; cursor:pointer; font-size:inherit; font-family:inherit; }
+
+.auth-message{ font-size:.85rem; padding:.7rem .9rem; border-radius:9px; margin-bottom:1rem; min-height:1.2em; }
+.auth-message:empty{ display:none; }
+.auth-message.error{ background:var(--danger-soft); color:var(--danger); }
+.auth-message.success{ background:var(--success-soft); color:var(--success); }

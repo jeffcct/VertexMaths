@@ -6,6 +6,11 @@
 (function(){
 
   document.addEventListener('DOMContentLoaded', function(){
+    VM.Auth.requireSession().then(function(session){
+      if(!session) return; // already redirecting to login.html
+      VM.Auth.applyGreeting();
+    });
+
     VM.Toast.init();
 
     VM.HomeView.init({
