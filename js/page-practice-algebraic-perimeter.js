@@ -7,6 +7,8 @@
 (function(){
 
   document.addEventListener('DOMContentLoaded', function(){
+    VM.Auth.requireSession().then(function(session){ if(!session) return; VM.Auth.applyGreeting(); });
+
     VM.PracticeAlgebraicPerimeter.init({
       onBack: function(){
         window.location.href = 'exam-questions.html';
