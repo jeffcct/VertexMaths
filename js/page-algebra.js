@@ -43,22 +43,32 @@
   };
 
   document.addEventListener('DOMContentLoaded', function(){
-    VM.Auth.requireSession().then(function(session){ if(!session) return; VM.Auth.applyGreeting(); });
+    VM.Auth.requireSession().then(function(session){
+      if(!session) return; // already redirecting to login.html
 
-    VM.Toast.init();
+      VM.Auth.applyGreeting();
 
-    VM.DagView.init({
-      onBack: function(){
-        window.location.href = 'index.html';
-      },
-      onOpenPractice: function(topicId){
-        var page = PRACTICE_PAGES[topicId];
-        if(page) window.location.href = page;
-      }
+      // Load the student's real per-topic status before DagView ever
+      // renders, so the DAG never flashes js/data.js's own
+      // placeholder statuses (several of which are hardcoded
+      // "mastered") before overwriting them.
+      return VM.Progress.applyTopicStatuses('algebra').then(function(){
+        VM.Toast.init();
+
+        VM.DagView.init({
+          onBack: function(){
+            window.location.href = 'index.html';
+          },
+          onOpenPractice: function(topicId){
+            var page = PRACTICE_PAGES[topicId];
+            if(page) window.location.href = page;
+          }
+        });
+
+        var topicId = new URLSearchParams(window.location.search).get('topic');
+        if(topicId){ VM.DagView.goToTopic(topicId); }
+      });
     });
-
-    var topicId = new URLSearchParams(window.location.search).get('topic');
-    if(topicId){ VM.DagView.goToTopic(topicId); }
   });
 
 })();
