@@ -1,6 +1,6 @@
 /* ============================================================
    progress.js — loads the signed-in student's real per-topic status
-   from Supabase and applies it over VM.data's topics in place.
+   from the backend and applies it over VM.data's topics in place.
 
    js/data.js's own `status` field on each topic is sample/placeholder
    data (it predates student accounts entirely, see the "Sample
@@ -16,7 +16,6 @@
 window.VM = window.VM || {};
 
 VM.Progress = (function(){
-  var client = VM.supabaseClient;
 
   function applyTopicStatuses(strand){
     return VM.Auth.getSession().then(function(session){
@@ -24,17 +23,12 @@ VM.Progress = (function(){
 
       VM.data.topics.forEach(function(t){ t.status = 'not-started'; });
 
-      return client
-        .from('topic_status')
-        .select('topic_id, status')
-        .eq('user_id', session.user.id)
-        .eq('strand', strand)
-        .then(function(res){
-          (res.data || []).forEach(function(row){
-            var topic = VM.data.findTopic(row.topic_id);
-            if(topic) topic.status = row.status;
-          });
+      return VM.api.request('/topic-status?strand=' + encodeURIComponent(strand)).then(function(data){
+        (data.rows || []).forEach(function(row){
+          var topic = VM.data.findTopic(row.topic_id);
+          if(topic) topic.status = row.status;
         });
+      });
     });
   }
 

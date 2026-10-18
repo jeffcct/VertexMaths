@@ -1,9 +1,8 @@
 /* ============================================================
-   auth.js — shared authentication helpers built on VM.supabaseClient:
-   requiring a signed-in session, signing out, and filling in the
-   topbar's greeting with the real signed-in user's own name (and
-   room, if a teacher has set one) instead of the old hardcoded
-   "Amelia" placeholder.
+   auth.js — shared authentication helpers built on VM.api: requiring
+   a signed-in session, signing out, and filling in the topbar's
+   greeting with the real signed-in user's own name (and room, if a
+   teacher has set one).
 
    Public API:
      VM.Auth.requireSession() — redirects to login.html if nobody's
@@ -18,11 +17,18 @@
 window.VM = window.VM || {};
 
 VM.Auth = (function(){
-  var client = VM.supabaseClient;
 
   function getSession(){
-    return client.auth.getSession().then(function(result){
-      return (result.data && result.data.session) || null;
+    var token = VM.api.getToken();
+    if(!token) return Promise.resolve(null);
+
+    return VM.api.request('/auth/me').then(function(data){
+      return { user: data.user };
+    }).catch(function(){
+      // Expired or otherwise invalid — drop it rather than keep
+      // retrying a token that will never work.
+      VM.api.setToken(null);
+      return null;
     });
   }
 
@@ -37,9 +43,9 @@ VM.Auth = (function(){
   }
 
   function signOut(){
-    return client.auth.signOut().then(function(){
-      window.location.href = 'login.html';
-    });
+    VM.api.setToken(null);
+    window.location.href = 'login.html';
+    return Promise.resolve();
   }
 
   function escapeHtml(s){
@@ -57,18 +63,11 @@ VM.Auth = (function(){
 
     return getSession().then(function(session){
       if(!session || !greetingEl) return null;
-      return client
-        .from('profiles')
-        .select('full_name, room')
-        .eq('id', session.user.id)
-        .single()
-        .then(function(res){
-          var profile = res.data;
-          var name = (profile && profile.full_name) || session.user.email;
-          var room = profile && profile.room;
-          greetingEl.innerHTML = 'Kia ora, <b>' + escapeHtml(name) + '</b>' + (room ? (' &mdash; ' + escapeHtml(room)) : '');
-          return profile;
-        });
+      var user = session.user;
+      var name = user.full_name || user.email;
+      var room = user.room;
+      greetingEl.innerHTML = 'Kia ora, <b>' + escapeHtml(name) + '</b>' + (room ? (' &mdash; ' + escapeHtml(room)) : '');
+      return user;
     });
   }
 
