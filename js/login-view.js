@@ -1,16 +1,28 @@
 /* ============================================================
    login-view.js — the LoginView component: a single email+password
    form that toggles between "sign in" and "create account" modes,
-   backed by the self-hosted backend's /api/auth routes (VM.api).
+   backed directly by Supabase Auth (VM.supabaseClient.auth). No
+   student data is read or written here beyond the signed-in user's
+   own account — profile creation on signup is handled entirely by
+   the database trigger in supabase/migrations/0001_init.sql, not by
+   this page.
 
-   Signup always creates a student account server-side — there is
-   no way to request a teacher account through this form.
+   Sign-up also asks for a full name (stored as auth user metadata,
+   which the database trigger copies into profiles.full_name) so the
+   topbar greeting has something nicer to show than a raw email
+   address.
+
+   If the Supabase project still has "Confirm email" turned on (see
+   supabase/README.md), a fresh signup won't come back with a session
+   straight away — this shows a "check your email" message and stays
+   in signup mode rather than assuming success.
 
    Public API: VM.LoginView.init()
    ============================================================ */
 window.VM = window.VM || {};
 
 VM.LoginView = (function(){
+  var client = VM.supabaseClient;
   var els = {};
   var mode = 'signin';    // 'signin' | 'signup'
 
@@ -41,16 +53,25 @@ VM.LoginView = (function(){
     setMessage('');
 
     var action = mode === 'signup'
-      ? VM.api.request('/auth/signup', {
-          method: 'POST',
-          body: { email: email, password: password, full_name: els.fullName.value.trim() }
+      ? client.auth.signUp({
+          email: email,
+          password: password,
+          options: { data: { full_name: els.fullName.value.trim() || null } }
         })
-      : VM.api.request('/auth/login', { method: 'POST', body: { email: email, password: password } });
+      : client.auth.signInWithPassword({ email: email, password: password });
 
-    action.then(function(data){
+    action.then(function(result){
       els.submitBtn.disabled = false;
-      VM.api.setToken(data.token);
-      window.location.href = 'index.html';
+      if(result.error){
+        setMessage(result.error.message, 'error');
+        return;
+      }
+      if(result.data && result.data.session){
+        window.location.href = 'index.html';
+        return;
+      }
+      // Signed up but no session yet — email confirmation is on.
+      setMessage('Account created — check your email to confirm it, then sign in.', 'success');
     }).catch(function(err){
       els.submitBtn.disabled = false;
       setMessage(err && err.message ? err.message : 'Something went wrong. Try again.', 'error');
@@ -74,8 +95,8 @@ VM.LoginView = (function(){
     });
 
     // Already signed in? Skip the form entirely.
-    VM.Auth.getSession().then(function(session){
-      if(session) window.location.href = 'index.html';
+    client.auth.getSession().then(function(result){
+      if(result.data && result.data.session) window.location.href = 'index.html';
     });
 
     setMode('signin');
