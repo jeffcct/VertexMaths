@@ -23,6 +23,9 @@
 }
 .auth-field input:focus-visible{ border-color:var(--algebra); outline:none; }
 
+.auth-forgot{ text-align:right; margin:-.4rem 0 1rem; }
+.auth-link-btn{ color:var(--algebra); font-weight:600; background:none; border:none; padding:0; cursor:pointer; font-size:.82rem; font-family:inherit; }
+
 .auth-actions{ display:flex; flex-direction:column; gap:.6rem; margin-top:1.3rem; }
 .auth-actions .practice-check-btn,
 .auth-actions .practice-next-btn{ width:100%; text-align:center; }

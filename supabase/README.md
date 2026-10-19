@@ -38,7 +38,16 @@ the project's credentials.
    bypasses Row Level Security entirely; the anon key above is the
    only one the app ever needs.
 
-5. **Promote yourself to teacher.** Sign up once through the app's own
+5. **Allow-list the reset-password redirect.** Under **Authentication →
+   URL Configuration**, add the deployed site's `reset-password.html`
+   URL (e.g. `https://your-site.example/reset-password.html`) to
+   **Redirect URLs**. Supabase refuses to redirect a "forgot password"
+   email link anywhere that isn't on this list, so without this step
+   the reset link in the email goes nowhere useful. Password-reset
+   emails are sent automatically by Supabase's built-in email provider
+   — no extra setup needed for that part.
+
+6. **Promote yourself to teacher.** Sign up once through the app's own
    login page (once it exists), then in the SQL Editor run:
 
    ```sql
@@ -67,6 +76,23 @@ Every table has Row Level Security on: a student can only read or
 write their own rows; a teacher (`profiles.role = 'teacher'`) can read
 everyone's. See the comments in `migrations/0001_init.sql` for the
 exact policies.
+
+## Password reset
+
+login.html has a "Forgot password?" link that emails a reset link via
+Supabase Auth (`resetPasswordForEmail`); the link signs the student
+into reset-password.html, where they pick a new password
+(`updateUser`). Nothing here is Claude-visible or Claude-editable
+real data — both calls go through the public anon key the same as
+sign-in/sign-up do.
+
+One quirk worth knowing about: Supabase rejects `updateUser` with a
+`same_password` error if the "new" password is identical to the
+current one, and this isn't configurable — it's a hardcoded
+server-side check with no dashboard setting or client option to turn
+off. reset-password.html treats that specific error as success
+rather than a failure, since clicking the reset link already signs
+the student in regardless of whether the password actually changes.
 
 ## Future schema changes
 
