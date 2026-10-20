@@ -9,15 +9,14 @@
    empty (axes only); the true line is only drawn once the final
    step has been checked, as a reveal.
 
-   Adaptive difficulty, the same shape as PracticeLineFromTable's
-   scaffold step (see the note at the top of that file):
-     - fewer than 3 questions done, or below 90% accuracy: two
-       steps — first complete a table of values by substitution,
-       then give two points on the line. The table step is ungraded
-       scaffolding — it must be answered correctly to move on, but
-       doesn't affect accuracy.
-     - 3+ questions done and 90%+ accuracy: the table step is
-       skipped and the question goes straight to the points step.
+   Learn vs Practice (see js/practice-mode.js for the shared
+   mechanism) decides whether a question gets two steps or one:
+     - Learn: first complete a table of values by substitution, then
+       give two points on the line. The table step is ungraded
+       scaffolding — it must be answered correctly to move on.
+     - Practice: the table step is skipped and the question goes
+       straight to the points step. 10 correct in Learn switches a
+       session to Practice for its remaining questions.
 
    The "points" step is the only scored step, and it's a genuine
    free-choice step: any two points that satisfy y = mx + c (and
@@ -30,7 +29,7 @@
    on a wrong one, they're drawn in the "wrong" style alongside the
    actual line, so there's always something to compare against.
 
-   Public API: VM.PracticeGraphLinear.init({ onBack }), .start()
+   Public API: VM.PracticeGraphLinear.init({ onBack }), .start(mode)
    ============================================================ */
 window.VM = window.VM || {};
 
@@ -56,9 +55,6 @@ VM.PracticeGraphLinear = (function(){
   var C_MIN = -6, C_MAX = 6;
   var TABLE_XS = [-2, -1, 0, 1, 2];
 
-  var SCAFFOLD_MIN_ATTEMPTS = 3;
-  var SCAFFOLD_MIN_ACCURACY = 0.90;
-
   var EXTRA_TIP_MIN_ATTEMPTS = 10;
   var EXTRA_TIP_MIN_ACCURACY = 0.60;
 
@@ -70,18 +66,18 @@ VM.PracticeGraphLinear = (function(){
 
   // The gradient-method tutorial (see 'gradient-method' below) is shown
   // for a student's first few fractional-gradient questions regardless
-  // of needsScaffold() — a student with high overall accuracy exits the
-  // general scaffold by attempt 3, but that doesn't mean they've ever
-  // been taught the rise/run method, and they're exactly the student
-  // about to meet a fractional gradient for the first time once the
-  // tier unlocks. Tying the tutorial only to needsScaffold() would mean
-  // a strong student never sees it at all.
+  // of Learn/Practice mode — a student who starts straight in Practice
+  // has never been taught the rise/run method, and they're exactly the
+  // student about to meet a fractional gradient for the first time once
+  // the tier unlocks. Tying the tutorial only to the Learn/Practice
+  // switch would mean a Practice-only student never sees it at all.
   var GRADIENT_TUTORIAL_MAX_SHOWS = 3;
   var fractionalGradientsSeen = 0;
 
   var els = {};
   var current = null;    // { m, c }
   var score = { correct: 0, attempted: 0 };
+  var practiceMode = null;
   // ['points'], ['table', 'points'], or — for a fractional-gradient
   // question while still in the scaffolded tier — ['table',
   // 'gradient-method', 'points']. See nextQuestion().
@@ -95,10 +91,10 @@ VM.PracticeGraphLinear = (function(){
   function toPx(x, y){ return grid.toPx(x, y); }
   function randChoice(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
   function randInt(lo, hi){ return lo + Math.floor(Math.random() * (hi - lo + 1)); }
+  // Still used by showsExtraTip()/usesFractionGradient() below —
+  // unrelated to the Learn/Practice switch, which no longer depends
+  // on accuracy.
   function accuracy(){ return score.attempted ? score.correct / score.attempted : 0; }
-  function needsScaffold(){
-    return score.attempted < SCAFFOLD_MIN_ATTEMPTS || accuracy() < SCAFFOLD_MIN_ACCURACY;
-  }
   function showsExtraTip(){
     return score.attempted >= EXTRA_TIP_MIN_ATTEMPTS && accuracy() >= EXTRA_TIP_MIN_ACCURACY;
   }
@@ -136,9 +132,9 @@ VM.PracticeGraphLinear = (function(){
 
     // A fractional gradient gets its own 'gradient-method' step (teaching
     // y-intercept + rise/run) ahead of 'points', for the student's first
-    // few fractional-gradient questions — regardless of needsScaffold(),
-    // so a student who exited the general scaffold on accuracy still
-    // gets taught the method the first time they actually need it. The
+    // few fractional-gradient questions — regardless of Learn/Practice
+    // mode, so a student who started straight in Practice still gets
+    // taught the method the first time they actually need it. The
     // general 'table' scaffold, if still active, stays alongside it;
     // once past it, the tutorial appears on its own ahead of 'points'.
     // Integer-gradient questions are unaffected either way.
@@ -147,9 +143,9 @@ VM.PracticeGraphLinear = (function(){
     if(fractional) fractionalGradientsSeen++;
 
     if(showGradientTutorial){
-      steps = needsScaffold() ? ['table', 'gradient-method', 'points'] : ['gradient-method', 'points'];
+      steps = practiceMode.isLearn() ? ['table', 'gradient-method', 'points'] : ['gradient-method', 'points'];
     } else {
-      steps = needsScaffold() ? ['table', 'points'] : ['points'];
+      steps = practiceMode.isLearn() ? ['table', 'points'] : ['points'];
     }
     stepIndex = 0;
     stepAnswered = false;
@@ -420,6 +416,9 @@ VM.PracticeGraphLinear = (function(){
     if(ok){
       score.correct++;
       els.feedback.textContent = 'Correct — both points lie on ' + equation + '. The line is now shown on the grid.';
+      if(practiceMode.recordCorrect()){
+        els.feedback.textContent += ' That’s 10 correct — switching to practice.';
+      }
       els.feedback.className = 'feedback correct';
       working.push('(' + p1.x + ', ' + p1.y + ') and (' + p2.x + ', ' + p2.y + ')');
     } else {
@@ -558,8 +557,9 @@ VM.PracticeGraphLinear = (function(){
     if(opts.onBack){ els.backBtn.addEventListener('click', opts.onBack); }
   }
 
-  function start(){
+  function start(mode){
     score = { correct: 0, attempted: 0 };
+    practiceMode = VM.PracticeMode.create(mode);
     fractionalGradientsSeen = 0;
     els.score.textContent = '0 / 0';
     nextQuestion();

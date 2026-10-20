@@ -6,10 +6,9 @@
    one of the two variables can always be isolated without a
    fraction — and asks for the solution (x, y).
 
-   Adaptive difficulty is a single on/off switch, re-checked before
-   every new question:
-     - fewer than 5 questions answered, OR accuracy below 50%: a
-       scaffolded walkthrough. Every choice in it — which method,
+   Learn vs Practice (see js/practice-mode.js for the shared
+   mechanism) decides which of two walkthroughs a question gets:
+     - Learn: a scaffolded walkthrough. Every choice in it — which method,
        which variable to isolate, whether to add or subtract — is
        either a free pick with no wrong answer, or (add/subtract)
        has one mathematically correct answer that's checked; nothing
@@ -26,8 +25,9 @@
          equations after multiplying, add or subtract them and write
          the resulting one-variable equation, then solve for that
          variable, then solve for the eliminated one.
-     - 5 or more questions answered AND accuracy at 50% or higher: no
-       scaffolding — just solve the system and enter x and y.
+     - Practice: no scaffolding — just solve the system and enter x
+       and y. 10 correct in Learn switches a session to Practice for
+       its remaining questions.
 
    Only the final "solution" step is scored; every scaffold step
    before it is ungraded (must be answered correctly to move on, but
@@ -42,7 +42,7 @@
    derivation build up the way they would on paper, and refer back to
    it at any later step (see working-trail.js).
 
-   Public API: VM.PracticeSimultaneous.init({ onBack }), .start()
+   Public API: VM.PracticeSimultaneous.init({ onBack }), .start(mode)
    ============================================================ */
 window.VM = window.VM || {};
 
@@ -50,10 +50,7 @@ VM.PracticeSimultaneous = (function(){
   var parseGradient = VM.EquationParse.parseGradient;
   var parseFraction = VM.EquationParse.parseFraction;
 
-  var SCAFFOLD_MIN_ATTEMPTS = 5;    // "5 or more questions answered" — below this, scaffold
-  var SCAFFOLD_MIN_ACCURACY = 0.50; // "50% accuracy" — below this, scaffold
-
-  // Independent of the scaffold switch above: once unlocked, x0
+  // Independent of the Learn/Practice switch: once unlocked, x0
   // and/or y0 (the system's actual solution) can be a genuine
   // fraction like 7/3 instead of always a whole number — same
   // attempts/accuracy shape as the fractional-answer tiers in
@@ -82,6 +79,7 @@ VM.PracticeSimultaneous = (function(){
   var els = {};
   var current = null;
   var score = { correct: 0, attempted: 0 };
+  var practiceMode = null;
   var steps = [];
   var stepIndex = 0;
   var stepAnswered = false;
@@ -90,10 +88,9 @@ VM.PracticeSimultaneous = (function(){
 
   function randInt(lo, hi){ return lo + Math.floor(Math.random() * (hi - lo + 1)); }
   function randChoice(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
+  // Still used by usesFractionSolution() below — unrelated to the
+  // Learn/Practice switch, which no longer depends on accuracy.
   function accuracy(){ return score.attempted ? score.correct / score.attempted : 0; }
-  function needsScaffold(){
-    return score.attempted < SCAFFOLD_MIN_ATTEMPTS || accuracy() < SCAFFOLD_MIN_ACCURACY;
-  }
   function gcd(a, b){
     a = Math.abs(a); b = Math.abs(b);
     while(b){ var t = b; b = a % b; a = t; }
@@ -259,7 +256,7 @@ VM.PracticeSimultaneous = (function(){
       // coefficients instead is accepted just as readily.
     };
 
-    var scaffold = needsScaffold();
+    var scaffold = practiceMode.isLearn();
     steps = scaffold ? ['choose-method'] : ['equation'];
     stepIndex = 0;
     stepAnswered = false;
@@ -751,6 +748,9 @@ VM.PracticeSimultaneous = (function(){
     if(ok){
       score.correct++;
       els.feedback.textContent = 'Correct — x = ' + xStr + ', y = ' + yStr + '.';
+      if(practiceMode.recordCorrect()){
+        els.feedback.textContent += ' That’s 10 correct — switching to practice.';
+      }
       els.feedback.className = 'feedback correct';
     } else {
       els.feedback.textContent = 'Not quite. The solution is x = ' + xStr + ', y = ' + yStr + '.';
@@ -874,8 +874,9 @@ VM.PracticeSimultaneous = (function(){
     if(opts.onBack){ els.backBtn.addEventListener('click', opts.onBack); }
   }
 
-  function start(){
+  function start(mode){
     score = { correct: 0, attempted: 0 };
+    practiceMode = VM.PracticeMode.create(mode);
     els.score.textContent = '0 / 0';
     nextQuestion();
   }

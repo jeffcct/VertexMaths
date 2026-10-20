@@ -12,9 +12,11 @@
    an action-choice-then-write engine (the student picks the next
    operation from 4 options — 1 correct + 3 distractors — then
    writes the resulting equation; only the final write step is
-   scored), with the same 3-attempts/90%-accuracy adaptive bar that
-   collapses the walkthrough into a single "make X the subject" step
-   once a student has shown they don't need it.
+   scored). Learn mode shows the full choice-then-write walkthrough;
+   Practice mode collapses it into a single "make X the subject"
+   step — see js/practice-mode.js for the shared Learn/Practice
+   mechanism (10 correct in Learn switches a session to Practice for
+   its remaining questions).
 
    The one thing this file adds beyond the base component's action
    vocabulary is `{ type: 'factor', operand: <subject letter> }` —
@@ -45,15 +47,12 @@
    student typed (never a freshly re-derived canonical string) — see
    checkWriteStep/checkFinalAnswer.
 
-   Public API: VM.PracticeRearrangeFactor.init({ onBack }), .start()
+   Public API: VM.PracticeRearrangeFactor.init({ onBack }), .start(mode)
    ============================================================ */
 window.VM = window.VM || {};
 
 VM.PracticeRearrangeFactor = (function(){
   var parseEitherSide = VM.EquationParse.parseEitherSide;
-
-  var SCAFFOLD_MIN_ATTEMPTS = 3;
-  var SCAFFOLD_MIN_ACCURACY = 0.90;
 
   // The only bank formula needing typing help is the semicircle one
   // (uses π) — one entry, rather than the base component's full list,
@@ -157,6 +156,7 @@ VM.PracticeRearrangeFactor = (function(){
   var els = {};
   var current = null;    // { formula, subject, stepData, currentEq }
   var score = { correct: 0, attempted: 0 };
+  var practiceMode = null;
   var steps = [];         // flat list of step names for this question, e.g. ['choice-0','write-0','choice-1','write-1']
   var stepIndex = 0;
   var stepAnswered = false;
@@ -165,10 +165,6 @@ VM.PracticeRearrangeFactor = (function(){
 
   function randChoice(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
   function randInt(lo, hi){ return lo + Math.floor(Math.random() * (hi - lo + 1)); }
-  function accuracy(){ return score.attempted ? score.correct / score.attempted : 0; }
-  function needsScaffold(){
-    return score.attempted < SCAFFOLD_MIN_ATTEMPTS || accuracy() < SCAFFOLD_MIN_ACCURACY;
-  }
 
   function currentStepName(){ return steps[stepIndex]; }
   function isChoiceStep(name){ return name.indexOf('choice-') === 0; }
@@ -268,7 +264,7 @@ VM.PracticeRearrangeFactor = (function(){
       stepData: pair.steps, currentEq: pair.formula.given
     };
 
-    var scaffold = needsScaffold();
+    var scaffold = practiceMode.isLearn();
     if(scaffold){
       steps = [];
       current.stepData.forEach(function(_, i){ steps.push('choice-' + i, 'write-' + i); });
@@ -419,7 +415,12 @@ VM.PracticeRearrangeFactor = (function(){
     }
     if(isFinal){
       score.attempted++;
-      if(ok) score.correct++;
+      if(ok){
+        score.correct++;
+        if(practiceMode.recordCorrect()){
+          els.feedback.textContent += ' That’s 10 correct — switching to practice.';
+        }
+      }
       els.score.textContent = score.correct + ' / ' + score.attempted;
     }
     return ok;
@@ -438,6 +439,9 @@ VM.PracticeRearrangeFactor = (function(){
       score.correct++;
       // Echo exactly what was typed, plain (no reformatting).
       els.feedback.textContent = 'Correct — ' + raw + '.';
+      if(practiceMode.recordCorrect()){
+        els.feedback.textContent += ' That’s 10 correct — switching to practice.';
+      }
       els.feedback.className = 'feedback correct';
       working.push(raw);
     } else {
@@ -516,8 +520,9 @@ VM.PracticeRearrangeFactor = (function(){
     if(VM.FormulaLiveInput) VM.FormulaLiveInput.init();
   }
 
-  function start(){
+  function start(mode){
     score = { correct: 0, attempted: 0 };
+    practiceMode = VM.PracticeMode.create(mode);
     els.score.textContent = '0 / 0';
     nextQuestion();
   }

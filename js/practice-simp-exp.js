@@ -30,7 +30,13 @@
    practice-factor-nonmonic.js's parseExpanded to any exponent (see
    GitHub issue #12).
 
-   Public API: VM.PracticeSimpExp.init({ onBack }), .start()
+   Learn mode prefixes the (always-shown) typing note with a hint on
+   the exponent rules themselves; Practice mode shows just the typing
+   note. 10 correct in Learn switches a session to Practice for its
+   remaining questions — see js/practice-mode.js for the shared
+   mechanism.
+
+   Public API: VM.PracticeSimpExp.init({ onBack }), .start(mode)
    ============================================================ */
 window.VM = window.VM || {};
 
@@ -42,10 +48,12 @@ VM.PracticeSimpExp = (function(){
   // one thing worth telling the student, since it's notation, not
   // method (see the hint-safety rule in CLAUDE.md).
   var HINT_TEXT = 'You can type ^ followed by the exponent, e.g. x^7 for x⁷.';
+  var LEARN_HINT = 'Multiplying the same base: add the exponents. Dividing: subtract them. A power of a power: multiply them. ' + HINT_TEXT;
 
   var els = {};
   var current = null;    // { kind, a, b, resultExp, prompt, hint }
   var score = { correct: 0, attempted: 0 };
+  var practiceMode = null;
   var answered = false;
   var working = null;    // the "shown work" trail for the current question — see working-trail.js
 
@@ -108,7 +116,7 @@ VM.PracticeSimpExp = (function(){
     working.reset();
 
     els.expression.textContent = current.prompt;
-    els.hint.textContent = HINT_TEXT;
+    els.hint.textContent = practiceMode.isLearn() ? LEARN_HINT : HINT_TEXT;
     els.answerInput.value = '';
     els.answerInput.classList.remove('right', 'wrong');
     els.feedback.textContent = '';
@@ -150,6 +158,9 @@ VM.PracticeSimpExp = (function(){
     if(ok){
       score.correct++;
       els.feedback.textContent = 'Correct — ' + current.prompt + ' = ' + correctStr + '.';
+      if(practiceMode.recordCorrect()){
+        els.feedback.textContent += ' That’s 10 correct — switching to practice.';
+      }
       els.feedback.className = 'feedback correct';
       working.push(current.prompt + ' = ' + correctStr);
     } else {
@@ -195,8 +206,9 @@ VM.PracticeSimpExp = (function(){
     if(opts.onBack){ els.backBtn.addEventListener('click', opts.onBack); }
   }
 
-  function start(){
+  function start(mode){
     score = { correct: 0, attempted: 0 };
+    practiceMode = VM.PracticeMode.create(mode);
     els.score.textContent = '0 / 0';
     nextQuestion();
   }

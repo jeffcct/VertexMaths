@@ -7,23 +7,19 @@
    note at the top of data.js for what Learn/Practice are meant to
    be once every skill has one.
 
-   Adaptive difficulty, in three increasingly-unscaffolded tiers, all
-   re-checked before every new question so any of them can drop back
-   if accuracy dips:
-     - more than 2 questions, above 80% correct: the two fill-in-the-
-       blank boxes are replaced with a single box where the student
-       types the whole equation themselves, "y =" included
-       (e.g. "y = 3x - 6").
-     - more than 4 questions, above 95% correct: the score readout
-       is hidden too.
-     - 10 or more questions, above 95% correct: the two marked points
-       are removed from the graph as well, leaving just the line.
+   Learn mode asks for the gradient and y-intercept as two separate
+   boxes, plus a hint on how to read them off the two marked points.
+   Practice mode replaces those with a single box where the student
+   types the whole equation themselves, "y =" included (e.g.
+   "y = 3x - 6") — see js/practice-mode.js for the shared Learn/
+   Practice mechanism (10 correct in Learn switches a session to
+   Practice for its remaining questions).
 
    Check / Enter locks the current question in (one attempt counts,
    however many times the key repeats while held); pressing it again
    moves on to the next question, same as clicking "New question".
 
-   Public API: VM.PracticeLineGraph.init({ onBack }), .start()
+   Public API: VM.PracticeLineGraph.init({ onBack }), .start(mode)
    ============================================================ */
 window.VM = window.VM || {};
 
@@ -39,19 +35,11 @@ VM.PracticeLineGraph = (function(){
     [1,2], [2,3], [1,1], [3,2], [2,1], [3,1]
   ];
 
-  var ADVANCED_MIN_ATTEMPTS = 2;   // "more than 2 questions"
-  var ADVANCED_MIN_ACCURACY = 0.8; // "score > 80%"
-  var ELITE_MIN_ATTEMPTS = 4;      // "more than 4 questions"
-  var ELITE_MIN_ACCURACY = 0.95;   // ">95%"
-  var MASTER_MIN_ATTEMPTS = 10;    // ">=10 questions"
-  var MASTER_MIN_ACCURACY = 0.95;  // ">95%"
-
   var els = {};
   var current = null;    // { p, q, c, m }
   var score = { correct: 0, attempted: 0 };
+  var practiceMode = null;
   var advanced = false;  // typed-equation mode vs fill-in-the-blank boxes
-  var elite = false;     // hide the score readout once mastery is clear
-  var master = false;    // hide the graph's marker points too
   var answered = false;  // has the current question already been checked?
 
   function toPx(x, y){ return grid.toPx(x, y); }
@@ -59,35 +47,17 @@ VM.PracticeLineGraph = (function(){
   function randChoice(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
   function randInt(lo, hi){ return lo + Math.floor(Math.random() * (hi - lo + 1)); }
 
-  function isAdvanced(){
-    return score.attempted > ADVANCED_MIN_ATTEMPTS &&
-      (score.correct / score.attempted) > ADVANCED_MIN_ACCURACY;
-  }
-
-  function isElite(){
-    return score.attempted > ELITE_MIN_ATTEMPTS &&
-      (score.correct / score.attempted) > ELITE_MIN_ACCURACY;
-  }
-
-  function isMaster(){
-    return score.attempted >= MASTER_MIN_ATTEMPTS &&
-      (score.correct / score.attempted) > MASTER_MIN_ACCURACY;
-  }
-
   function nextQuestion(){
     var pq = randChoice(GRADIENTS);
     var p = pq[0], q = pq[1];
     // Keep both the intercept point (0,c) and the rise/run point (q, c+p)
-    // inside the grid, so the two marked points are in range even
-    // while they're still being drawn (master mode drops them).
+    // inside the grid, so the two marked points are in range.
     var cLo = Math.max(GRID_MIN, GRID_MIN - p);
     var cHi = Math.min(GRID_MAX, GRID_MAX - p);
     var c = randInt(cLo, cHi);
     current = { p: p, q: q, c: c, m: p / q };
 
-    advanced = isAdvanced();
-    elite = isElite();
-    master = isMaster();
+    advanced = !practiceMode.isLearn();
     answered = false;
     updateModeUI();
     renderGraph();
@@ -97,16 +67,12 @@ VM.PracticeLineGraph = (function(){
   function updateModeUI(){
     els.rowBoxes.hidden = advanced;
     els.rowTyped.hidden = !advanced;
-    els.scoreRow.hidden = elite;
-    if(master){
-      els.modeNote.textContent = "You've mastered this — the marked points are gone, so read the gradient and intercept straight off the line.";
-      els.hint.textContent = 'Write the full equation, e.g. y = 3x - 6 or y = 3x/2 - 6. Leave out the coefficient for 1 (y = x - 6) and use a bare - for -1 (y = -x - 6).';
-    } else if(advanced){
-      els.modeNote.textContent = "You're doing well — try writing the whole equation yourself this time.";
+    if(advanced){
+      els.modeNote.textContent = '';
       els.hint.textContent = 'Write the full equation, e.g. y = 3x - 6 or y = 3x/2 - 6. Leave out the coefficient for 1 (y = x - 6) and use a bare - for -1 (y = -x - 6).';
     } else {
       els.modeNote.textContent = '';
-      els.hint.textContent = 'Fractions like 3/2 are fine for the gradient. Leave the gradient box blank for 1, or type just - for -1.';
+      els.hint.textContent = 'Use the two marked points: the gradient is the rise over run between them, and the y-intercept is where the line crosses the y-axis. Fractions like 3/2 are fine for the gradient — leave the gradient box blank for 1, or type just - for -1.';
     }
     els.checkBtn.textContent = 'Check answer';
   }
@@ -133,22 +99,16 @@ VM.PracticeLineGraph = (function(){
     var ends = clipToBox(current.m, current.c);
     var e1 = toPx(ends[0].x, ends[0].y), e2 = toPx(ends[1].x, ends[1].y);
     var s = '<line x1="' + e1.x + '" y1="' + e1.y + '" x2="' + e2.x + '" y2="' + e2.y + '" class="plot-line"></line>';
-    // Master tier: no marked points — read the gradient/intercept off
-    // the line itself, the way the two lattice points let you do below.
-    if(!master){
-      var a = toPx(0, current.c);
-      var b = toPx(current.q, current.c + current.p);
-      s += '<circle cx="' + a.x + '" cy="' + a.y + '" r="4.5" class="plot-point"></circle>';
-      s += '<circle cx="' + b.x + '" cy="' + b.y + '" r="4.5" class="plot-point"></circle>';
-    }
+    var a = toPx(0, current.c);
+    var b = toPx(current.q, current.c + current.p);
+    s += '<circle cx="' + a.x + '" cy="' + a.y + '" r="4.5" class="plot-point"></circle>';
+    s += '<circle cx="' + b.x + '" cy="' + b.y + '" r="4.5" class="plot-point"></circle>';
     return s;
   }
 
   function renderGraph(){
     els.svg.innerHTML = grid.gridSvg() + grid.axesSvg() + svgLineAndPoints();
-    els.svg.setAttribute('aria-label', master ?
-      'A straight line plotted on a coordinate grid, with no points marked.' :
-      'A straight line plotted on a coordinate grid, with two points marked on it.');
+    els.svg.setAttribute('aria-label', 'A straight line plotted on a coordinate grid, with two points marked on it.');
   }
 
   function resetInputs(){
@@ -254,6 +214,9 @@ VM.PracticeLineGraph = (function(){
     if(mOk && cOk){
       score.correct++;
       els.feedback.textContent = 'Correct — ' + equation;
+      if(practiceMode.recordCorrect()){
+        els.feedback.textContent += ' That’s 10 correct — switching to practice.';
+      }
       els.feedback.className = 'feedback correct';
     } else {
       els.feedback.textContent = 'Not quite. ' + equation +
@@ -292,7 +255,6 @@ VM.PracticeLineGraph = (function(){
     els.hint = document.getElementById('practice-hint');
     els.feedback = document.getElementById('practice-feedback');
     els.score = document.getElementById('practice-score');
-    els.scoreRow = document.getElementById('practice-score-row');
     els.checkBtn = document.getElementById('practice-check-btn');
     els.nextBtn = document.getElementById('practice-next-btn');
     els.backBtn = document.getElementById('practice-back-btn');
@@ -310,8 +272,9 @@ VM.PracticeLineGraph = (function(){
     if(opts.onBack){ els.backBtn.addEventListener('click', opts.onBack); }
   }
 
-  function start(){
+  function start(mode){
     score = { correct: 0, attempted: 0 };
+    practiceMode = VM.PracticeMode.create(mode);
     els.score.textContent = '0 / 0';
     nextQuestion();
   }

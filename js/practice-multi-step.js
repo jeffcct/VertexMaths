@@ -20,7 +20,11 @@
    so the arithmetic always comes out clean and x is always a whole
    number.
 
-   Public API: VM.PracticeMultiStep.init({ onBack }), .start()
+   Learn mode shows a hint on method; Practice mode hides it. 10
+   correct in Learn switches a session to Practice for its remaining
+   questions — see js/practice-mode.js for the shared mechanism.
+
+   Public API: VM.PracticeMultiStep.init({ onBack }), .start(mode)
    ============================================================ */
 window.VM = window.VM || {};
 
@@ -35,9 +39,12 @@ VM.PracticeMultiStep = (function(){
 
   var X0_MIN = -10, X0_MAX = 10; // the chosen integer solution, never 0
 
+  var LEARN_HINT = 'Undo the +/- first, then divide by the coefficient of x — or expand the brackets first, whichever’s easier.';
+
   var els = {};
   var current = null;    // { kind, a, b, c, x } — b/sign meaning depends on kind
   var score = { correct: 0, attempted: 0 };
+  var practiceMode = null;
   var answered = false;  // has the current question already been checked?
   var working = null;    // the "shown work" trail for the current question — see working-trail.js
 
@@ -105,6 +112,7 @@ VM.PracticeMultiStep = (function(){
     els.input.classList.remove('right', 'wrong');
     els.feedback.textContent = '';
     els.feedback.className = 'feedback';
+    els.hint.textContent = practiceMode.isLearn() ? LEARN_HINT : '';
     els.checkBtn.textContent = 'Check answer';
     els.input.focus();
   }
@@ -122,6 +130,9 @@ VM.PracticeMultiStep = (function(){
     if(ok){
       score.correct++;
       els.feedback.textContent = 'Correct — x = ' + current.x + '.';
+      if(practiceMode.recordCorrect()){
+        els.feedback.textContent += ' That’s 10 correct — switching to practice.';
+      }
       els.feedback.className = 'feedback correct';
       working.push('x = ' + current.x);
     } else {
@@ -156,6 +167,7 @@ VM.PracticeMultiStep = (function(){
     els.backBtn = document.getElementById('multistep-back-btn');
     els.workingCard = document.getElementById('multistep-working-card');
     els.workingLines = document.getElementById('multistep-working-lines');
+    els.hint = document.getElementById('multistep-hint');
     working = VM.WorkingTrail(els.workingCard, els.workingLines);
 
     els.input = document.getElementById('multistep-input');
@@ -169,8 +181,9 @@ VM.PracticeMultiStep = (function(){
     if(opts.onBack){ els.backBtn.addEventListener('click', opts.onBack); }
   }
 
-  function start(){
+  function start(mode){
     score = { correct: 0, attempted: 0 };
+    practiceMode = VM.PracticeMode.create(mode);
     els.score.textContent = '0 / 0';
     nextQuestion();
   }

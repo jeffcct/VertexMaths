@@ -4,25 +4,19 @@
    parabola (from a graph using vertex)". Draws a random parabola
    with its vertex marked, plus one lattice point exactly one unit
    to the right of it, and walks the student through building
-   y = a(x - h)^2 + k as a sequence of steps that shortens as their
-   accuracy improves — the same structure as
-   PracticeParabolaIntercepts (see the note at the top of that file):
+   y = a(x - h)^2 + k as a sequence of steps in Learn mode — the same
+   structure as PracticeParabolaIntercepts (see the note at the top
+   of that file): read off the vertex (h, k); write the part of the
+   equation it gives you, (x - h)^2; read off the other marked point;
+   use it to solve for a; then put the whole equation together.
+   Practice mode skips straight to that last "write the full
+   equation" step — see js/practice-mode.js for the shared
+   Learn/Practice mechanism (10 correct in Learn switches a session
+   to Practice for its remaining questions).
 
-     - Tier A (default — the first 3 questions, or accuracy below
-       70%): five steps — read off the vertex (h, k); write the part
-       of the equation it gives you, (x - h)^2; read off the other
-       marked point; use it to solve for a; then put the whole
-       equation together.
-     - Tier B (more than 3 questions done, 70-90% accuracy): four
-       steps — starts straight at the (x - h)^2 step, skipping the
-       separate "read off the vertex" step.
-     - Tier C (more than 5 questions done, 90%+ accuracy): one
-       step — just write the full equation.
-
-   Every tier ends on the same "write the full equation" step, and
-   that's the only step that's actually scored — see the longer
-   explanation in practice-parabola-intercepts.js; it applies here
-   unchanged.
+   The "write the full equation" step is the only one that's scored —
+   see the longer explanation in practice-parabola-intercepts.js; it
+   applies here unchanged.
 
    The leading coefficient a is drawn uniformly from -3..3 (never 0)
    on every question — no bias toward ±1. Once a student has done at
@@ -31,7 +25,7 @@
    from the step-scaffolding tiers above and can be active at the
    same time as any of them.
 
-   Public API: VM.PracticeParabolaVertex.init({ onBack }), .start()
+   Public API: VM.PracticeParabolaVertex.init({ onBack }), .start(mode)
    ============================================================ */
 window.VM = window.VM || {};
 
@@ -53,14 +47,10 @@ VM.PracticeParabolaVertex = (function(){
   var FRACTION_MIN_ATTEMPTS = 5;
   var FRACTION_MIN_ACCURACY = 0.90;
 
-  var TIER_B_MIN_ATTEMPTS = 3;
-  var TIER_B_MIN_ACCURACY = 0.70;
-  var TIER_C_MIN_ATTEMPTS = 5;
-  var TIER_C_MIN_ACCURACY = 0.90;
-
   var els = {};
   var current = null;    // { a, aNum, aDen, h, k }
   var score = { correct: 0, attempted: 0 };
+  var practiceMode = null;
   var steps = [];
   var stepIndex = 0;
   var stepAnswered = false;
@@ -100,27 +90,15 @@ VM.PracticeParabolaVertex = (function(){
     return { aNum: aNum, aDen: aDen, aVal: aVal, h: hk[0], k: hk[1] };
   }
 
-  function tierSequence(){
-    if(score.attempted > TIER_C_MIN_ATTEMPTS && accuracy() >= TIER_C_MIN_ACCURACY){
-      return ['equation'];
-    }
-    if(score.attempted > TIER_B_MIN_ATTEMPTS && accuracy() >= TIER_B_MIN_ACCURACY){
-      return ['squared', 'point', 'solvea', 'equation'];
-    }
-    return ['vertex', 'squared', 'point', 'solvea', 'equation'];
-  }
-
   function tierNote(){
-    if(steps.length === 1) return "You've got this — just write the full equation.";
-    if(steps.length === 4) return "You're doing well — skipping straight to (x - h)² this time.";
-    return '';
+    return steps.length === 1 ? "You've got this — just write the full equation." : '';
   }
 
   function nextQuestion(){
     var t = pickAHK();
     current = { a: t.aVal, aNum: t.aNum, aDen: t.aDen, h: t.h, k: t.k };
 
-    steps = tierSequence();
+    steps = practiceMode.isLearn() ? ['vertex', 'squared', 'point', 'solvea', 'equation'] : ['equation'];
     stepIndex = 0;
     stepAnswered = false;
     answered = false;
@@ -377,6 +355,9 @@ VM.PracticeParabolaVertex = (function(){
     if(ok){
       score.correct++;
       els.feedback.textContent = 'Correct — ' + equation;
+      if(practiceMode.recordCorrect()){
+        els.feedback.textContent += ' That’s 10 correct — switching to practice.';
+      }
       els.feedback.className = 'feedback correct';
       working.push(equation);
     } else {
@@ -459,8 +440,9 @@ VM.PracticeParabolaVertex = (function(){
     VM.KeybindHelp.attach(document.getElementById('vertex-keybind-help'));
   }
 
-  function start(){
+  function start(mode){
     score = { correct: 0, attempted: 0 };
+    practiceMode = VM.PracticeMode.create(mode);
     els.score.textContent = '0 / 0';
     nextQuestion();
   }

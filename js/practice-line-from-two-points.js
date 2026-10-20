@@ -6,8 +6,7 @@
    substituting to find c — the same substitute-and-solve tail as
    practice-line-from-point.js, with a gradient step in front of it:
 
-   Below 3 questions answered, or under 90% accuracy, a five-step
-   scaffold:
+   Learn mode shows a five-step scaffold:
      1. find the gradient from the two points (rise over run).
      2. write the equation using that gradient, leaving c as a
         literal letter.
@@ -15,18 +14,16 @@
         either point works, so both are accepted (see checkSubstitute).
      4. solve that equation for c.
      5. write the full equation — the only step that's scored.
-
-   At 3+ questions and 90%+ accuracy, the scaffold is skipped and the
-   question goes straight to step 5 — same convention as every other
-   Practice component's adaptive difficulty (see the note at the top
-   of practice-parabola-intercepts.js).
+   Practice mode skips straight to step 5 — see js/practice-mode.js
+   for the shared Learn/Practice mechanism (10 correct in Learn
+   switches a session to Practice for its remaining questions).
 
    The two points are always generated so the gradient works out to a
    whole number (the run is chosen first, then the second x is offset
    by it), and c always comes out whole too, so no step here ever
    needs a fraction.
 
-   Public API: VM.PracticeLineFromTwoPoints.init({ onBack }), .start()
+   Public API: VM.PracticeLineFromTwoPoints.init({ onBack }), .start(mode)
    ============================================================ */
 window.VM = window.VM || {};
 
@@ -39,12 +36,10 @@ VM.PracticeLineFromTwoPoints = (function(){
   var X1_MIN = -6, X1_MAX = 6;
   var RUN_VALUES = [-3, -2, -1, 1, 2, 3];
 
-  var SCAFFOLD_MIN_ATTEMPTS = 3;
-  var SCAFFOLD_MIN_ACCURACY = 0.90;
-
   var els = {};
   var current = null;    // { m, c, x1, y1, x2, y2 }
   var score = { correct: 0, attempted: 0 };
+  var practiceMode = null;
   var steps = [];
   var stepIndex = 0;
   var stepAnswered = false;
@@ -54,10 +49,6 @@ VM.PracticeLineFromTwoPoints = (function(){
   function randChoice(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
   function randInt(lo, hi){ return lo + Math.floor(Math.random() * (hi - lo + 1)); }
   function close(a, b){ return Math.abs(a - b) < 0.01; }
-  function accuracy(){ return score.attempted ? score.correct / score.attempted : 0; }
-  function needsScaffold(){
-    return score.attempted < SCAFFOLD_MIN_ATTEMPTS || accuracy() < SCAFFOLD_MIN_ACCURACY;
-  }
 
   function currentStepName(){ return steps[stepIndex]; }
   function isFinalStep(){ return currentStepName() === 'final-equation'; }
@@ -75,7 +66,7 @@ VM.PracticeLineFromTwoPoints = (function(){
 
     current = { m: m, c: c, x1: x1, y1: y1, x2: x2, y2: y2 };
 
-    var scaffold = needsScaffold();
+    var scaffold = practiceMode.isLearn();
     steps = scaffold ? ['gradient', 'form', 'substitute', 'solve', 'final-equation'] : ['final-equation'];
     stepIndex = 0;
     stepAnswered = false;
@@ -286,6 +277,9 @@ VM.PracticeLineFromTwoPoints = (function(){
     if(ok){
       score.correct++;
       els.feedback.textContent = 'Correct — ' + correctStr + '.';
+      if(practiceMode.recordCorrect()){
+        els.feedback.textContent += ' That’s 10 correct — switching to practice.';
+      }
       els.feedback.className = 'feedback correct';
       working.push(correctStr);
     } else {
@@ -361,8 +355,9 @@ VM.PracticeLineFromTwoPoints = (function(){
     if(opts.onBack){ els.backBtn.addEventListener('click', opts.onBack); }
   }
 
-  function start(){
+  function start(mode){
     score = { correct: 0, attempted: 0 };
+    practiceMode = VM.PracticeMode.create(mode);
     els.score.textContent = '0 / 0';
     nextQuestion();
   }

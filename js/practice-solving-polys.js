@@ -5,17 +5,14 @@
    roots p and q (B = -(p + q), C = p*q), which factors as
    (x - p)(x - q) = 0, and walks the student through it:
 
-   Below 3 questions answered, or under 90% accuracy, a two-step
-   scaffold:
+   Learn mode shows a two-step scaffold:
      1. factorise the left-hand side (ungraded — must be right to
         move on).
      2. use the zero-product property to solve for the two values of
         x — the only step that's scored.
-
-   At 3+ questions and 90%+ accuracy, the scaffold is skipped and the
-   question goes straight to step 2 — same convention as every other
-   Practice component's adaptive difficulty (see the note at the top
-   of practice-parabola-intercepts.js).
+   Practice mode skips straight to step 2 — see js/practice-mode.js
+   for the shared Learn/Practice mechanism (10 correct in Learn
+   switches a session to Practice for its remaining questions).
 
    p and q can repeat (a valid repeated-root equation), and the two
    factors/solutions can always be entered in either order.
@@ -26,7 +23,7 @@
    for ARE the roots of the equation, not "a pair that multiplies and
    adds" divorced from x.
 
-   Public API: VM.PracticeSolvingPolys.init({ onBack }), .start()
+   Public API: VM.PracticeSolvingPolys.init({ onBack }), .start(mode)
    ============================================================ */
 window.VM = window.VM || {};
 
@@ -34,12 +31,10 @@ VM.PracticeSolvingPolys = (function(){
   var P_MIN = -9, P_MAX = 9;
   var factorLabel = VM.EquationParse.factorLabel;
 
-  var SCAFFOLD_MIN_ATTEMPTS = 3;
-  var SCAFFOLD_MIN_ACCURACY = 0.90;
-
   var els = {};
   var current = null;    // { p, q, B, C }
   var score = { correct: 0, attempted: 0 };
+  var practiceMode = null;
   var steps = [];
   var stepIndex = 0;
   var stepAnswered = false;
@@ -51,10 +46,6 @@ VM.PracticeSolvingPolys = (function(){
     var v;
     do { v = randInt(lo, hi); } while(v === 0);
     return v;
-  }
-  function accuracy(){ return score.attempted ? score.correct / score.attempted : 0; }
-  function needsScaffold(){
-    return score.attempted < SCAFFOLD_MIN_ATTEMPTS || accuracy() < SCAFFOLD_MIN_ACCURACY;
   }
 
   function currentStepName(){ return steps[stepIndex]; }
@@ -77,7 +68,7 @@ VM.PracticeSolvingPolys = (function(){
 
     current = { p: p, q: q, B: B, C: C };
 
-    var scaffold = needsScaffold();
+    var scaffold = practiceMode.isLearn();
     steps = scaffold ? ['factor', 'solve'] : ['solve'];
     stepIndex = 0;
     stepAnswered = false;
@@ -192,6 +183,9 @@ VM.PracticeSolvingPolys = (function(){
       // the generator's own p/q order — see GitHub issue #17.
       var typedStr = 'x = ' + raw1 + ' or x = ' + raw2;
       els.feedback.textContent = 'Correct — ' + typedStr + '.';
+      if(practiceMode.recordCorrect()){
+        els.feedback.textContent += ' That’s 10 correct — switching to practice.';
+      }
       els.feedback.className = 'feedback correct';
       working.push(typedStr);
     } else {
@@ -258,8 +252,9 @@ VM.PracticeSolvingPolys = (function(){
     if(opts.onBack){ els.backBtn.addEventListener('click', opts.onBack); }
   }
 
-  function start(){
+  function start(mode){
     score = { correct: 0, attempted: 0 };
+    practiceMode = VM.PracticeMode.create(mode);
     els.score.textContent = '0 / 0';
     nextQuestion();
   }

@@ -13,7 +13,7 @@
         window.location.href = 'algebra.html';
       }
     });
-    VM.PracticeXBothSides.start();
+    VM.PracticeXBothSides.start(VM.PracticeMode.fromQuery());
   });
 
 })();

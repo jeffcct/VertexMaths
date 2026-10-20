@@ -28,7 +28,11 @@
    that file's header comment). Here there is exactly one correct
    expanded expression, computed directly as A*B and A*C.
 
-   Public API: VM.PracticeExpandSingle.init({ onBack }), .start()
+   Learn mode shows a hint on method; Practice mode hides it. 10
+   correct in Learn switches a session to Practice for its remaining
+   questions — see js/practice-mode.js for the shared mechanism.
+
+   Public API: VM.PracticeExpandSingle.init({ onBack }), .start(mode)
    ============================================================ */
 window.VM = window.VM || {};
 
@@ -36,9 +40,12 @@ VM.PracticeExpandSingle = (function(){
   var A_MIN = 2, A_MAX = 9;
   var BC_MIN = -9, BC_MAX = 9;
 
+  var LEARN_HINT = 'Multiply the term outside the bracket by each term inside it.';
+
   var els = {};
   var current = null;    // { A, B, C, AB, AC }
   var score = { correct: 0, attempted: 0 };
+  var practiceMode = null;
   var answered = false;
   var working = null;    // the "shown work" trail for the current question — see working-trail.js
 
@@ -66,6 +73,7 @@ VM.PracticeExpandSingle = (function(){
     working.reset();
 
     els.expression.textContent = bracketString(A, B, C);
+    els.hint.textContent = practiceMode.isLearn() ? LEARN_HINT : '';
     els.answerInput.value = '';
     els.answerInput.classList.remove('right', 'wrong');
     els.feedback.textContent = '';
@@ -134,6 +142,9 @@ VM.PracticeExpandSingle = (function(){
     if(ok){
       score.correct++;
       els.feedback.textContent = 'Correct — ' + bracketString(current.A, current.B, current.C) + ' = ' + correctStr + '.';
+      if(practiceMode.recordCorrect()){
+        els.feedback.textContent += ' That’s 10 correct — switching to practice.';
+      }
       els.feedback.className = 'feedback correct';
       working.push(bracketString(current.A, current.B, current.C) + ' = ' + correctStr);
     } else {
@@ -166,6 +177,7 @@ VM.PracticeExpandSingle = (function(){
     els.backBtn = document.getElementById('expandsingle-back-btn');
     els.workingCard = document.getElementById('expandsingle-working-card');
     els.workingLines = document.getElementById('expandsingle-working-lines');
+    els.hint = document.getElementById('expandsingle-hint');
     working = VM.WorkingTrail(els.workingCard, els.workingLines);
 
     els.checkBtn.addEventListener('click', handleCheckOrAdvance);
@@ -178,8 +190,9 @@ VM.PracticeExpandSingle = (function(){
     if(opts.onBack){ els.backBtn.addEventListener('click', opts.onBack); }
   }
 
-  function start(){
+  function start(mode){
     score = { correct: 0, attempted: 0 };
+    practiceMode = VM.PracticeMode.create(mode);
     els.score.textContent = '0 / 0';
     nextQuestion();
   }

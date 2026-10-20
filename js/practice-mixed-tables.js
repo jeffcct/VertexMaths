@@ -36,7 +36,15 @@
    VM.EquationParse), since those parsers aren't exposed as a public
    API on the components themselves.
 
-   Public API: VM.PracticeMixedTables.init({ onBack }), .start()
+   No Learn-mode method hint here, deliberately: the whole point of
+   this review topic is recognising which shape applies and writing
+   its equation unaided, so the one hint shown (which never names the
+   type, see above) stays the same in both modes. 10 correct switches
+   a session from Learn to Practice for its remaining questions all
+   the same, for consistency with every other topic — see
+   js/practice-mode.js for the shared mechanism.
+
+   Public API: VM.PracticeMixedTables.init({ onBack }), .start(mode)
    ============================================================ */
 window.VM = window.VM || {};
 
@@ -68,6 +76,7 @@ VM.PracticeMixedTables = (function(){
   var els = {};
   var current = null;    // { type, ...params, xs, ys }
   var score = { correct: 0, attempted: 0 };
+  var practiceMode = null;
   var answered = false;
   var working = null;    // the "shown work" trail for the current question — see working-trail.js
 
@@ -253,6 +262,9 @@ VM.PracticeMixedTables = (function(){
     if(ok){
       score.correct++;
       els.feedback.textContent = 'Correct — ' + raw + '.';
+      if(practiceMode.recordCorrect()){
+        els.feedback.textContent += ' That’s 10 correct — switching to practice.';
+      }
       els.feedback.className = 'feedback correct';
       working.push(raw);
     } else {
@@ -300,8 +312,9 @@ VM.PracticeMixedTables = (function(){
     if(VM.KeybindHelp) VM.KeybindHelp.attach(document.getElementById('mixedtables-keybind-help'));
   }
 
-  function start(){
+  function start(mode){
     score = { correct: 0, attempted: 0 };
+    practiceMode = VM.PracticeMode.create(mode);
     els.score.textContent = '0 / 0';
     nextQuestion();
   }

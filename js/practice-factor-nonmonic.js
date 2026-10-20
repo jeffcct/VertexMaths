@@ -9,8 +9,7 @@
    factorisation" (see GitHub issue #7 — that used to be so fast it
    skipped over the ideas the method is meant to teach).
 
-   Below 3 questions answered, or under 90% accuracy, a five-step
-   scaffold:
+   Learn mode shows a five-step scaffold:
      1. find-ac — find a × c — ungraded.
      2. find-pair — find the pair of numbers that multiply to a*c
         and add to b (the split needed to factor by grouping) —
@@ -27,10 +26,10 @@
    3x² - 3x + x - 1; grouped 3x(x - 1) + 1(x - 1); factored
    (3x + 1)(x - 1).
 
-   At 3+ questions and 90%+ accuracy, the scaffold is skipped and the
-   question goes straight to the final step — same convention as
-   every other Practice component's adaptive difficulty (see the note
-   at the top of practice-line-from-point.js).
+   Practice mode skips straight to the final step — see
+   js/practice-mode.js for the shared Learn/Practice mechanism (10
+   correct in Learn switches a session to Practice for its remaining
+   questions).
 
    m is drawn from [2, 3] and n from [1, 2, 3] (a = m*n), and p, q are
    drawn from a pool of small nonzero integers, rerolled until
@@ -40,7 +39,7 @@
    integers, and the "two numbers" step has exactly one right answer
    (up to order): m*q and n*p.
 
-   Public API: VM.PracticeFactorNonmonic.init({ onBack }), .start()
+   Public API: VM.PracticeFactorNonmonic.init({ onBack }), .start(mode)
    ============================================================ */
 window.VM = window.VM || {};
 
@@ -49,12 +48,10 @@ VM.PracticeFactorNonmonic = (function(){
   var N_VALUES = [1, 2, 3];
   var PQ_POOL = [-6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6];
 
-  var SCAFFOLD_MIN_ATTEMPTS = 3;
-  var SCAFFOLD_MIN_ACCURACY = 0.90;
-
   var els = {};
   var current = null;    // { m, n, p, q, a, b, c }
   var score = { correct: 0, attempted: 0 };
+  var practiceMode = null;
   var steps = [];
   var stepIndex = 0;
   var stepAnswered = false;
@@ -63,10 +60,6 @@ VM.PracticeFactorNonmonic = (function(){
 
   function randChoice(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
   function gcd(a, b){ a = Math.abs(a); b = Math.abs(b); while(b){ var t = b; b = a % b; a = t; } return a; }
-  function accuracy(){ return score.attempted ? score.correct / score.attempted : 0; }
-  function needsScaffold(){
-    return score.attempted < SCAFFOLD_MIN_ATTEMPTS || accuracy() < SCAFFOLD_MIN_ACCURACY;
-  }
 
   function currentStepName(){ return steps[stepIndex]; }
   function isFinalStep(){ return currentStepName() === 'factored'; }
@@ -88,7 +81,7 @@ VM.PracticeFactorNonmonic = (function(){
 
     current = { m: m, n: n, p: p, q: q, a: a, b: b, c: c };
 
-    var scaffold = needsScaffold();
+    var scaffold = practiceMode.isLearn();
     steps = scaffold ? ['find-ac', 'find-pair', 'expanded', 'grouped', 'factored'] : ['factored'];
     stepIndex = 0;
     stepAnswered = false;
@@ -403,6 +396,9 @@ VM.PracticeFactorNonmonic = (function(){
       // either order) rather than the generator's own order — see
       // GitHub issue #17.
       els.feedback.textContent = 'Correct — ' + raw;
+      if(practiceMode.recordCorrect()){
+        els.feedback.textContent += ' That’s 10 correct — switching to practice.';
+      }
       els.feedback.className = 'feedback correct';
       working.push(raw);
     } else {
@@ -475,8 +471,9 @@ VM.PracticeFactorNonmonic = (function(){
     if(opts.onBack){ els.backBtn.addEventListener('click', opts.onBack); }
   }
 
-  function start(){
+  function start(mode){
     score = { correct: 0, attempted: 0 };
+    practiceMode = VM.PracticeMode.create(mode);
     els.score.textContent = '0 / 0';
     nextQuestion();
   }

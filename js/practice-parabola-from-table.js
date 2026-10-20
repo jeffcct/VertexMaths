@@ -6,8 +6,7 @@
    can't just be read off) and walks the student through the
    second-differences method:
 
-   Below 3 questions answered, or under 90% accuracy, a seven-step
-   scaffold:
+   Learn mode shows a seven-step scaffold:
      1. fill in the first differences between neighbouring y-values
         (not constant — this is a parabola, not a line).
      2. fill in the second differences (the differences of the first
@@ -21,14 +20,15 @@
      6. substitute the table's first point to solve for b.
      7. write the full equation — the only step that's scored.
 
-   At 3+ questions and 90%+ accuracy, the scaffold is skipped and the
-   question goes straight to step 7. The first- and second-difference
-   rows stay visible (locked) once filled in, the same way the
-   elimination method's working box in practice-simultaneous.js keeps
-   earlier steps visible — this is a difference table, so the whole
-   point is seeing every row at once.
+   Practice mode skips straight to step 7 — see js/practice-mode.js
+   for the shared Learn/Practice mechanism (10 correct in Learn
+   switches a session to Practice for its remaining questions). The
+   first- and second-difference rows stay visible (locked) once
+   filled in, the same way the elimination method's working box in
+   practice-simultaneous.js keeps earlier steps visible — this is a
+   difference table, so the whole point is seeing every row at once.
 
-   Public API: VM.PracticeParabolaFromTable.init({ onBack }), .start()
+   Public API: VM.PracticeParabolaFromTable.init({ onBack }), .start(mode)
    ============================================================ */
 window.VM = window.VM || {};
 
@@ -41,12 +41,10 @@ VM.PracticeParabolaFromTable = (function(){
   var C_MIN = -6, C_MAX = 6;
   var XS = [1, 2, 3, 4, 5]; // never includes 0, so c can't be read straight off the table
 
-  var SCAFFOLD_MIN_ATTEMPTS = 3;
-  var SCAFFOLD_MIN_ACCURACY = 0.90;
-
   var els = {};
   var current = null;    // { a, b, c, ys, firstDiffs, secondDiffs }
   var score = { correct: 0, attempted: 0 };
+  var practiceMode = null;
   var steps = [];
   var stepIndex = 0;
   var stepAnswered = false;
@@ -56,10 +54,6 @@ VM.PracticeParabolaFromTable = (function(){
   function randChoice(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
   function randInt(lo, hi){ return lo + Math.floor(Math.random() * (hi - lo + 1)); }
   function close(a, b){ return Math.abs(a - b) < 0.01; }
-  function accuracy(){ return score.attempted ? score.correct / score.attempted : 0; }
-  function needsScaffold(){
-    return score.attempted < SCAFFOLD_MIN_ATTEMPTS || accuracy() < SCAFFOLD_MIN_ACCURACY;
-  }
 
   function currentStepName(){ return steps[stepIndex]; }
   function isFinalStep(){ return currentStepName() === 'final-equation'; }
@@ -78,7 +72,7 @@ VM.PracticeParabolaFromTable = (function(){
 
     current = { a: a, b: b, c: c, ys: ys, firstDiffs: firstDiffs, secondDiffs: secondDiffs };
 
-    var scaffold = needsScaffold();
+    var scaffold = practiceMode.isLearn();
     steps = scaffold
       ? ['first-diff', 'second-diff', 'find-a', 'find-c', 'current-equation', 'find-b', 'final-equation']
       : ['final-equation'];
@@ -309,6 +303,9 @@ VM.PracticeParabolaFromTable = (function(){
     if(ok){
       score.correct++;
       els.feedback.textContent = 'Correct — ' + correctStr + '.';
+      if(practiceMode.recordCorrect()){
+        els.feedback.textContent += ' That’s 10 correct — switching to practice.';
+      }
       els.feedback.className = 'feedback correct';
       working.push(correctStr);
     } else {
@@ -391,8 +388,9 @@ VM.PracticeParabolaFromTable = (function(){
     VM.KeybindHelp.attach(document.getElementById('parabola-table-keybind-help'));
   }
 
-  function start(){
+  function start(mode){
     score = { correct: 0, attempted: 0 };
+    practiceMode = VM.PracticeMode.create(mode);
     els.score.textContent = '0 / 0';
     nextQuestion();
   }

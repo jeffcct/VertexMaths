@@ -19,7 +19,11 @@
    be zero (an expression like "3x" on its own is a perfectly normal
    substitution question).
 
-   Public API: VM.PracticeSubstitution.init({ onBack }), .start()
+   Learn mode shows a hint on method; Practice mode hides it. 10
+   correct in Learn switches a session to Practice for its remaining
+   questions — see js/practice-mode.js for the shared mechanism.
+
+   Public API: VM.PracticeSubstitution.init({ onBack }), .start(mode)
    ============================================================ */
 window.VM = window.VM || {};
 
@@ -31,9 +35,12 @@ VM.PracticeSubstitution = (function(){
   var DOUBLE_COEFF_MIN = -6, DOUBLE_COEFF_MAX = 6;
   var DOUBLE_VAL_MIN = -6, DOUBLE_VAL_MAX = 6;
 
+  var LEARN_HINT = 'Replace each letter with the value you’re given, then work out the result.';
+
   var els = {};
   var current = null;    // { kind, A, B, x, [y], result }
   var score = { correct: 0, attempted: 0 };
+  var practiceMode = null;
   var answered = false;  // has the current question been checked yet?
   var working = null;    // the "shown work" trail for the current question — see working-trail.js
 
@@ -131,6 +138,7 @@ VM.PracticeSubstitution = (function(){
     els.answerInput.classList.remove('right', 'wrong');
     els.feedback.textContent = '';
     els.feedback.className = 'feedback';
+    els.hint.textContent = practiceMode.isLearn() ? LEARN_HINT : '';
     els.checkBtn.textContent = 'Check answer';
     els.answerInput.focus();
   }
@@ -149,6 +157,9 @@ VM.PracticeSubstitution = (function(){
     if(ok){
       score.correct++;
       els.feedback.textContent = 'Correct — ' + workedLine + '.';
+      if(practiceMode.recordCorrect()){
+        els.feedback.textContent += ' That’s 10 correct — switching to practice.';
+      }
       els.feedback.className = 'feedback correct';
     } else {
       els.feedback.textContent = 'Not quite. ' + workedLine + '.';
@@ -182,6 +193,7 @@ VM.PracticeSubstitution = (function(){
     els.answerInput = document.getElementById('subst-answer-input');
     els.workingCard = document.getElementById('subst-working-card');
     els.workingLines = document.getElementById('subst-working-lines');
+    els.hint = document.getElementById('subst-hint');
     working = VM.WorkingTrail(els.workingCard, els.workingLines);
 
     els.checkBtn.addEventListener('click', handleCheckOrAdvance);
@@ -193,8 +205,9 @@ VM.PracticeSubstitution = (function(){
     if(opts.onBack){ els.backBtn.addEventListener('click', opts.onBack); }
   }
 
-  function start(){
+  function start(mode){
     score = { correct: 0, attempted: 0 };
+    practiceMode = VM.PracticeMode.create(mode);
     els.score.textContent = '0 / 0';
     nextQuestion();
   }

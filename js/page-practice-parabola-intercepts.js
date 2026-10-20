@@ -14,7 +14,7 @@
         window.location.href = 'algebra.html';
       }
     });
-    VM.PracticeParabolaIntercepts.start();
+    VM.PracticeParabolaIntercepts.start(VM.PracticeMode.fromQuery());
   });
 
 })();

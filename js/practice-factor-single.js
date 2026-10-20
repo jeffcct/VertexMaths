@@ -8,8 +8,7 @@
    common factor of A*B and A*C), and walks the student through
    pulling A back out:
 
-   Below 3 questions answered, or under 90% accuracy, a two-step
-   scaffold:
+   Learn mode shows a two-step scaffold:
      1. find the greatest common factor of the two terms' coefficients
         (ungraded — must be right to move on).
      2. write the fully factored expression — the only step that's
@@ -23,10 +22,9 @@
    always generated positive, and A carries whatever sign is needed
    to reproduce the original expression's actual leading coefficient.
 
-   At 3+ questions and 90%+ accuracy, the scaffold is skipped and the
-   question goes straight to step 2 — same convention as every other
-   Practice component's adaptive difficulty (see the note at the top
-   of practice-parabola-intercepts.js).
+   Practice mode skips straight to step 2 — see js/practice-mode.js
+   for the shared Learn/Practice mechanism (10 correct in Learn
+   switches a session to Practice for its remaining questions).
 
    The final step also recognises a third, non-scoring "close" state
    (GitHub issue #10 follow-up): negating the GCF and everything
@@ -45,7 +43,7 @@
    bracket and only one correct factorization here — no order
    ambiguity to account for.
 
-   Public API: VM.PracticeFactorSingle.init({ onBack }), .start()
+   Public API: VM.PracticeFactorSingle.init({ onBack }), .start(mode)
    ============================================================ */
 window.VM = window.VM || {};
 
@@ -53,12 +51,10 @@ VM.PracticeFactorSingle = (function(){
   var A_MIN = 2, A_MAX = 9;
   var BC_MIN = -9, BC_MAX = 9;
 
-  var SCAFFOLD_MIN_ATTEMPTS = 3;
-  var SCAFFOLD_MIN_ACCURACY = 0.90;
-
   var els = {};
   var current = null;    // { A, B, C, AB, AC }
   var score = { correct: 0, attempted: 0 };
+  var practiceMode = null;
   var steps = [];
   var stepIndex = 0;
   var stepAnswered = false;
@@ -75,10 +71,6 @@ VM.PracticeFactorSingle = (function(){
     a = Math.abs(a); b = Math.abs(b);
     while(b){ var t = b; b = a % b; a = t; }
     return a;
-  }
-  function accuracy(){ return score.attempted ? score.correct / score.attempted : 0; }
-  function needsScaffold(){
-    return score.attempted < SCAFFOLD_MIN_ATTEMPTS || accuracy() < SCAFFOLD_MIN_ACCURACY;
   }
 
   function currentStepName(){ return steps[stepIndex]; }
@@ -103,7 +95,7 @@ VM.PracticeFactorSingle = (function(){
     var AB = A * B, AC = A * C;
     current = { A: A, B: B, C: C, AB: AB, AC: AC };
 
-    var scaffold = needsScaffold();
+    var scaffold = practiceMode.isLearn();
     steps = scaffold ? ['find-gcf', 'factored'] : ['factored'];
     stepIndex = 0;
     stepAnswered = false;
@@ -245,6 +237,9 @@ VM.PracticeFactorSingle = (function(){
     if(ok){
       score.correct++;
       els.feedback.textContent = 'Correct — ' + correctStr + '.';
+      if(practiceMode.recordCorrect()){
+        els.feedback.textContent += ' That’s 10 correct — switching to practice.';
+      }
       els.feedback.className = 'feedback correct';
       working.push(correctStr);
     } else {
@@ -310,8 +305,9 @@ VM.PracticeFactorSingle = (function(){
     if(opts.onBack){ els.backBtn.addEventListener('click', opts.onBack); }
   }
 
-  function start(){
+  function start(mode){
     score = { correct: 0, attempted: 0 };
+    practiceMode = VM.PracticeMode.create(mode);
     els.score.textContent = '0 / 0';
     nextQuestion();
   }

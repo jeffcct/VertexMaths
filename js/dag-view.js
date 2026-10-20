@@ -151,6 +151,10 @@ VM.DagView = (function(){
         var action = btn.getAttribute('data-action');
         var topic = data.findTopic(btn.getAttribute('data-topic'));
         if(!topic) return;
+        if(action === 'learn' && topic.ready && initOpts.onOpenLearn){
+          initOpts.onOpenLearn(topic.id);
+          return;
+        }
         if(action === 'practice' && topic.ready && initOpts.onOpenPractice){
           initOpts.onOpenPractice(topic.id);
           return;

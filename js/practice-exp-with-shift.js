@@ -10,19 +10,18 @@
    its table version, just sourcing the two points from the graph
    instead of a table row:
 
-   Below 3 questions answered, or under 90% accuracy, a four-step
-   scaffold:
+   Learn mode shows a four-step scaffold:
      1. write the basic equation with the given base substituted in,
         a and c left as literal letters (nothing's solved them yet).
      2. substitute the marked points at x = 0 and x = 1 to get two
         equations in a and c (b^0 = 1 keeps the first one simple).
      3. solve that pair of equations for a and c.
      4. write the full equation — the only step that's scored.
+   Practice mode skips straight to step 4 — see js/practice-mode.js
+   for the shared Learn/Practice mechanism (10 correct in Learn
+   switches a session to Practice for its remaining questions).
 
-   At 3+ questions and 90%+ accuracy, the scaffold is skipped and the
-   question goes straight to step 4.
-
-   Public API: VM.PracticeExpWithShift.init({ onBack }), .start()
+   Public API: VM.PracticeExpWithShift.init({ onBack }), .start(mode)
    ============================================================ */
 window.VM = window.VM || {};
 
@@ -36,12 +35,10 @@ VM.PracticeExpWithShift = (function(){
   var B_VALUES = [2, 3];                              // positive integer base — given directly
   var C_VALUES = [-4, -3, -2, -1, 1, 2, 3, 4];         // nonzero integer vertical shift
 
-  var SCAFFOLD_MIN_ATTEMPTS = 3;
-  var SCAFFOLD_MIN_ACCURACY = 0.90;
-
   var els = {};
   var current = null;    // { a, b, c, y0, y1 } — y0 = a + c (at x=0), y1 = a*b + c (at x=1)
   var score = { correct: 0, attempted: 0 };
+  var practiceMode = null;
   var steps = [];
   var stepIndex = 0;
   var stepAnswered = false;
@@ -51,10 +48,6 @@ VM.PracticeExpWithShift = (function(){
   function toPx(x, y){ return grid.toPx(x, y); }
   function randChoice(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
   function close(a, b){ return Math.abs(a - b) < 0.01; }
-  function accuracy(){ return score.attempted ? score.correct / score.attempted : 0; }
-  function needsScaffold(){
-    return score.attempted < SCAFFOLD_MIN_ATTEMPTS || accuracy() < SCAFFOLD_MIN_ACCURACY;
-  }
 
   function currentStepName(){ return steps[stepIndex]; }
   function isFinalStep(){ return currentStepName() === 'final-equation'; }
@@ -82,7 +75,7 @@ VM.PracticeExpWithShift = (function(){
   function nextQuestion(){
     current = pickABC();
 
-    var scaffold = needsScaffold();
+    var scaffold = practiceMode.isLearn();
     steps = scaffold
       ? ['basic-equation', 'substitute-points', 'solve-ac', 'final-equation']
       : ['final-equation'];
@@ -302,6 +295,9 @@ VM.PracticeExpWithShift = (function(){
     if(ok){
       score.correct++;
       els.feedback.textContent = 'Correct — ' + correctStr + '.';
+      if(practiceMode.recordCorrect()){
+        els.feedback.textContent += ' That’s 10 correct — switching to practice.';
+      }
       els.feedback.className = 'feedback correct';
       working.push(correctStr);
     } else {
@@ -377,8 +373,9 @@ VM.PracticeExpWithShift = (function(){
     if(opts.onBack){ els.backBtn.addEventListener('click', opts.onBack); }
   }
 
-  function start(){
+  function start(mode){
     score = { correct: 0, attempted: 0 };
+    practiceMode = VM.PracticeMode.create(mode);
     els.score.textContent = '0 / 0';
     nextQuestion();
   }

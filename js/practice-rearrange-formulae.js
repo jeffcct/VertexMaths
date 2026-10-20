@@ -35,12 +35,11 @@
    Every pair before the last one is ungraded scaffolding; only the
    final write step (the fully rearranged formula) is scored.
 
-   Below 3 questions answered, or under 90% accuracy, that full
-   action/write walkthrough runs for every hardcoded step. At 3+
-   questions and 90%+ accuracy, the scaffold is skipped entirely and
-   the question goes straight to a single "make X the subject" step —
-   same adaptive-difficulty convention as every other Practice
-   component.
+   Learn mode runs that full action/write walkthrough for every
+   hardcoded step. Practice mode skips straight to a single "make X
+   the subject" step — see js/practice-mode.js for the shared
+   Learn/Practice mechanism (10 correct in Learn switches a session
+   to Practice for its remaining questions).
 
    Equations are checked with simple, tolerant string comparison
    (see normalizeEqStr/equationsMatch) rather than per-formula regex:
@@ -55,10 +54,9 @@
    one step, no root/square; 'medium' — two steps, still no
    root/square; 'hard' — a root/square action, or three steps) used
    to WEIGHT nextQuestion()'s pick (see pickPair/DIFFICULTY_WEIGHTS):
-   below the same 3-attempts/90%-accuracy bar the scaffold tier uses,
-   picks lean heavily toward easy/medium; past it, they lean toward
-   medium/hard — a genuine weighting, not a hard gate, so every
-   difficulty can still come up at any stage.
+   in Learn mode, picks lean heavily toward easy/medium; in Practice,
+   they lean toward medium/hard — a genuine weighting, not a hard
+   gate, so every difficulty can still come up in either mode.
 
    Formulae/equations are DISPLAYED (the given formula, the current
    equation, feedback and working lines) through
@@ -78,15 +76,12 @@
    before this existed, so live-converting the shortcut changes
    nothing about what counts as correct.
 
-   Public API: VM.PracticeRearrangeFormulae.init({ onBack }), .start()
+   Public API: VM.PracticeRearrangeFormulae.init({ onBack }), .start(mode)
    ============================================================ */
 window.VM = window.VM || {};
 
 VM.PracticeRearrangeFormulae = (function(){
   var parseEitherSide = VM.EquationParse.parseEitherSide;
-
-  var SCAFFOLD_MIN_ATTEMPTS = 3;
-  var SCAFFOLD_MIN_ACCURACY = 0.90;
 
   // The "?" typing-conventions dialog next to the write/final inputs —
   // passed to the shared VM.KeybindHelp.attach (see keybind-help.js)
@@ -363,7 +358,7 @@ VM.PracticeRearrangeFormulae = (function(){
   var DIFFICULTY_WEIGHTS_LATER = { easy: 1, medium: 2, hard: 3 };
 
   function pickPair(){
-    var weights = needsScaffold() ? DIFFICULTY_WEIGHTS_EARLY : DIFFICULTY_WEIGHTS_LATER;
+    var weights = practiceMode.isLearn() ? DIFFICULTY_WEIGHTS_EARLY : DIFFICULTY_WEIGHTS_LATER;
     var pool = [];
     ALL_PAIRS.forEach(function(pair){
       var w = weights[pair.difficulty] || 1;
@@ -375,6 +370,7 @@ VM.PracticeRearrangeFormulae = (function(){
   var els = {};
   var current = null;    // { formula, subject, stepData, currentEq }
   var score = { correct: 0, attempted: 0 };
+  var practiceMode = null;
   var steps = [];         // flat list of step names for this question, e.g. ['choice-0','write-0','choice-1','write-1']
   var stepIndex = 0;
   var stepAnswered = false;
@@ -383,10 +379,6 @@ VM.PracticeRearrangeFormulae = (function(){
 
   function randChoice(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
   function randInt(lo, hi){ return lo + Math.floor(Math.random() * (hi - lo + 1)); }
-  function accuracy(){ return score.attempted ? score.correct / score.attempted : 0; }
-  function needsScaffold(){
-    return score.attempted < SCAFFOLD_MIN_ATTEMPTS || accuracy() < SCAFFOLD_MIN_ACCURACY;
-  }
 
   function currentStepName(){ return steps[stepIndex]; }
   function isChoiceStep(name){ return name.indexOf('choice-') === 0; }
@@ -495,7 +487,7 @@ VM.PracticeRearrangeFormulae = (function(){
       stepData: pair.steps, currentEq: pair.formula.given
     };
 
-    var scaffold = needsScaffold();
+    var scaffold = practiceMode.isLearn();
     if(scaffold){
       steps = [];
       current.stepData.forEach(function(_, i){ steps.push('choice-' + i, 'write-' + i); });
@@ -652,7 +644,12 @@ VM.PracticeRearrangeFormulae = (function(){
     }
     if(isFinal){
       score.attempted++;
-      if(ok) score.correct++;
+      if(ok){
+        score.correct++;
+        if(practiceMode.recordCorrect()){
+          els.feedback.textContent += ' That’s 10 correct — switching to practice.';
+        }
+      }
       els.score.textContent = score.correct + ' / ' + score.attempted;
     }
     return ok;
@@ -672,6 +669,9 @@ VM.PracticeRearrangeFormulae = (function(){
       // Echo exactly what was typed, plain (no reformatting) — see
       // GitHub issue #12/#17.
       els.feedback.textContent = 'Correct — ' + raw + '.';
+      if(practiceMode.recordCorrect()){
+        els.feedback.textContent += ' That’s 10 correct — switching to practice.';
+      }
       els.feedback.className = 'feedback correct';
       working.push(raw);
     } else {
@@ -750,8 +750,9 @@ VM.PracticeRearrangeFormulae = (function(){
     VM.KeybindHelp.attach(document.getElementById('formula-keybind-help'), FORMULA_TYPING_HELP);
   }
 
-  function start(){
+  function start(mode){
     score = { correct: 0, attempted: 0 };
+    practiceMode = VM.PracticeMode.create(mode);
     els.score.textContent = '0 / 0';
     nextQuestion();
   }

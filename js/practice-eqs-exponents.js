@@ -6,18 +6,15 @@
    through recognising the right-hand side as a power of the same
    base, then equating exponents to solve for x = n - s.
 
-   Below 3 questions answered, or under 90% accuracy, a two-step
-   scaffold:
+   Learn mode shows a two-step scaffold:
      1. rewrite the right-hand side as a power of the base
         (ungraded — must be right to move on).
      2. solve for x — the only step that's scored.
+   Practice mode skips straight to step 2 — see js/practice-mode.js
+   for the shared Learn/Practice mechanism (10 correct in Learn
+   switches a session to Practice for its remaining questions).
 
-   At 3+ questions and 90%+ accuracy, the scaffold is skipped and the
-   question goes straight to step 2 — same convention as every other
-   Practice component's adaptive difficulty (see the note at the top
-   of practice-parabola-intercepts.js).
-
-   Public API: VM.PracticeEqsExponents.init({ onBack }), .start()
+   Public API: VM.PracticeEqsExponents.init({ onBack }), .start(mode)
    ============================================================ */
 window.VM = window.VM || {};
 
@@ -26,12 +23,10 @@ VM.PracticeEqsExponents = (function(){
   var SHIFTS = [-4, -3, -2, -1, 1, 2, 3, 4];
   var N_MIN = 1, N_MAX = 6;
 
-  var SCAFFOLD_MIN_ATTEMPTS = 3;
-  var SCAFFOLD_MIN_ACCURACY = 0.90;
-
   var els = {};
   var current = null;    // { a, s, n, rhs, x }
   var score = { correct: 0, attempted: 0 };
+  var practiceMode = null;
   var steps = [];
   var stepIndex = 0;
   var stepAnswered = false;
@@ -40,10 +35,6 @@ VM.PracticeEqsExponents = (function(){
 
   function randInt(lo, hi){ return lo + Math.floor(Math.random() * (hi - lo + 1)); }
   function pick(list){ return list[randInt(0, list.length - 1)]; }
-  function accuracy(){ return score.attempted ? score.correct / score.attempted : 0; }
-  function needsScaffold(){
-    return score.attempted < SCAFFOLD_MIN_ATTEMPTS || accuracy() < SCAFFOLD_MIN_ACCURACY;
-  }
 
   function currentStepName(){ return steps[stepIndex]; }
   function isFinalStep(){ return currentStepName() === 'solve-x'; }
@@ -59,7 +50,7 @@ VM.PracticeEqsExponents = (function(){
 
     current = { a: a, s: s, n: n, rhs: rhs, x: x };
 
-    var scaffold = needsScaffold();
+    var scaffold = practiceMode.isLearn();
     steps = scaffold ? ['rewrite', 'solve-x'] : ['solve-x'];
     stepIndex = 0;
     stepAnswered = false;
@@ -150,6 +141,9 @@ VM.PracticeEqsExponents = (function(){
     if(ok){
       score.correct++;
       els.feedback.textContent = 'Correct — x = ' + current.x + '.';
+      if(practiceMode.recordCorrect()){
+        els.feedback.textContent += ' That’s 10 correct — switching to practice.';
+      }
       els.feedback.className = 'feedback correct';
       working.push('x = ' + current.x);
     } else {
@@ -215,8 +209,9 @@ VM.PracticeEqsExponents = (function(){
     if(opts.onBack){ els.backBtn.addEventListener('click', opts.onBack); }
   }
 
-  function start(){
+  function start(mode){
     score = { correct: 0, attempted: 0 };
+    practiceMode = VM.PracticeMode.create(mode);
     els.score.textContent = '0 / 0';
     nextQuestion();
   }

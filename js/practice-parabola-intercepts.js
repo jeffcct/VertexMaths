@@ -4,28 +4,19 @@
    parabola (from a graph using intercepts)". Draws a random parabola
    on a coordinate grid with its two x-intercepts and its y-intercept
    marked, and walks the student through building
-   y = a(x - p)(x - q) as a sequence of steps that shortens as their
-   accuracy improves:
+   y = a(x - p)(x - q) as a sequence of steps in Learn mode:
+   read off the two x-intercepts; write the factors they give you,
+   (x - p)(x - q); read off the other marked point; use it to solve
+   for a; then put the whole equation together. Practice mode skips
+   straight to that last "write the full equation" step — see
+   js/practice-mode.js for the shared Learn/Practice mechanism (10
+   correct in Learn switches a session to Practice for its remaining
+   questions).
 
-     - Tier A (default — the first 3 questions, or accuracy below
-       70%): five steps — read off the two x-intercepts; write the
-       factors they give you, (x - p)(x - q); read off the other
-       marked point; use it to solve for a; then put the whole
-       equation together.
-     - Tier B (more than 3 questions done, 70-90% accuracy): four
-       steps — starts straight at the factors step, skipping the
-       separate "read off the intercepts" step.
-     - Tier C (more than 5 questions done, 90%+ accuracy): one
-       step — just write the full equation.
-
-   Every tier ends on the same "write the full equation" step, and
-   that's the only step that's actually scored — the earlier steps
-   in a tier are ungraded scaffolding: they must be answered
-   correctly to move on, but getting one wrong along the way (and
-   retrying) doesn't count against accuracy. The tier for a question
-   is decided once, right before it's generated, from the running
-   score — same as every other Practice component's adaptive
-   difficulty (see the note at the top of practice-line-graph.js).
+   The "write the full equation" step is the only one that's scored —
+   the earlier Learn-mode steps are ungraded scaffolding: they must be
+   answered correctly to move on, but getting one wrong along the way
+   (and retrying) doesn't count against accuracy.
 
    The leading coefficient a is drawn uniformly from -3..3 (never 0)
    on every question — no bias toward ±1. Once a student has done at
@@ -37,7 +28,7 @@
    The two x-intercepts can always be entered/typed in either order,
    since (x - p)(x - q) and (x - q)(x - p) are the same equation.
 
-   Public API: VM.PracticeParabolaIntercepts.init({ onBack }), .start()
+   Public API: VM.PracticeParabolaIntercepts.init({ onBack }), .start(mode)
    ============================================================ */
 window.VM = window.VM || {};
 
@@ -62,19 +53,10 @@ VM.PracticeParabolaIntercepts = (function(){
   var FRACTION_MIN_ATTEMPTS = 5;
   var FRACTION_MIN_ACCURACY = 0.90;
 
-  // Tier thresholds. Checked most-reduced-first: once a student
-  // clears tier C's bar they stay there even though tier B's (looser)
-  // bar also matches; short of tier C, clearing tier B's bar still
-  // drops the intercepts step even at 90%+ accuracy if they haven't
-  // yet done enough questions for tier C.
-  var TIER_B_MIN_ATTEMPTS = 3;    // "more than 3 questions"
-  var TIER_B_MIN_ACCURACY = 0.70; // "between 70 and 90% correct"
-  var TIER_C_MIN_ATTEMPTS = 5;    // "more than 5 questions answered"
-  var TIER_C_MIN_ACCURACY = 0.90; // "between 90 and 100%"
-
   var els = {};
   var current = null;    // { a, aNum, aDen, p, q, yInt }
   var score = { correct: 0, attempted: 0 };
+  var practiceMode = null;
   var steps = [];        // this question's step sequence, e.g. ['intercepts','brackets','point','solvea','equation']
   var stepIndex = 0;
   var stepAnswered = false; // has the CURRENT (non-final) step been answered correctly?
@@ -115,27 +97,15 @@ VM.PracticeParabolaIntercepts = (function(){
     return { aNum: aNum, aDen: aDen, aVal: aVal, p: pq[0], q: pq[1] };
   }
 
-  function tierSequence(){
-    if(score.attempted > TIER_C_MIN_ATTEMPTS && accuracy() >= TIER_C_MIN_ACCURACY){
-      return ['equation'];
-    }
-    if(score.attempted > TIER_B_MIN_ATTEMPTS && accuracy() >= TIER_B_MIN_ACCURACY){
-      return ['brackets', 'point', 'solvea', 'equation'];
-    }
-    return ['intercepts', 'brackets', 'point', 'solvea', 'equation'];
-  }
-
   function tierNote(){
-    if(steps.length === 1) return "You've got this — just write the full equation.";
-    if(steps.length === 4) return "You're doing well — skipping straight to the factors this time.";
-    return '';
+    return steps.length === 1 ? "You've got this — just write the full equation." : '';
   }
 
   function nextQuestion(){
     var t = pickAPQ();
     current = { a: t.aVal, aNum: t.aNum, aDen: t.aDen, p: t.p, q: t.q, yInt: t.aVal * t.p * t.q };
 
-    steps = tierSequence();
+    steps = practiceMode.isLearn() ? ['intercepts', 'brackets', 'point', 'solvea', 'equation'] : ['equation'];
     stepIndex = 0;
     stepAnswered = false;
     answered = false;
@@ -403,6 +373,9 @@ VM.PracticeParabolaIntercepts = (function(){
       // form to show in that case.
       var typed = (els.eqInput.value || '').trim();
       els.feedback.textContent = 'Correct — ' + typed;
+      if(practiceMode.recordCorrect()){
+        els.feedback.textContent += ' That’s 10 correct — switching to practice.';
+      }
       els.feedback.className = 'feedback correct';
       working.push(typed);
     } else {
@@ -482,8 +455,9 @@ VM.PracticeParabolaIntercepts = (function(){
     if(opts.onBack){ els.backBtn.addEventListener('click', opts.onBack); }
   }
 
-  function start(){
+  function start(mode){
     score = { correct: 0, attempted: 0 };
+    practiceMode = VM.PracticeMode.create(mode);
     els.score.textContent = '0 / 0';
     nextQuestion();
   }

@@ -18,8 +18,7 @@
 
    Unlike factor-nonmonic's five-step scaffold, there are only two
    ideas to walk through here — "multiply it out" and "collect like
-   terms" — so below 3 questions answered, or under 90% accuracy, a
-   two-step adaptive scaffold:
+   terms" — so Learn mode shows a two-step scaffold:
      1. expanded — write the expanded FOUR-term form before
         collecting like terms, e.g. "6x² + 3x + 4x + 2" — ungraded.
         This mirrors factor-nonmonic's own "expanded" step format
@@ -35,10 +34,10 @@
    x² + 3x + 2x + 6 (outer 1*3, inner 2*1), which collects to
    x² + 5x + 6.
 
-   At 3+ questions and 90%+ accuracy, the scaffold is skipped and the
-   question goes straight to the collected step — same convention as
-   every other Practice component's adaptive difficulty (see the note
-   at the top of practice-line-from-point.js).
+   Practice mode skips straight to the collected step — see
+   js/practice-mode.js for the shared Learn/Practice mechanism (10
+   correct in Learn switches a session to Practice for its remaining
+   questions).
 
    Because m and n can each be 1 here (unlike factor-nonmonic, where
    m is always >= 2), a can itself be 1 — so, unlike factor-nonmonic's
@@ -52,7 +51,7 @@
    the collected form's formatting and parsing both treat a missing
    bx term as b = 0 rather than requiring one.
 
-   Public API: VM.PracticeExpandDouble.init({ onBack }), .start()
+   Public API: VM.PracticeExpandDouble.init({ onBack }), .start(mode)
    ============================================================ */
 window.VM = window.VM || {};
 
@@ -61,12 +60,10 @@ VM.PracticeExpandDouble = (function(){
   var N_VALUES = [1, 2, 3];
   var PQ_MIN = -9, PQ_MAX = 9;
 
-  var SCAFFOLD_MIN_ATTEMPTS = 3;
-  var SCAFFOLD_MIN_ACCURACY = 0.90;
-
   var els = {};
   var current = null;    // { m, n, p, q, a, b, c, mq, np }
   var score = { correct: 0, attempted: 0 };
+  var practiceMode = null;
   var steps = [];
   var stepIndex = 0;
   var stepAnswered = false;
@@ -79,10 +76,6 @@ VM.PracticeExpandDouble = (function(){
     var v;
     do { v = randInt(lo, hi); } while(v === 0);
     return v;
-  }
-  function accuracy(){ return score.attempted ? score.correct / score.attempted : 0; }
-  function needsScaffold(){
-    return score.attempted < SCAFFOLD_MIN_ATTEMPTS || accuracy() < SCAFFOLD_MIN_ACCURACY;
   }
 
   function currentStepName(){ return steps[stepIndex]; }
@@ -103,7 +96,7 @@ VM.PracticeExpandDouble = (function(){
 
     current = { m: m, n: n, p: p, q: q, a: a, b: b, c: c, mq: mq, np: np };
 
-    var scaffold = needsScaffold();
+    var scaffold = practiceMode.isLearn();
     steps = scaffold ? ['expanded', 'collected'] : ['collected'];
     stepIndex = 0;
     stepAnswered = false;
@@ -318,6 +311,9 @@ VM.PracticeExpandDouble = (function(){
       // canonical string — see the "echo the student's own answer"
       // rule in CLAUDE.md.
       els.feedback.textContent = 'Correct — ' + raw;
+      if(practiceMode.recordCorrect()){
+        els.feedback.textContent += ' That’s 10 correct — switching to practice.';
+      }
       els.feedback.className = 'feedback correct';
       working.push(raw);
     } else {
@@ -383,8 +379,9 @@ VM.PracticeExpandDouble = (function(){
     if(opts.onBack){ els.backBtn.addEventListener('click', opts.onBack); }
   }
 
-  function start(){
+  function start(mode){
     score = { correct: 0, attempted: 0 };
+    practiceMode = VM.PracticeMode.create(mode);
     els.score.textContent = '0 / 0';
     nextQuestion();
   }

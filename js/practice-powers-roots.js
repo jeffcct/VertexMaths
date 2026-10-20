@@ -19,7 +19,11 @@
                  literal "√" character). Answer is the single value
                  x = n², always non-negative since n > 0.
 
-   Public API: VM.PracticePowersRoots.init({ onBack }), .start()
+   Learn mode shows a hint on method; Practice mode hides it. 10
+   correct in Learn switches a session to Practice for its remaining
+   questions — see js/practice-mode.js for the shared mechanism.
+
+   Public API: VM.PracticePowersRoots.init({ onBack }), .start(mode)
    ============================================================ */
 window.VM = window.VM || {};
 
@@ -28,9 +32,12 @@ VM.PracticePowersRoots = (function(){
   var CUBE_N_MIN = -5, CUBE_N_MAX = 5;
   var ROOT_N_MIN = 1, ROOT_N_MAX = 12;
 
+  var LEARN_HINT = 'Undo a square or cube with the matching root (a square has two solutions, + and -); undo a square root by squaring both sides.';
+
   var els = {};
   var current = null;    // { kind, n, k } — meaning of n/k depends on kind
   var score = { correct: 0, attempted: 0 };
+  var practiceMode = null;
   var answered = false;  // has the current question already been checked?
   var working = null;    // the "shown work" trail for the current question — see working-trail.js
 
@@ -97,6 +104,7 @@ VM.PracticePowersRoots = (function(){
 
     els.feedback.textContent = '';
     els.feedback.className = 'feedback';
+    els.hint.textContent = practiceMode.isLearn() ? LEARN_HINT : '';
     els.checkBtn.textContent = 'Check answer';
 
     (kind === 'square' ? els.solveX1 : els.solveSingle).focus();
@@ -152,7 +160,12 @@ VM.PracticePowersRoots = (function(){
     var ok = current.kind === 'square' ? checkSquare() : checkSingle();
 
     score.attempted++;
-    if(ok) score.correct++;
+    if(ok){
+      score.correct++;
+      if(practiceMode.recordCorrect()){
+        els.feedback.textContent += ' That’s 10 correct — switching to practice.';
+      }
+    }
     els.score.textContent = score.correct + ' / ' + score.attempted;
     return true;
   }
@@ -181,6 +194,7 @@ VM.PracticePowersRoots = (function(){
     els.backBtn = document.getElementById('powersroots-back-btn');
     els.workingCard = document.getElementById('powersroots-working-card');
     els.workingLines = document.getElementById('powersroots-working-lines');
+    els.hint = document.getElementById('powersroots-hint');
     working = VM.WorkingTrail(els.workingCard, els.workingLines);
 
     els.solveSingle = document.getElementById('powersroots-solve-single');
@@ -204,8 +218,9 @@ VM.PracticePowersRoots = (function(){
     if(opts.onBack){ els.backBtn.addEventListener('click', opts.onBack); }
   }
 
-  function start(){
+  function start(mode){
     score = { correct: 0, attempted: 0 };
+    practiceMode = VM.PracticeMode.create(mode);
     els.score.textContent = '0 / 0';
     nextQuestion();
   }

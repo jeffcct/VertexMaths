@@ -5,34 +5,29 @@
    (B = p + q, C = p*q), which factors as (x + p)(x + q), and walks
    the student through it:
 
-   Below 3 questions answered, or under 90% accuracy, a two-step
-   scaffold:
+   Learn mode shows a two-step scaffold:
      1. find the two numbers that multiply to C and add to B
         (ungraded — must be right to move on).
      2. write the fully factored expression — the only step that's
         scored.
-
-   At 3+ questions and 90%+ accuracy, the scaffold is skipped and the
-   question goes straight to step 2 — same convention as every other
-   Practice component's adaptive difficulty (see the note at the top
-   of practice-parabola-intercepts.js).
+   Practice mode skips straight to step 2 — see js/practice-mode.js
+   for the shared Learn/Practice mechanism (10 correct in Learn
+   switches a session to Practice for its remaining questions).
 
    p and q can repeat (a valid perfect-square trinomial), and the two
    numbers/brackets can always be entered in either order.
 
-   Public API: VM.PracticeFactorMonic.init({ onBack }), .start()
+   Public API: VM.PracticeFactorMonic.init({ onBack }), .start(mode)
    ============================================================ */
 window.VM = window.VM || {};
 
 VM.PracticeFactorMonic = (function(){
   var P_MIN = -9, P_MAX = 9;
 
-  var SCAFFOLD_MIN_ATTEMPTS = 3;
-  var SCAFFOLD_MIN_ACCURACY = 0.90;
-
   var els = {};
   var current = null;    // { p, q, B, C }
   var score = { correct: 0, attempted: 0 };
+  var practiceMode = null;
   var steps = [];
   var stepIndex = 0;
   var stepAnswered = false;
@@ -44,10 +39,6 @@ VM.PracticeFactorMonic = (function(){
     var v;
     do { v = randInt(lo, hi); } while(v === 0);
     return v;
-  }
-  function accuracy(){ return score.attempted ? score.correct / score.attempted : 0; }
-  function needsScaffold(){
-    return score.attempted < SCAFFOLD_MIN_ATTEMPTS || accuracy() < SCAFFOLD_MIN_ACCURACY;
   }
 
   function currentStepName(){ return steps[stepIndex]; }
@@ -70,7 +61,7 @@ VM.PracticeFactorMonic = (function(){
 
     current = { p: p, q: q, B: B, C: C };
 
-    var scaffold = needsScaffold();
+    var scaffold = practiceMode.isLearn();
     steps = scaffold ? ['find-pair', 'factored'] : ['factored'];
     stepIndex = 0;
     stepAnswered = false;
@@ -201,6 +192,9 @@ VM.PracticeFactorMonic = (function(){
       // Echo what was actually typed (the two brackets may be in
       // either order) — see GitHub issue #17.
       els.feedback.textContent = 'Correct — ' + raw + '.';
+      if(practiceMode.recordCorrect()){
+        els.feedback.textContent += ' That’s 10 correct — switching to practice.';
+      }
       els.feedback.className = 'feedback correct';
       working.push(raw);
     } else {
@@ -268,8 +262,9 @@ VM.PracticeFactorMonic = (function(){
     if(opts.onBack){ els.backBtn.addEventListener('click', opts.onBack); }
   }
 
-  function start(){
+  function start(mode){
     score = { correct: 0, attempted: 0 };
+    practiceMode = VM.PracticeMode.create(mode);
     els.score.textContent = '0 / 0';
     nextQuestion();
   }

@@ -14,7 +14,11 @@
      2. Multiplication — ax = c, solved by dividing both sides by a.
      3. Division — x/a = c, solved by multiplying both sides by a.
 
-   Public API: VM.PracticeOneStep.init({ onBack }), .start()
+   Learn mode shows a hint on method; Practice mode hides it. 10
+   correct in Learn switches a session to Practice for its remaining
+   questions — see js/practice-mode.js for the shared mechanism.
+
+   Public API: VM.PracticeOneStep.init({ onBack }), .start(mode)
    ============================================================ */
 window.VM = window.VM || {};
 
@@ -33,9 +37,12 @@ VM.PracticeOneStep = (function(){
   var DIV_A_MIN = 2, DIV_A_MAX = 9;
   var DIV_C_MIN = -10, DIV_C_MAX = 10;
 
+  var LEARN_HINT = 'Do the opposite operation to both sides: undo + or - with - or +, undo × with ÷, and undo ÷ with ×.';
+
   var els = {};
   var current = null;    // { kind, ...operands, x }
   var score = { correct: 0, attempted: 0 };
+  var practiceMode = null;
   var answered = false;
   var working = null;    // the "shown work" trail for the current question — see working-trail.js
 
@@ -79,6 +86,7 @@ VM.PracticeOneStep = (function(){
 
     els.feedback.textContent = '';
     els.feedback.className = 'feedback';
+    els.hint.textContent = practiceMode.isLearn() ? LEARN_HINT : '';
     els.checkBtn.textContent = 'Check answer';
     els.answerInput.value = '';
     els.answerInput.classList.remove('right', 'wrong');
@@ -121,6 +129,9 @@ VM.PracticeOneStep = (function(){
     if(ok){
       score.correct++;
       els.feedback.textContent = 'Correct — x = ' + current.x + '.';
+      if(practiceMode.recordCorrect()){
+        els.feedback.textContent += ' That’s 10 correct — switching to practice.';
+      }
       els.feedback.className = 'feedback correct';
       working.push('x = ' + current.x);
     } else {
@@ -152,6 +163,7 @@ VM.PracticeOneStep = (function(){
     els.backBtn = document.getElementById('onestep-back-btn');
     els.workingCard = document.getElementById('onestep-working-card');
     els.workingLines = document.getElementById('onestep-working-lines');
+    els.hint = document.getElementById('onestep-hint');
     working = VM.WorkingTrail(els.workingCard, els.workingLines);
 
     els.answerInput = document.getElementById('onestep-answer-input');
@@ -166,8 +178,9 @@ VM.PracticeOneStep = (function(){
     if(opts.onBack){ els.backBtn.addEventListener('click', opts.onBack); }
   }
 
-  function start(){
+  function start(mode){
     score = { correct: 0, attempted: 0 };
+    practiceMode = VM.PracticeMode.create(mode);
     els.score.textContent = '0 / 0';
     nextQuestion();
   }

@@ -59,6 +59,10 @@
           onBack: function(){
             window.location.href = 'index.html';
           },
+          onOpenLearn: function(topicId){
+            var page = PRACTICE_PAGES[topicId];
+            if(page) window.location.href = page + '?mode=learn';
+          },
           onOpenPractice: function(topicId){
             var page = PRACTICE_PAGES[topicId];
             if(page) window.location.href = page;

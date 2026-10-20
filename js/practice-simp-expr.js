@@ -22,7 +22,12 @@
       same-variable products (3x x 2x) since that introduces an
       exponent — a different topic (simp-exp), out of scope here.
 
-   Public API: VM.PracticeSimpExpr.init({ onBack }), .start()
+   Learn mode shows a hint on method (collect like terms, or
+   multiply a product out); Practice mode hides it. 10 correct in
+   Learn switches a session to Practice for its remaining questions
+   — see js/practice-mode.js for the shared mechanism.
+
+   Public API: VM.PracticeSimpExpr.init({ onBack }), .start(mode)
    ============================================================ */
 window.VM = window.VM || {};
 
@@ -32,9 +37,12 @@ VM.PracticeSimpExpr = (function(){
   var PRODUCT_MIN_MAG = 2, PRODUCT_MAX_MAG = 9;
   var VAR_POOL = ['a', 'b', 'p', 'q', 'm', 'n'];
 
+  var LEARN_HINT = 'Collect the x-terms together and the number-terms together — or for a product, multiply the numbers and write the two letters side by side.';
+
   var els = {};
   var current = null;    // combine: { kind, terms, A, B } / product: { kind, v1, c1, v2, c2, answer }
   var score = { correct: 0, attempted: 0 };
+  var practiceMode = null;
   var answered = false;
   var working = null;    // the "shown work" trail for the current question — see working-trail.js
 
@@ -95,6 +103,7 @@ VM.PracticeSimpExpr = (function(){
 
     els.expression.textContent = renderGiven(current);
     els.prompt.textContent = questionPrompt(current.kind);
+    els.hint.textContent = practiceMode.isLearn() ? LEARN_HINT : '';
     els.answerInput.placeholder = current.kind === 'combine' ? 'e.g. 3x + 5' : 'e.g. 12ab';
     els.answerInput.value = '';
     els.answerInput.classList.remove('right', 'wrong');
@@ -221,6 +230,9 @@ VM.PracticeSimpExpr = (function(){
       // either order) rather than the generator's own canonical
       // string — see GitHub issue #17.
       els.feedback.textContent = 'Correct — ' + raw + '.';
+      if(practiceMode.recordCorrect()){
+        els.feedback.textContent += ' That’s 10 correct — switching to practice.';
+      }
       els.feedback.className = 'feedback correct';
       working.push(renderGiven(current) + ' = ' + raw);
     } else {
@@ -254,6 +266,7 @@ VM.PracticeSimpExpr = (function(){
     els.backBtn = document.getElementById('simpexpr-back-btn');
     els.workingCard = document.getElementById('simpexpr-working-card');
     els.workingLines = document.getElementById('simpexpr-working-lines');
+    els.hint = document.getElementById('simpexpr-hint');
     working = VM.WorkingTrail(els.workingCard, els.workingLines);
 
     els.checkBtn.addEventListener('click', handleCheckOrAdvance);
@@ -266,8 +279,9 @@ VM.PracticeSimpExpr = (function(){
     if(opts.onBack){ els.backBtn.addEventListener('click', opts.onBack); }
   }
 
-  function start(){
+  function start(mode){
     score = { correct: 0, attempted: 0 };
+    practiceMode = VM.PracticeMode.create(mode);
     els.score.textContent = '0 / 0';
     nextQuestion();
   }

@@ -11,19 +11,18 @@
    longer one, since there are only two unknowns here (a and b, no k
    or c — the curve is never shifted).
 
-   Below 3 questions answered, or under 90% accuracy, a three-step
-   scaffold:
+   Learn mode shows a three-step scaffold:
      1. find-a — read the y-intercept straight off the graph; that's
         a directly (y = a*b^0 = a).
      2. find-b — use the other marked point, at x = 1, together with
         a, to solve for b (y = a*b, so b = y / a).
      3. equation — write the full equation. This is the only scored
         step; the earlier two are ungraded scaffolding that must be
-        answered correctly to move on, but don't count against
-        accuracy.
-
-   At 3+ questions and 90%+ accuracy, the scaffold is skipped and the
-   question goes straight to the equation step.
+        answered correctly to move on.
+   Practice mode skips straight to the equation step — see
+   js/practice-mode.js for the shared Learn/Practice mechanism (10
+   correct in Learn switches a session to Practice for its remaining
+   questions).
 
    a is a nonzero integer from -5 to 5 (a negative a reflects the
    curve below the x-axis); b is a positive integer, 2 or 3. The
@@ -32,7 +31,7 @@
    well within the grid's y-range), so no candidate-filtering is
    needed the way PracticeParabolaVertex needs it for its vertex/h/k.
 
-   Public API: VM.PracticeExpNoShift.init({ onBack }), .start()
+   Public API: VM.PracticeExpNoShift.init({ onBack }), .start(mode)
    ============================================================ */
 window.VM = window.VM || {};
 
@@ -50,12 +49,10 @@ VM.PracticeExpNoShift = (function(){
   var A_VALUES = [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5];
   var B_VALUES = [2, 3];
 
-  var SCAFFOLD_MIN_ATTEMPTS = 3;
-  var SCAFFOLD_MIN_ACCURACY = 0.90;
-
   var els = {};
   var current = null;    // { a, b }
   var score = { correct: 0, attempted: 0 };
+  var practiceMode = null;
   var steps = [];
   var stepIndex = 0;
   var stepAnswered = false;
@@ -65,10 +62,6 @@ VM.PracticeExpNoShift = (function(){
   function toPx(x, y){ return grid.toPx(x, y); }
   function randChoice(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
   function close(x, y){ return Math.abs(x - y) < 0.01; }
-  function accuracy(){ return score.attempted ? score.correct / score.attempted : 0; }
-  function needsScaffold(){
-    return score.attempted < SCAFFOLD_MIN_ATTEMPTS || accuracy() < SCAFFOLD_MIN_ACCURACY;
-  }
 
   function currentStepName(){ return steps[stepIndex]; }
   function isFinalStep(){ return currentStepName() === 'equation'; }
@@ -80,7 +73,7 @@ VM.PracticeExpNoShift = (function(){
     var b = randChoice(B_VALUES);
     current = { a: a, b: b };
 
-    var scaffold = needsScaffold();
+    var scaffold = practiceMode.isLearn();
     steps = scaffold ? ['find-a', 'find-b', 'equation'] : ['equation'];
     stepIndex = 0;
     stepAnswered = false;
@@ -258,6 +251,9 @@ VM.PracticeExpNoShift = (function(){
       // spacing/casing — see the same convention in
       // PracticeExpFromTable's checkSubstitutePoints (GitHub issue #17).
       els.feedback.textContent = 'Correct — ' + raw.trim() + '.';
+      if(practiceMode.recordCorrect()){
+        els.feedback.textContent += ' That’s 10 correct — switching to practice.';
+      }
       els.feedback.className = 'feedback correct';
       working.push(raw.trim());
     } else {
@@ -332,8 +328,9 @@ VM.PracticeExpNoShift = (function(){
     VM.KeybindHelp.attach(document.getElementById('expnoshift-keybind-help'));
   }
 
-  function start(){
+  function start(mode){
     score = { correct: 0, attempted: 0 };
+    practiceMode = VM.PracticeMode.create(mode);
     els.score.textContent = '0 / 0';
     nextQuestion();
   }

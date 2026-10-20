@@ -5,8 +5,7 @@
    a random y = k*a^x + c at x = 0..3 and walks the student through
    the differences-and-ratio method:
 
-   Below 3 questions answered, or under 90% accuracy, a six-step
-   scaffold:
+   Learn mode shows a six-step scaffold:
      1. fill in the first differences between neighbouring y-values
         (not constant, but in a fixed ratio to each other).
      2. fill in the ratio between neighbouring first differences —
@@ -18,13 +17,14 @@
      5. solve that pair of equations for k and c.
      6. write the full equation — the only step that's scored.
 
-   At 3+ questions and 90%+ accuracy, the scaffold is skipped and the
-   question goes straight to step 6. The first-differences and ratio
-   rows stay visible (locked) once filled in, the same way
-   practice-parabola-from-table.js keeps its difference table visible
-   as it builds up.
+   Practice mode skips straight to step 6 — see js/practice-mode.js
+   for the shared Learn/Practice mechanism (10 correct in Learn
+   switches a session to Practice for its remaining questions). The
+   first-differences and ratio rows stay visible (locked) once filled
+   in, the same way practice-parabola-from-table.js keeps its
+   difference table visible as it builds up.
 
-   Public API: VM.PracticeExpFromTable.init({ onBack }), .start()
+   Public API: VM.PracticeExpFromTable.init({ onBack }), .start(mode)
    ============================================================ */
 window.VM = window.VM || {};
 
@@ -37,12 +37,10 @@ VM.PracticeExpFromTable = (function(){
   var C_MIN = -5, C_MAX = 5;
   var XS = [0, 1, 2, 3];
 
-  var SCAFFOLD_MIN_ATTEMPTS = 3;
-  var SCAFFOLD_MIN_ACCURACY = 0.90;
-
   var els = {};
   var current = null;    // { k, a, c, ys, firstDiffs, ratios }
   var score = { correct: 0, attempted: 0 };
+  var practiceMode = null;
   var steps = [];
   var stepIndex = 0;
   var stepAnswered = false;
@@ -52,10 +50,6 @@ VM.PracticeExpFromTable = (function(){
   function randChoice(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
   function randInt(lo, hi){ return lo + Math.floor(Math.random() * (hi - lo + 1)); }
   function close(a, b){ return Math.abs(a - b) < 0.01; }
-  function accuracy(){ return score.attempted ? score.correct / score.attempted : 0; }
-  function needsScaffold(){
-    return score.attempted < SCAFFOLD_MIN_ATTEMPTS || accuracy() < SCAFFOLD_MIN_ACCURACY;
-  }
 
   function currentStepName(){ return steps[stepIndex]; }
   function isFinalStep(){ return currentStepName() === 'final-equation'; }
@@ -74,7 +68,7 @@ VM.PracticeExpFromTable = (function(){
 
     current = { k: k, a: a, c: c, ys: ys, firstDiffs: firstDiffs, ratios: ratios };
 
-    var scaffold = needsScaffold();
+    var scaffold = practiceMode.isLearn();
     steps = scaffold
       ? ['first-diff', 'ratio', 'basic-equation', 'substitute-points', 'solve-kc', 'final-equation']
       : ['final-equation'];
@@ -314,6 +308,9 @@ VM.PracticeExpFromTable = (function(){
     if(ok){
       score.correct++;
       els.feedback.textContent = 'Correct — ' + correctStr + '.';
+      if(practiceMode.recordCorrect()){
+        els.feedback.textContent += ' That’s 10 correct — switching to practice.';
+      }
       els.feedback.className = 'feedback correct';
       working.push(correctStr);
     } else {
@@ -397,8 +394,9 @@ VM.PracticeExpFromTable = (function(){
     VM.KeybindHelp.attach(document.getElementById('exp-table-keybind-help'));
   }
 
-  function start(){
+  function start(mode){
     score = { correct: 0, attempted: 0 };
+    practiceMode = VM.PracticeMode.create(mode);
     els.score.textContent = '0 / 0';
     nextQuestion();
   }

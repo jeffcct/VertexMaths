@@ -15,7 +15,11 @@
    is consistent: d = a*x0 + b - c*x0. This guarantees x always comes
    out a whole number.
 
-   Public API: VM.PracticeXBothSides.init({ onBack }), .start()
+   Learn mode shows a hint on method; Practice mode hides it. 10
+   correct in Learn switches a session to Practice for its remaining
+   questions — see js/practice-mode.js for the shared mechanism.
+
+   Public API: VM.PracticeXBothSides.init({ onBack }), .start(mode)
    ============================================================ */
 window.VM = window.VM || {};
 
@@ -25,9 +29,12 @@ VM.PracticeXBothSides = (function(){
 
   var X0_MIN = -10, X0_MAX = 10; // the chosen integer solution, never 0
 
+  var LEARN_HINT = 'Move all the x-terms to one side and the numbers to the other, then solve as usual.';
+
   var els = {};
   var current = null;    // { a, b, c, d, x }
   var score = { correct: 0, attempted: 0 };
+  var practiceMode = null;
   var answered = false;  // has the current question already been checked?
   var working = null;    // the "shown work" trail for the current question — see working-trail.js
 
@@ -87,6 +94,7 @@ VM.PracticeXBothSides = (function(){
     els.input.classList.remove('right', 'wrong');
     els.feedback.textContent = '';
     els.feedback.className = 'feedback';
+    els.hint.textContent = practiceMode.isLearn() ? LEARN_HINT : '';
     els.checkBtn.textContent = 'Check answer';
     els.input.focus();
   }
@@ -104,6 +112,9 @@ VM.PracticeXBothSides = (function(){
     if(ok){
       score.correct++;
       els.feedback.textContent = 'Correct — x = ' + current.x + '.';
+      if(practiceMode.recordCorrect()){
+        els.feedback.textContent += ' That’s 10 correct — switching to practice.';
+      }
       els.feedback.className = 'feedback correct';
       working.push('x = ' + current.x);
     } else {
@@ -138,6 +149,7 @@ VM.PracticeXBothSides = (function(){
     els.backBtn = document.getElementById('xbothsides-back-btn');
     els.workingCard = document.getElementById('xbothsides-working-card');
     els.workingLines = document.getElementById('xbothsides-working-lines');
+    els.hint = document.getElementById('xbothsides-hint');
     working = VM.WorkingTrail(els.workingCard, els.workingLines);
 
     els.input = document.getElementById('xbothsides-input');
@@ -151,8 +163,9 @@ VM.PracticeXBothSides = (function(){
     if(opts.onBack){ els.backBtn.addEventListener('click', opts.onBack); }
   }
 
-  function start(){
+  function start(mode){
     score = { correct: 0, attempted: 0 };
+    practiceMode = VM.PracticeMode.create(mode);
     els.score.textContent = '0 / 0';
     nextQuestion();
   }

@@ -13,24 +13,23 @@
    x-coordinate h = -b/2 comes out a whole number too):
      b = -(p + q), c = p*q, h = -b/2, k = h^2 + bh + c.
 
-   Below 3 questions answered, or under 90% accuracy, a three-step
-   scaffold:
+   Learn mode shows a three-step scaffold:
      1. table — substitute x = -2..2 into the equation.
      2. vertex — find (h, k) via h = -b/2, then substitute back for k.
      3. intercepts — factor to find where y = 0. This is the only
         scored step; the earlier two are ungraded scaffolding that
-        must be answered correctly to move on, but don't count
-        against accuracy.
-
-   At 3+ questions and 90%+ accuracy, the scaffold is skipped and the
-   question goes straight to the intercepts step.
+        must be answered correctly to move on.
+   Practice mode skips straight to the intercepts step — see
+   js/practice-mode.js for the shared Learn/Practice mechanism (10
+   correct in Learn switches a session to Practice for its remaining
+   questions).
 
    Checking the intercepts step — right or wrong — always reveals the
    actual parabola on the graph (grid-only until then), with its
    vertex and both x-intercepts marked, so the student sees what they
    were working towards either way.
 
-   Public API: VM.PracticeGraphQuadratic.init({ onBack }), .start()
+   Public API: VM.PracticeGraphQuadratic.init({ onBack }), .start(mode)
    ============================================================ */
 window.VM = window.VM || {};
 
@@ -42,12 +41,10 @@ VM.PracticeGraphQuadratic = (function(){
   var ROOT_MIN = -6, ROOT_MAX = 6; // p and q are drawn from here, never 0
   var TABLE_XS = [-2, -1, 0, 1, 2];
 
-  var SCAFFOLD_MIN_ATTEMPTS = 3;
-  var SCAFFOLD_MIN_ACCURACY = 0.90;
-
   var els = {};
   var current = null;    // { b, c, p, q, h, k }
   var score = { correct: 0, attempted: 0 };
+  var practiceMode = null;
   var steps = [];        // this question's step sequence: ['table','vertex','intercepts'] or ['intercepts']
   var stepIndex = 0;
   var stepAnswered = false; // has the CURRENT (non-final) step been answered correctly?
@@ -56,10 +53,6 @@ VM.PracticeGraphQuadratic = (function(){
 
   function toPx(x, y){ return grid.toPx(x, y); }
   function randInt(lo, hi){ return lo + Math.floor(Math.random() * (hi - lo + 1)); }
-  function accuracy(){ return score.attempted ? score.correct / score.attempted : 0; }
-  function needsScaffold(){
-    return score.attempted < SCAFFOLD_MIN_ATTEMPTS || accuracy() < SCAFFOLD_MIN_ACCURACY;
-  }
 
   // A nonzero integer in [ROOT_MIN, ROOT_MAX].
   function randRoot(){
@@ -105,7 +98,7 @@ VM.PracticeGraphQuadratic = (function(){
     var k = h * h + b * h + c;
     current = { b: b, c: c, p: pq.p, q: pq.q, h: h, k: k };
 
-    var scaffold = needsScaffold();
+    var scaffold = practiceMode.isLearn();
     steps = scaffold ? ['table', 'vertex', 'intercepts'] : ['intercepts'];
     stepIndex = 0;
     stepAnswered = false;
@@ -262,6 +255,9 @@ VM.PracticeGraphQuadratic = (function(){
       // Echo what was actually typed (may be in either order) rather
       // than the generator's own p/q order — see GitHub issue #17.
       els.feedback.textContent = 'Correct — the x-intercepts are ' + raw1 + ' and ' + raw2 + '.';
+      if(practiceMode.recordCorrect()){
+        els.feedback.textContent += ' That’s 10 correct — switching to practice.';
+      }
       els.feedback.className = 'feedback correct';
       working.push('x-intercepts: ' + raw1 + ', ' + raw2);
     } else {
@@ -336,8 +332,9 @@ VM.PracticeGraphQuadratic = (function(){
     if(opts.onBack){ els.backBtn.addEventListener('click', opts.onBack); }
   }
 
-  function start(){
+  function start(mode){
     score = { correct: 0, attempted: 0 };
+    practiceMode = VM.PracticeMode.create(mode);
     els.score.textContent = '0 / 0';
     nextQuestion();
   }
